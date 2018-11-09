@@ -1,8 +1,8 @@
 package remotes
 
 import (
-	"fmt"
 	"indeed/delivery/darwin/go/libdarwin"
+	"indeed/gophers/3rdparty/p/github.com/pkg/errors"
 	"indeed/gophers/rlog"
 )
 
@@ -24,7 +24,7 @@ func (darwin *DarwinRemote) ListRepositories() ([]string, error) {
 		page, err := darwin.client.GetProjects(i, 100)
 
 		if err != nil {
-			return nil, fmt.Errorf("failed to fetch projects from darwin: %v", err)
+			return nil, errors.Wrap(err, "failed to fetch projects from darwin")
 		}
 
 		pageUrls := make([]string, len(page))
