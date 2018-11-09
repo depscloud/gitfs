@@ -19,7 +19,7 @@ func usage() {
 	os.Exit(2)
 }
 
-func fail(message string, data... interface{}) {
+func fail(message string, data ...interface{}) {
 	fmt.Fprintf(os.Stderr, message, data...)
 	os.Exit(1)
 }
@@ -52,7 +52,7 @@ func main() {
 		// git@code.corp.indeed.com:squall/yellowhat-snapshots-prod.git
 		// git@<<HOST>>:<<PATH>>.git
 		host := repository[start:separator]
-		path := repository[separator + 1:end]
+		path := repository[separator+1 : end]
 
 		// expand into directory structure
 		parts := strings.Split(path, "/")

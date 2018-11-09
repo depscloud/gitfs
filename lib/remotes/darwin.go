@@ -19,8 +19,8 @@ type DarwinRemote struct {
 func (darwin *DarwinRemote) ListRepositories() ([]string, error) {
 	result := make([]string, 0)
 
-	for i := 0; true ; i += 1 {
-		rlog.Infof("Fetching page %d", i + 1)
+	for i := 0; true; i += 1 {
+		rlog.Infof("Fetching page %d", i+1)
 		page, err := darwin.client.GetProjects(i, 100)
 
 		if err != nil {

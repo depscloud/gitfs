@@ -6,7 +6,6 @@ import (
 	"golang.org/x/net/context"
 	"gopkg.in/src-d/go-billy.v4"
 	"indeed/gophers/3rdparty/p/github.com/pkg/errors"
-	"indeed/gophers/rlog"
 	"os"
 	"strings"
 	"sync"
@@ -16,11 +15,11 @@ import (
 
 type BillyDirectory struct {
 	path string
-	fs billy.Filesystem
+	fs   billy.Filesystem
 }
 
 func (b *BillyDirectory) Lookup(ctx context.Context, name string) (fs.Node, error) {
-	fullPath := strings.Join([]string {
+	fullPath := strings.Join([]string{
 		b.path,
 		name,
 	}, string(os.PathSeparator))
@@ -33,14 +32,14 @@ func (b *BillyDirectory) Lookup(ctx context.Context, name string) (fs.Node, erro
 	if finfo.IsDir() {
 		return &BillyDirectory{
 			path: fullPath,
-			fs: b.fs,
+			fs:   b.fs,
 		}, nil
 	}
 
 	return &BillyFile{
-		path: fullPath,
-		fs: b.fs,
-		mu: sync.Mutex{},
+		path:     fullPath,
+		fs:       b.fs,
+		mu:       sync.Mutex{},
 		refcount: 0,
 	}, nil
 }
@@ -80,17 +79,15 @@ func (b *BillyDirectory) Attr(ctx context.Context, attr *fuse.Attr) error {
 
 type BillyFile struct {
 	path string
-	fs billy.Filesystem
+	fs   billy.Filesystem
 
-	mu sync.Mutex
+	mu   sync.Mutex
 	file billy.File
 
 	refcount uint
 }
 
 func (b *BillyFile) Open(ctx context.Context, req *fuse.OpenRequest, resp *fuse.OpenResponse) (fs.Handle, error) {
-	rlog.Info("BillyFile#Open")
-
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
@@ -109,8 +106,6 @@ func (b *BillyFile) Open(ctx context.Context, req *fuse.OpenRequest, resp *fuse.
 }
 
 func (b *BillyFile) Attr(ctx context.Context, attr *fuse.Attr) error {
-	rlog.Info("BillyFile#Attr")
-
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
@@ -127,8 +122,6 @@ func (b *BillyFile) Attr(ctx context.Context, attr *fuse.Attr) error {
 }
 
 func (b *BillyFile) Write(ctx context.Context, req *fuse.WriteRequest, resp *fuse.WriteResponse) error {
-	rlog.Info("BillyFile#Write")
-
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
@@ -146,8 +139,6 @@ func (b *BillyFile) Write(ctx context.Context, req *fuse.WriteRequest, resp *fus
 }
 
 func (b *BillyFile) Read(ctx context.Context, req *fuse.ReadRequest, resp *fuse.ReadResponse) error {
-	rlog.Info("BillyFile#Read", req.Size, req.Offset)
-
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
@@ -161,8 +152,6 @@ func (b *BillyFile) Read(ctx context.Context, req *fuse.ReadRequest, resp *fuse.
 }
 
 func (b *BillyFile) Release(ctx context.Context, req *fuse.ReleaseRequest) error {
-	rlog.Info("BillyFile#Release")
-
 	if b.file == nil {
 		// nothing to release
 		return nil

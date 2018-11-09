@@ -28,7 +28,7 @@ func (d *Directory) Lookup(ctx context.Context, name string) (fs.Node, error) {
 
 		// shallow clone for now since we only support read only
 		repository, err := git.Clone(storage, fileSystem, &git.CloneOptions{
-			URL: node.URL,
+			URL:   node.URL,
 			Depth: 1,
 		})
 
@@ -44,11 +44,11 @@ func (d *Directory) Lookup(ctx context.Context, name string) (fs.Node, error) {
 
 		return &BillyDirectory{
 			path: "/",
-			fs: wt.Filesystem,
+			fs:   wt.Filesystem,
 		}, nil
 	}
 
-	return &Directory{ tree: node }, nil
+	return &Directory{tree: node}, nil
 }
 
 func (d *Directory) ReadDirAll(ctx context.Context) ([]fuse.Dirent, error) {
@@ -69,5 +69,3 @@ func (d *Directory) Attr(ctx context.Context, attr *fuse.Attr) error {
 	attr.Mode = os.ModeDir | 0755
 	return nil
 }
-
-
