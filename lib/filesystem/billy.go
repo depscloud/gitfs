@@ -3,10 +3,10 @@ package filesystem
 import (
 	"bazil.org/fuse"
 	"bazil.org/fuse/fs"
-	"bazil.org/fuse/fuseutil"
 	"golang.org/x/net/context"
 	"gopkg.in/src-d/go-billy.v4"
 	"indeed/gophers/3rdparty/p/github.com/pkg/errors"
+	"indeed/gophers/rlog"
 	"os"
 	"strings"
 	"sync"
@@ -83,32 +83,34 @@ type BillyFile struct {
 	fs billy.Filesystem
 
 	mu sync.Mutex
-	handle *BillyFileHandle
+	file billy.File
+
 	refcount uint
 }
 
 func (b *BillyFile) Open(ctx context.Context, req *fuse.OpenRequest, resp *fuse.OpenResponse) (fs.Handle, error) {
+	rlog.Info("BillyFile#Open")
+
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
-	if b.handle == nil {
+	if b.file == nil {
 		file, err := b.fs.Open(b.path)
 
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to open file at path: %s", b.path)
 		}
 
-		b.handle = &BillyFileHandle{
-			file: file,
-			billyFile: b,
-		}
+		b.file = file
 	}
 
 	b.refcount++
-	return b.handle, nil
+	return b, nil
 }
 
 func (b *BillyFile) Attr(ctx context.Context, attr *fuse.Attr) error {
+	rlog.Info("BillyFile#Attr")
+
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
@@ -119,32 +121,16 @@ func (b *BillyFile) Attr(ctx context.Context, attr *fuse.Attr) error {
 	}
 
 	attr.Size = uint64(info.Size())
+	attr.Mode = 0755
 
 	return nil
 }
 
-func (b *BillyFile) Release(ctx context.Context, req *fuse.ReleaseRequest) error {
+func (b *BillyFile) Write(ctx context.Context, req *fuse.WriteRequest, resp *fuse.WriteResponse) error {
+	rlog.Info("BillyFile#Write")
+
 	b.mu.Lock()
 	defer b.mu.Unlock()
-
-	b.refcount--
-	if b.refcount == 0 {
-		b.handle = nil
-	}
-
-	return nil
-}
-
-// file handles
-
-type BillyFileHandle struct {
-	file billy.File
-	billyFile *BillyFile
-}
-
-func (b *BillyFileHandle) Write(ctx context.Context, req *fuse.WriteRequest, resp *fuse.WriteResponse) error {
-	b.file.Lock()
-	defer b.file.Unlock()
 
 	n, err := b.file.Write(req.Data)
 
@@ -159,25 +145,36 @@ func (b *BillyFileHandle) Write(ctx context.Context, req *fuse.WriteRequest, res
 	return nil
 }
 
-func (b *BillyFileHandle) Read(ctx context.Context, req *fuse.ReadRequest, resp *fuse.ReadResponse) error {
-	b.file.Lock()
-	defer b.file.Unlock()
+func (b *BillyFile) Read(ctx context.Context, req *fuse.ReadRequest, resp *fuse.ReadResponse) error {
+	rlog.Info("BillyFile#Read", req.Size, req.Offset)
 
-	finfo, err := b.billyFile.fs.Stat(b.billyFile.path)
-	if err != nil {
-		return errors.Wrapf(err, "failed to stat file at path: %s", b.billyFile.path)
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	bytes := make([]byte, req.Size)
+	if _, err := b.file.ReadAt(bytes, req.Offset); err != nil {
+		return errors.Wrap(err, "failed to read data from file")
 	}
 
-	bytes := make([]byte, finfo.Size())
-
-	fuseutil.HandleRead(req, resp, bytes)
-
+	resp.Data = bytes
 	return nil
 }
 
-func (b *BillyFileHandle) Release(ctx context.Context, req *fuse.ReleaseRequest) error {
-	b.file.Lock()
-	defer b.file.Unlock()
+func (b *BillyFile) Release(ctx context.Context, req *fuse.ReleaseRequest) error {
+	rlog.Info("BillyFile#Release")
 
-	return b.billyFile.Release(ctx, req)
+	if b.file == nil {
+		// nothing to release
+		return nil
+	}
+
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	b.refcount--
+	if b.refcount == 0 {
+		b.file = nil
+	}
+
+	return nil
 }
