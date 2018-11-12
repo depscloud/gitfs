@@ -5,7 +5,7 @@ import (
 	"bazil.org/fuse/fs"
 	"golang.org/x/net/context"
 	"gopkg.in/src-d/go-billy.v4"
-	"indeed/gophers/3rdparty/p/github.com/pkg/errors"
+	"indeed/gophers/rlog"
 	"os"
 	"strings"
 	"sync"
@@ -18,15 +18,78 @@ type BillyDirectory struct {
 	fs   billy.Filesystem
 }
 
+func (b *BillyDirectory) Remove(ctx context.Context, req *fuse.RemoveRequest) error {
+	fullPath := strings.Join([]string{
+		b.path,
+		req.Name,
+	}, string(os.PathSeparator))
+
+	rlog.Infof("attempting to remove: %s", fullPath)
+
+	if err := b.fs.Remove(fullPath); err != nil {
+		rlog.Errorf("failed to remove node at path: %s, %v", fullPath, err)
+		return fuse.EPERM
+	}
+
+	return nil
+}
+
+func (b *BillyDirectory) Create(ctx context.Context, req *fuse.CreateRequest, resp *fuse.CreateResponse) (fs.Node, fs.Handle, error) {
+	fullPath := strings.Join([]string{
+		b.path,
+		req.Name,
+	}, string(os.PathSeparator))
+
+	rlog.Infof("attempting to create: %s", req.Name)
+
+	file, err := b.fs.Create(fullPath)
+
+	if err != nil {
+		rlog.Errorf("failed to create node at path: %s, %v", fullPath, err)
+		return nil, nil, fuse.EPERM
+	}
+
+	f := &BillyFile{
+		path: fullPath,
+		fs:   b.fs,
+		file: file,
+		refcount: 1,
+	}
+
+	return f, f, nil
+}
+
+func (b *BillyDirectory) Mkdir(ctx context.Context, req *fuse.MkdirRequest) (fs.Node, error) {
+	fullPath := strings.Join([]string{
+		b.path,
+		req.Name,
+	}, string(os.PathSeparator))
+
+	rlog.Infof("attempting to make directory: %s", fullPath)
+
+	if err := b.fs.MkdirAll(fullPath, 0755); err != nil {
+		rlog.Errorf("failed to mkdir for path: %s, %v", fullPath, err)
+		return nil, fuse.EPERM
+	}
+
+	return &BillyDirectory{
+		path: fullPath,
+		fs:   b.fs,
+	}, nil
+}
+
 func (b *BillyDirectory) Lookup(ctx context.Context, name string) (fs.Node, error) {
 	fullPath := strings.Join([]string{
 		b.path,
 		name,
 	}, string(os.PathSeparator))
 
+	rlog.Infof("attempting to lookup: %s", fullPath)
+
 	finfo, err := b.fs.Stat(fullPath)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to stat file at path: %s", fullPath)
+		rlog.Errorf("failed to stat file path: %s, %v", fullPath, err)
+		return nil, fuse.ENOENT
 	}
 
 	if finfo.IsDir() {
@@ -45,10 +108,13 @@ func (b *BillyDirectory) Lookup(ctx context.Context, name string) (fs.Node, erro
 }
 
 func (b *BillyDirectory) ReadDirAll(ctx context.Context) ([]fuse.Dirent, error) {
+	rlog.Infof("attempting to readdir: %s", b.path)
+
 	finfos, err := b.fs.ReadDir(b.path)
 
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to readdir: %s", b.path)
+		rlog.Errorf("failed toreaddir: %s, %v", b.path, err)
+		return nil, fuse.EPERM
 	}
 
 	dirents := make([]fuse.Dirent, len(finfos))
@@ -91,11 +157,14 @@ func (b *BillyFile) Open(ctx context.Context, req *fuse.OpenRequest, resp *fuse.
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
+	rlog.Infof("attempting to open: %s", b.path)
+
 	if b.file == nil {
 		file, err := b.fs.Open(b.path)
 
 		if err != nil {
-			return nil, errors.Wrapf(err, "failed to open file at path: %s", b.path)
+			rlog.Errorf("failed to open file at path: %s, %v", b.path, err)
+			return nil, fuse.EPERM
 		}
 
 		b.file = file
@@ -109,13 +178,13 @@ func (b *BillyFile) Attr(ctx context.Context, attr *fuse.Attr) error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
-	// readonly
 	info, err := b.fs.Stat(b.path)
-	if err != nil {
-		return nil
+	if err == nil {
+		attr.Size = uint64(info.Size())
+	} else {
+		attr.Size = 0
 	}
 
-	attr.Size = uint64(info.Size())
 	attr.Mode = 0755
 
 	return nil
@@ -125,14 +194,18 @@ func (b *BillyFile) Write(ctx context.Context, req *fuse.WriteRequest, resp *fus
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
+	rlog.Infof("attempting to write: %s", b.path)
+
 	n, err := b.file.Write(req.Data)
 
 	if err != nil {
-		return errors.Wrap(err, "failed to write data to file")
+		rlog.Errorf("failed to write data to file; %v", err)
+		return fuse.EPERM
 	}
 
 	if n != len(req.Data) {
-		return errors.Wrap(err, "failed to write all data to file")
+		rlog.Errorf("failed to write all data to file")
+		return fuse.EPERM
 	}
 
 	return nil
@@ -142,9 +215,12 @@ func (b *BillyFile) Read(ctx context.Context, req *fuse.ReadRequest, resp *fuse.
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
+	rlog.Infof("attempting to read: %s", b.path)
+
 	bytes := make([]byte, req.Size)
 	if _, err := b.file.ReadAt(bytes, req.Offset); err != nil {
-		return errors.Wrap(err, "failed to read data from file")
+		rlog.Errorf("failed to read data from file; %v", err)
+		return fuse.EPERM
 	}
 
 	resp.Data = bytes

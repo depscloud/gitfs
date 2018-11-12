@@ -8,7 +8,7 @@ import (
 	"gopkg.in/src-d/go-billy.v4/memfs"
 	"gopkg.in/src-d/go-git.v4"
 	gitmemory "gopkg.in/src-d/go-git.v4/storage/memory"
-	"indeed/gophers/3rdparty/p/github.com/pkg/errors"
+	"indeed/gophers/rlog"
 	"os"
 )
 
@@ -26,6 +26,8 @@ func (d *Directory) Lookup(ctx context.Context, name string) (fs.Node, error) {
 		storage := gitmemory.NewStorage()
 		fileSystem := memfs.New()
 
+		rlog.Infof("cloning repository: %s", node.URL)
+
 		// shallow clone for now since we only support read only
 		repository, err := git.Clone(storage, fileSystem, &git.CloneOptions{
 			URL:   node.URL,
@@ -33,17 +35,19 @@ func (d *Directory) Lookup(ctx context.Context, name string) (fs.Node, error) {
 		})
 
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to clone repository: %v")
+			rlog.Error("failed to clone repository: %v", err)
+			return nil, fuse.ENOENT
 		}
 
 		wt, err := repository.Worktree()
 
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to obtain work tree")
+			rlog.Error("failed to obtain work tree: %v", err)
+			return nil, fuse.ENOENT
 		}
 
 		return &BillyDirectory{
-			path: "/",
+			path: "",
 			fs:   wt.Filesystem,
 		}, nil
 	}
