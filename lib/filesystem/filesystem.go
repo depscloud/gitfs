@@ -12,7 +12,5 @@ type FileSystem struct {
 var _ fs.FS = (*FileSystem)(nil)
 
 func (fs *FileSystem) Root() (fs.Node, error) {
-	return &Directory{
-		tree: fs.Tree,
-	}, nil
+	return NewDirectory(fs.Tree), nil
 }

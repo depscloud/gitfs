@@ -10,17 +10,42 @@ import (
 	gitmemory "gopkg.in/src-d/go-git.v4/storage/memory"
 	"indeed/gophers/rlog"
 	"os"
+	"sync"
 )
+
+func NewDirectory(tree *gitfstree.TreeNode) fs.Node {
+	cache := make(map[string]fs.Node)
+
+	return &Directory{
+		tree:      tree,
+		cacheLock: sync.Mutex{},
+		cache:     cache,
+	}
+}
 
 type Directory struct {
 	tree *gitfstree.TreeNode
+
+	// use a cache so that you always get the same reference back
+	// todo: prune cache
+	cacheLock sync.Mutex
+	cache     map[string]fs.Node
 }
 
 func (d *Directory) Lookup(ctx context.Context, name string) (fs.Node, error) {
+	d.cacheLock.Lock()
+	defer d.cacheLock.Unlock()
+
 	node, ok := d.tree.Child(name)
 	if !ok {
 		return nil, fuse.ENOENT
 	}
+
+	if entry, ok := d.cache[name]; ok {
+		return entry, nil
+	}
+
+	var directory fs.Node
 
 	if len(node.URL) > 0 {
 		storage := gitmemory.NewStorage()
@@ -46,16 +71,20 @@ func (d *Directory) Lookup(ctx context.Context, name string) (fs.Node, error) {
 			return nil, fuse.ENOENT
 		}
 
-		return &BillyDirectory{
+		directory = &BillyDirectory{
 			path: "",
 			fs:   wt.Filesystem,
-		}, nil
+		}
+	} else {
+		directory = NewDirectory(node)
 	}
 
-	return &Directory{tree: node}, nil
+	d.cache[name] = directory
+	return directory, nil
 }
 
 func (d *Directory) ReadDirAll(ctx context.Context) ([]fuse.Dirent, error) {
+	// tree is immutable, no need to lock
 	children := d.tree.Children()
 
 	dirents := make([]fuse.Dirent, len(children))

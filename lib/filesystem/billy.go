@@ -6,6 +6,8 @@ import (
 	"golang.org/x/net/context"
 	"gopkg.in/src-d/go-billy.v4"
 	"indeed/gophers/rlog"
+	"io"
+	"math"
 	"os"
 	"strings"
 	"sync"
@@ -42,10 +44,9 @@ func (b *BillyDirectory) Create(ctx context.Context, req *fuse.CreateRequest, re
 
 	rlog.Infof("attempting to create: %s", req.Name)
 
-	file, err := b.fs.Create(fullPath)
-
+	file, err := createOrOpenFile(b.fs, fullPath)
 	if err != nil {
-		rlog.Errorf("failed to create node at path: %s, %v", fullPath, err)
+		rlog.Errorf("failed to open file for writing: %s", fullPath)
 		return nil, nil, fuse.EPERM
 	}
 
@@ -88,7 +89,6 @@ func (b *BillyDirectory) Lookup(ctx context.Context, name string) (fs.Node, erro
 
 	finfo, err := b.fs.Stat(fullPath)
 	if err != nil {
-		rlog.Errorf("failed to stat file path: %s, %v", fullPath, err)
 		return nil, fuse.ENOENT
 	}
 
@@ -153,6 +153,31 @@ type BillyFile struct {
 	refcount uint
 }
 
+func createOrOpenFile(fs billy.Filesystem, path string) (billy.File, error) {
+	if _, err := fs.Stat(path); err != nil {
+		// file does not exist, create it
+		if _, err := fs.Create(path); err != nil {
+			rlog.Errorf("failed to create file at path: %s, %v", path, err)
+			return nil, fuse.EPERM
+		}
+	}
+
+	file, err := fs.OpenFile(path, os.O_RDWR, 0755)
+
+	if err != nil {
+		rlog.Errorf("failed to open file at path: %s, %v", path, err)
+		return nil, fuse.EPERM
+	}
+
+	return file, nil
+}
+
+func (b *BillyFile) Flush(ctx context.Context, req *fuse.FlushRequest) error {
+	rlog.Info("attempting to flush")
+
+	return nil
+}
+
 func (b *BillyFile) Open(ctx context.Context, req *fuse.OpenRequest, resp *fuse.OpenResponse) (fs.Handle, error) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -160,13 +185,10 @@ func (b *BillyFile) Open(ctx context.Context, req *fuse.OpenRequest, resp *fuse.
 	rlog.Infof("attempting to open: %s", b.path)
 
 	if b.file == nil {
-		file, err := b.fs.Open(b.path)
-
+		file, err := createOrOpenFile(b.fs, b.path)
 		if err != nil {
-			rlog.Errorf("failed to open file at path: %s, %v", b.path, err)
-			return nil, fuse.EPERM
+			return nil, err
 		}
-
 		b.file = file
 	}
 
@@ -185,8 +207,7 @@ func (b *BillyFile) Attr(ctx context.Context, attr *fuse.Attr) error {
 		attr.Size = 0
 	}
 
-	attr.Mode = 0755
-
+	attr.Mode = info.Mode()
 	return nil
 }
 
@@ -194,7 +215,7 @@ func (b *BillyFile) Write(ctx context.Context, req *fuse.WriteRequest, resp *fus
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
-	rlog.Infof("attempting to write: %s", b.path)
+	rlog.Infof("attempting to write: %s [offset=%d, length=%d]", b.path, req.Offset, len(req.Data))
 
 	n, err := b.file.Write(req.Data)
 
@@ -208,6 +229,8 @@ func (b *BillyFile) Write(ctx context.Context, req *fuse.WriteRequest, resp *fus
 		return fuse.EPERM
 	}
 
+	resp.Size = n
+
 	return nil
 }
 
@@ -215,15 +238,35 @@ func (b *BillyFile) Read(ctx context.Context, req *fuse.ReadRequest, resp *fuse.
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
-	rlog.Infof("attempting to read: %s", b.path)
+	rlog.Infof("attempting to read: %s [offset=%d, length=%d]", b.path, req.Offset, req.Size)
 
-	bytes := make([]byte, req.Size)
+	// seek to the start of the file
+	// todo: refactor this to buffer in memory instead of reading from disk all the time
+	pos, err := b.file.Seek(0, io.SeekStart)
+	if err != nil || pos != 0 {
+		return fuse.EPERM
+	}
+
+	// handle the case where we request a larger readableSize then what is available
+	finfo, err := b.fs.Stat(b.path)
+	if err != nil {
+		return fuse.EPERM
+	}
+
+	reqSize := float64(req.Size)
+	finfoSize := float64(finfo.Size())
+
+	readableSize := int(math.Min(reqSize, finfoSize))
+
+	bytes := make([]byte, readableSize)
 	if _, err := b.file.ReadAt(bytes, req.Offset); err != nil {
 		rlog.Errorf("failed to read data from file; %v", err)
 		return fuse.EPERM
 	}
 
-	resp.Data = bytes
+	resp.Data = make([]byte, req.Size)
+	copy(resp.Data, bytes)
+
 	return nil
 }
 
