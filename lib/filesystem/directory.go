@@ -74,6 +74,7 @@ func (d *Directory) Lookup(ctx context.Context, name string) (fs.Node, error) {
 		directory = &BillyDirectory{
 			path: "",
 			fs:   wt.Filesystem,
+			mu:   sync.Mutex{},
 		}
 	} else {
 		directory = NewDirectory(node)
