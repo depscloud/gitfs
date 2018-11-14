@@ -188,14 +188,20 @@ func (b *BillyFile) Open(ctx context.Context, req *fuse.OpenRequest, resp *fuse.
 	if b.file == nil {
 		finfo, file, err := createOrOpenFile(b.fs, b.path)
 		if err != nil {
+			rlog.Error("failed to createOrOpenFile: %s, %v", b.path, err)
 			return nil, err
 		}
 
-		b.data = make([]byte, finfo.Size())
-		if _, err := file.Read(b.data); err != nil {
-			return nil, fuse.EPERM
+		data := make([]byte, finfo.Size())
+
+		if finfo.Size() > 0 {
+			if _, err := file.Read(data); err != nil {
+				rlog.Errorf("failed to read data from file: %s, %d, %v", b.path, finfo.Size(), err)
+				return nil, fuse.EPERM
+			}
 		}
 
+		b.data = data
 		b.file = file
 	}
 
@@ -273,6 +279,8 @@ func (b *BillyFile) Write(ctx context.Context, req *fuse.WriteRequest, resp *fus
 	resp.Size = n
 	return nil
 }
+
+
 
 func (b *BillyFile) Flush(ctx context.Context, req *fuse.FlushRequest) error {
 	b.mu.Lock()
