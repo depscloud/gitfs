@@ -10,6 +10,8 @@ import (
 	"github.com/indeedeng/gitfs/lib/tree"
 	"indeed/gophers/rlog"
 	"os"
+	"os/user"
+	"strconv"
 	"strings"
 )
 
@@ -72,7 +74,17 @@ func main() {
 	}
 	defer c.Close()
 
+	currentUser, err := user.Current()
+	if err != nil {
+		fail("failed to determine current user: %v", err)
+	}
+
+	uid, _ := strconv.Atoi(currentUser.Uid)
+	gid, _ := strconv.Atoi(currentUser.Gid)
+
 	filesys := &filesystem.FileSystem{
+		Uid: uint32(uid),
+		Gid: uint32(gid),
 		Tree: tree,
 	}
 

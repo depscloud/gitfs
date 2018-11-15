@@ -13,10 +13,12 @@ import (
 	"sync"
 )
 
-func NewDirectory(tree *gitfstree.TreeNode) fs.Node {
+func NewDirectory(uid, gid uint32, tree *gitfstree.TreeNode) fs.Node {
 	cache := make(map[string]fs.Node)
 
 	return &Directory{
+		uid:	   uid,
+		gid:	   gid,
 		tree:      tree,
 		cacheLock: sync.Mutex{},
 		cache:     cache,
@@ -24,6 +26,8 @@ func NewDirectory(tree *gitfstree.TreeNode) fs.Node {
 }
 
 type Directory struct {
+	uid uint32
+	gid uint32
 	tree *gitfstree.TreeNode
 
 	// use a cache so that you always get the same reference back
@@ -72,12 +76,14 @@ func (d *Directory) Lookup(ctx context.Context, name string) (fs.Node, error) {
 		}
 
 		directory = &BillyDirectory{
+			uid: d.uid,
+			gid: d.gid,
 			path: "",
 			fs:   wt.Filesystem,
 			mu:   sync.Mutex{},
 		}
 	} else {
-		directory = NewDirectory(node)
+		directory = NewDirectory(d.uid, d.gid, node)
 	}
 
 	d.cache[name] = directory

@@ -6,11 +6,13 @@ import (
 )
 
 type FileSystem struct {
+	Uid uint32
+	Gid uint32
 	Tree *gitfstree.TreeNode
 }
 
 var _ fs.FS = (*FileSystem)(nil)
 
 func (fs *FileSystem) Root() (fs.Node, error) {
-	return NewDirectory(fs.Tree), nil
+	return NewDirectory(fs.Uid, fs.Gid, fs.Tree), nil
 }

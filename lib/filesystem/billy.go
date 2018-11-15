@@ -34,6 +34,8 @@ func debug(obj interface{}, method, path string, req interface{}) {
 // directories
 
 type BillyDirectory struct {
+	uid uint32
+	gid uint32
 	path string
 	fs   billy.Filesystem
 
@@ -68,6 +70,8 @@ func (b *BillyDirectory) Symlink(ctx context.Context, req *fuse.SymlinkRequest) 
 	}
 
 	return &Symlink{
+		uid: b.uid,
+		gid: b.gid,
 		path: fullPath,
 		fs: b.fs,
 		dir: true,
@@ -105,6 +109,8 @@ func (b *BillyDirectory) Create(ctx context.Context, req *fuse.CreateRequest, re
 	}
 
 	f := &BillyFile{
+		uid: b.uid,
+		gid: b.gid,
 		path:     fullPath,
 		fs:       b.fs,
 		file:     file,
@@ -128,6 +134,8 @@ func (b *BillyDirectory) Mkdir(ctx context.Context, req *fuse.MkdirRequest) (fs.
 	}
 
 	return &BillyDirectory{
+		uid: b.uid,
+		gid: b.gid,
 		path: fullPath,
 		fs:   b.fs,
 	}, nil
@@ -143,6 +151,8 @@ func (b *BillyDirectory) Lookup(ctx context.Context, name string) (fs.Node, erro
 
 	if _, err := b.fs.Readlink(fullPath); err == nil {
 		return &Symlink{
+			uid: b.uid,
+			gid: b.gid,
 			path: fullPath,
 			fs: b.fs,
 		}, nil
@@ -155,12 +165,16 @@ func (b *BillyDirectory) Lookup(ctx context.Context, name string) (fs.Node, erro
 
 	if finfo.IsDir() {
 		return &BillyDirectory{
+			uid: b.uid,
+			gid: b.gid,
 			path: fullPath,
 			fs:   b.fs,
 		}, nil
 	}
 
 	return &BillyFile{
+		uid: b.uid,
+		gid: b.gid,
 		path:     fullPath,
 		fs:       b.fs,
 		mu:       sync.Mutex{},
@@ -195,6 +209,8 @@ func (b *BillyDirectory) ReadDirAll(ctx context.Context) ([]fuse.Dirent, error) 
 }
 
 func (b *BillyDirectory) Attr(ctx context.Context, attr *fuse.Attr) error {
+	attr.Uid = b.uid
+	attr.Gid = b.gid
 	attr.Mode = os.ModeDir | defaultPerms
 
 	return nil
@@ -203,6 +219,8 @@ func (b *BillyDirectory) Attr(ctx context.Context, attr *fuse.Attr) error {
 // files
 
 type BillyFile struct {
+	uid uint32
+	gid uint32
 	path string
 	fs   billy.Filesystem
 
@@ -287,6 +305,8 @@ func (b *BillyFile) Attr(ctx context.Context, attr *fuse.Attr) error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
+	attr.Uid = b.uid
+	attr.Gid = b.gid
 	attr.Size = 0
 	attr.Mode = defaultPerms
 
@@ -368,8 +388,6 @@ func (b *BillyFile) Setattr(ctx context.Context, req *fuse.SetattrRequest, resp 
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
-	debug(b, "Setattr", b.path, req)
-
 	if req.Valid.Size() {
 		if req.Size > uint64(maxInt) {
 			return fuse.Errno(syscall.EFBIG)
@@ -391,6 +409,8 @@ func (b *BillyFile) Setattr(ctx context.Context, req *fuse.SetattrRequest, resp 
 // simple symlink struct
 
 type Symlink struct {
+	uid uint32
+	gid uint32
 	path string
 	fs billy.Filesystem
 	dir bool
@@ -404,6 +424,9 @@ func (s *Symlink) Readlink(ctx context.Context, req *fuse.ReadlinkRequest) (stri
 }
 
 func (s *Symlink) Attr(ctx context.Context, attr *fuse.Attr) error {
+	attr.Uid = s.uid
+	attr.Gid = s.gid
+	attr.Size = uint64(len(s.path))
 	attr.Mode = os.ModeSymlink | defaultPerms
 
 	if s.dir {
