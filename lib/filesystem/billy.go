@@ -4,14 +4,32 @@ import (
 	"bazil.org/fuse"
 	"bazil.org/fuse/fs"
 	"bazil.org/fuse/fuseutil"
+	"encoding/json"
 	"golang.org/x/net/context"
 	"gopkg.in/src-d/go-billy.v4"
 	"indeed/gophers/rlog"
 	"io"
 	"os"
+	"reflect"
 	"sync"
 	"syscall"
 )
+
+const defaultPerms = 0755
+
+func debug(obj interface{}, method, path string, req interface{}) {
+	data, err := json.Marshal(req)
+	if err != nil {
+		panic(err)
+	}
+
+	rlog.Infof(
+		"%s#%s [path=%s] [req=%s]",
+		reflect.TypeOf(obj),
+		method, path,
+		string(data),
+	)
+}
 
 // directories
 
@@ -22,13 +40,47 @@ type BillyDirectory struct {
 	mu sync.Mutex
 }
 
+func (b *BillyDirectory) Rename(ctx context.Context, req *fuse.RenameRequest, newDir fs.Node) error {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	debug(b, "Rename", b.path, req)
+
+	oldFullPath := b.fs.Join(b.path, req.OldName)
+	newFullPath := b.fs.Join(b.path, req.NewName)
+
+	return b.fs.Rename(oldFullPath, newFullPath)
+}
+
+func (b *BillyDirectory) Symlink(ctx context.Context, req *fuse.SymlinkRequest) (fs.Node, error) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	debug(b, "Symlink", b.path, req)
+
+	fullPath := b.fs.Join(b.path, req.NewName)
+
+	err := b.fs.Symlink(req.Target, fullPath)
+
+	if err != nil {
+		rlog.Errorf("failed to symlink %s to %s, %v", b.path, req.Target, err)
+		return nil, fuse.EPERM
+	}
+
+	return &Symlink{
+		path: fullPath,
+		fs: b.fs,
+		dir: true,
+	}, nil
+}
+
 func (b *BillyDirectory) Remove(ctx context.Context, req *fuse.RemoveRequest) error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
-	fullPath := b.fs.Join(b.path, req.Name)
+	debug(b, "Remove", b.path, req)
 
-	rlog.Infof("attempting to remove: %s", fullPath)
+	fullPath := b.fs.Join(b.path, req.Name)
 
 	if err := b.fs.Remove(fullPath); err != nil {
 		rlog.Errorf("failed to remove node at path: %s, %v", fullPath, err)
@@ -42,9 +94,9 @@ func (b *BillyDirectory) Create(ctx context.Context, req *fuse.CreateRequest, re
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
-	fullPath := b.fs.Join(b.path, req.Name)
+	debug(b, "Create", b.path, req)
 
-	rlog.Infof("attempting to create: %s", req.Name)
+	fullPath := b.fs.Join(b.path, req.Name)
 
 	_, file, err := createOrOpenFile(b.fs, fullPath)
 	if err != nil {
@@ -66,11 +118,11 @@ func (b *BillyDirectory) Mkdir(ctx context.Context, req *fuse.MkdirRequest) (fs.
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
+	debug(b, "Mkdir", b.path, req)
+
 	fullPath := b.fs.Join(b.path, req.Name)
 
-	rlog.Infof("attempting to make directory: %s", fullPath)
-
-	if err := b.fs.MkdirAll(fullPath, 0755); err != nil {
+	if err := b.fs.MkdirAll(fullPath, defaultPerms); err != nil {
 		rlog.Errorf("failed to mkdir for path: %s, %v", fullPath, err)
 		return nil, fuse.EPERM
 	}
@@ -85,9 +137,16 @@ func (b *BillyDirectory) Lookup(ctx context.Context, name string) (fs.Node, erro
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
+	debug(b, "Lookup", b.path, name)
+
 	fullPath := b.fs.Join(b.path, name)
 
-	rlog.Infof("attempting to lookup: %s", fullPath)
+	if _, err := b.fs.Readlink(fullPath); err == nil {
+		return &Symlink{
+			path: fullPath,
+			fs: b.fs,
+		}, nil
+	}
 
 	finfo, err := b.fs.Stat(fullPath)
 	if err != nil {
@@ -113,12 +172,12 @@ func (b *BillyDirectory) ReadDirAll(ctx context.Context) ([]fuse.Dirent, error) 
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
-	rlog.Infof("attempting to readdir: %s", b.path)
+	debug(b, "ReadDirAll", b.path, nil)
 
 	finfos, err := b.fs.ReadDir(b.path)
 
 	if err != nil {
-		rlog.Errorf("failed toreaddir: %s, %v", b.path, err)
+		rlog.Errorf("failed to readdir: %s, %v", b.path, err)
 		return nil, fuse.EPERM
 	}
 
@@ -126,13 +185,8 @@ func (b *BillyDirectory) ReadDirAll(ctx context.Context) ([]fuse.Dirent, error) 
 	for i := 0; i < len(finfos); i++ {
 		finfo := finfos[i]
 
-		direntType := fuse.DT_File
-		if finfo.IsDir() {
-			direntType = fuse.DT_Dir
-		}
-
 		dirents[i] = fuse.Dirent{
-			Type: direntType,
+			Type: fuse.DT_Unknown,
 			Name: finfo.Name(),
 		}
 	}
@@ -141,7 +195,7 @@ func (b *BillyDirectory) ReadDirAll(ctx context.Context) ([]fuse.Dirent, error) 
 }
 
 func (b *BillyDirectory) Attr(ctx context.Context, attr *fuse.Attr) error {
-	attr.Mode = os.ModeDir | 0755
+	attr.Mode = os.ModeDir | defaultPerms
 
 	return nil
 }
@@ -169,7 +223,7 @@ func createOrOpenFile(fs billy.Filesystem, path string) (os.FileInfo, billy.File
 		}
 	}
 
-	file, err := fs.OpenFile(path, os.O_RDWR, 0755)
+	file, err := fs.OpenFile(path, os.O_RDWR, defaultPerms)
 
 	if err != nil {
 		rlog.Errorf("failed to open file at path: %s, %v", path, err)
@@ -183,7 +237,7 @@ func (b *BillyFile) Open(ctx context.Context, req *fuse.OpenRequest, resp *fuse.
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
-	rlog.Infof("attempting to open: %s", b.path)
+	debug(b, "Open", b.path, req)
 
 	if b.file == nil {
 		finfo, file, err := createOrOpenFile(b.fs, b.path)
@@ -218,6 +272,8 @@ func (b *BillyFile) Release(ctx context.Context, req *fuse.ReleaseRequest) error
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
+	debug(b, "Release", b.path, req)
+
 	b.refcount--
 	if b.refcount == 0 {
 		b.data = nil
@@ -232,7 +288,7 @@ func (b *BillyFile) Attr(ctx context.Context, attr *fuse.Attr) error {
 	defer b.mu.Unlock()
 
 	attr.Size = 0
-	attr.Mode = 0644
+	attr.Mode = defaultPerms
 
 	if b.file == nil {
 		info, err := b.fs.Stat(b.path)
@@ -250,7 +306,7 @@ func (b *BillyFile) Read(ctx context.Context, req *fuse.ReadRequest, resp *fuse.
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
-	rlog.Infof("attempting to read: %s [offset=%d, length=%d]", b.path, req.Offset, req.Size)
+	debug(b, "Read", b.path, req)
 
 	fuseutil.HandleRead(req, resp, b.data)
 
@@ -263,7 +319,7 @@ func (b *BillyFile) Write(ctx context.Context, req *fuse.WriteRequest, resp *fus
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
-	rlog.Infof("attempting to write: %s [offset=%d, length=%d]", b.path, req.Offset, len(req.Data))
+	debug(b, "Write", b.path, req)
 
 	// expand the buffer if necessary
 	newLen := req.Offset + int64(len(req.Data))
@@ -280,13 +336,11 @@ func (b *BillyFile) Write(ctx context.Context, req *fuse.WriteRequest, resp *fus
 	return nil
 }
 
-
-
 func (b *BillyFile) Flush(ctx context.Context, req *fuse.FlushRequest) error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
-	rlog.Info("attempting to flush")
+	debug(b, "Flush", b.path, req)
 
 	_, err := b.file.Seek(0, io.SeekStart)
 
@@ -314,6 +368,8 @@ func (b *BillyFile) Setattr(ctx context.Context, req *fuse.SetattrRequest, resp 
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
+	debug(b, "Setattr", b.path, req)
+
 	if req.Valid.Size() {
 		if req.Size > uint64(maxInt) {
 			return fuse.Errno(syscall.EFBIG)
@@ -327,6 +383,31 @@ func (b *BillyFile) Setattr(ctx context.Context, req *fuse.SetattrRequest, resp 
 		case newLen < len(b.data):
 			b.data = b.data[:newLen]
 		}
+	}
+
+	return nil
+}
+
+// simple symlink struct
+
+type Symlink struct {
+	path string
+	fs billy.Filesystem
+	dir bool
+}
+
+func (s *Symlink) Readlink(ctx context.Context, req *fuse.ReadlinkRequest) (string, error) {
+	debug(s, "Readlink", s.path, req)
+
+	link, err := s.fs.Readlink(s.path)
+	return link, err
+}
+
+func (s *Symlink) Attr(ctx context.Context, attr *fuse.Attr) error {
+	attr.Mode = os.ModeSymlink | defaultPerms
+
+	if s.dir {
+		attr.Mode = attr.Mode | os.ModeDir
 	}
 
 	return nil
