@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"golang.org/x/net/context"
-	"gopkg.in/src-d/go-git.v4"
+	"gopkg.in/src-d/go-billy.v4"
 	"indeed/gophers/rlog"
 	"math"
 	"os"
@@ -51,7 +51,7 @@ type BillyUser struct {
 
 type BillyNode struct {
 	// common between directories and files
-	wt   *git.Worktree
+	fs   billy.Filesystem
 	path string
 
 	// used only for symlinks
@@ -110,7 +110,7 @@ func (n *BillyNode) Flush(ctx context.Context, req *fuse.FlushRequest) error {
 	n.mu.Lock()
 	defer n.mu.Unlock()
 
-	file, err := n.wt.Filesystem.OpenFile(n.path, os.O_WRONLY, defaultPerms)
+	file, err := n.fs.OpenFile(n.path, os.O_WRONLY, defaultPerms)
 	if err != nil {
 		return err
 	}
@@ -204,22 +204,22 @@ func (n *BillyNode) Symlink(ctx context.Context, req *fuse.SymlinkRequest) (fs.N
 		return node, nil
 	}
 
-	fullPath := n.wt.Filesystem.Join(n.path, req.NewName)
+	fullPath := n.fs.Join(n.path, req.NewName)
 
-	if err := n.wt.Filesystem.Symlink(req.Target, fullPath); err != nil {
+	if err := n.fs.Symlink(req.Target, fullPath); err != nil {
 		// assumes it already exists
 		return nil, fuse.EEXIST
 	}
 
 	node := &BillyNode{
-		wt:     n.wt,
+		fs:     n.fs,
 		path:   fullPath,
 		target: req.Target,
 		user:   n.user,
 		mode:   os.ModeSymlink | defaultPerms,
 		size:   uint64(len(req.Target)),
 		data:   nil,
-		mu:     n.mu,
+		mu:     &sync.Mutex{},
 	}
 
 	n.cache[req.NewName] = node
@@ -241,10 +241,10 @@ func (n *BillyNode) Rename(ctx context.Context, req *fuse.RenameRequest, newDir 
 	n.mu.Lock()
 	defer n.mu.Unlock()
 
-	oldFullPath := n.wt.Filesystem.Join(n.path, req.OldName)
-	newFullPath := n.wt.Filesystem.Join(newBillyNode.path, req.NewName)
+	oldFullPath := n.fs.Join(n.path, req.OldName)
+	newFullPath := n.fs.Join(newBillyNode.path, req.NewName)
 
-	return n.wt.Filesystem.Rename(oldFullPath, newFullPath)
+	return n.fs.Rename(oldFullPath, newFullPath)
 }
 
 func (n *BillyNode) Remove(ctx context.Context, req *fuse.RemoveRequest) error {
@@ -257,9 +257,9 @@ func (n *BillyNode) Remove(ctx context.Context, req *fuse.RemoveRequest) error {
 	n.mu.Lock()
 	defer n.mu.Unlock()
 
-	fullPath := n.wt.Filesystem.Join(n.path, req.Name)
+	fullPath := n.fs.Join(n.path, req.Name)
 
-	if err := n.wt.Filesystem.Remove(fullPath); err != nil {
+	if err := n.fs.Remove(fullPath); err != nil {
 		return fuse.ENOENT
 	}
 
@@ -302,21 +302,21 @@ func (n *BillyNode) Mkdir(ctx context.Context, req *fuse.MkdirRequest) (fs.Node,
 		return node, nil
 	}
 
-	fullPath := n.wt.Filesystem.Join(n.path, req.Name)
+	fullPath := n.fs.Join(n.path, req.Name)
 
-	if err := n.wt.Filesystem.MkdirAll(fullPath, defaultPerms); err != nil {
+	if err := n.fs.MkdirAll(fullPath, defaultPerms); err != nil {
 		return nil, fuse.EEXIST
 	}
 
 	node := &BillyNode{
-		wt:     n.wt,
+		fs:     n.fs,
 		path:   fullPath,
 		target: "",
 		user:   n.user,
 		mode:   os.ModeDir | defaultPerms,
 		size:   0,
 		data:   nil,
-		mu:     n.mu,
+		mu:     &sync.Mutex{},
 		cache:  make(map[string]*BillyNode),
 	}
 
@@ -334,7 +334,7 @@ func (n *BillyNode) ReadDirAll(ctx context.Context) ([]fuse.Dirent, error) {
 	n.mu.Lock()
 	defer n.mu.Unlock()
 
-	finfos, err := n.wt.Filesystem.ReadDir(n.path)
+	finfos, err := n.fs.ReadDir(n.path)
 	if err != nil {
 		return nil, fuse.ENOENT
 	}
@@ -434,37 +434,37 @@ func (n *BillyNode) createOrOpen(name string, create bool) (*BillyNode, error) {
 		return node, nil
 	}
 
-	fullPath := n.wt.Filesystem.Join(n.path, name)
+	fullPath := n.fs.Join(n.path, name)
 
 	// symlink
-	if target, err := n.wt.Filesystem.Readlink(fullPath); err == nil {
+	if target, err := n.fs.Readlink(fullPath); err == nil {
 		node := &BillyNode{
-			wt:     n.wt,
+			fs:     n.fs,
 			path:   fullPath,
 			target: target,
 			user:   n.user,
 			mode:   os.ModeSymlink | defaultPerms,
 			size:   uint64(len(target)),
 			data:   nil,
-			mu:     n.mu,
+			mu:     &sync.Mutex{},
 			cache:  make(map[string]*BillyNode),
 		}
 		n.cache[name] = node
 		return node, nil
 	}
 
-	finfo, err := n.wt.Filesystem.Stat(fullPath)
+	finfo, err := n.fs.Stat(fullPath)
 	if err == nil {
 		// file exists, create reference
 		node := &BillyNode{
-			wt:     n.wt,
+			fs:     n.fs,
 			path:   fullPath,
 			target: "",
 			user:   n.user,
 			mode:   finfo.Mode(),
 			size:   uint64(finfo.Size()),
 			data:   nil,
-			mu:     n.mu,
+			mu:     &sync.Mutex{},
 			cache:  make(map[string]*BillyNode),
 		}
 
@@ -476,20 +476,20 @@ func (n *BillyNode) createOrOpen(name string, create bool) (*BillyNode, error) {
 	}
 
 	// don't use bfs.Create since it assigns 666 permissions
-	if _, err := n.wt.Filesystem.OpenFile(fullPath, createFileFlags, defaultPerms); err != nil {
+	if _, err := n.fs.OpenFile(fullPath, createFileFlags, defaultPerms); err != nil {
 		// shouldn't really happen but lets just account for it just in case
 		return nil, fuse.EEXIST
 	}
 
 	node := &BillyNode{
-		wt:     n.wt,
+		fs:     n.fs,
 		path:   fullPath,
 		target: "",
 		user:   n.user,
 		mode:   defaultPerms,
 		size:   0,
 		data:   make([]byte, 0),
-		mu:     n.mu,
+		mu:     &sync.Mutex{},
 		cache:  make(map[string]*BillyNode),
 	}
 
@@ -505,7 +505,7 @@ func (n *BillyNode) load() error {
 
 	n.debug("load", nil)
 
-	file, err := n.wt.Filesystem.OpenFile(n.path, os.O_RDONLY, defaultPerms)
+	file, err := n.fs.OpenFile(n.path, os.O_RDONLY, defaultPerms)
 	if err != nil {
 		n.error("load", err)
 		return fuse.ENOENT
