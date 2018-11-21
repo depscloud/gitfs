@@ -7,7 +7,7 @@ import (
 	"golang.org/x/net/context"
 	"gopkg.in/src-d/go-billy.v4/memfs"
 	"gopkg.in/src-d/go-git.v4"
-	gitmemory "gopkg.in/src-d/go-git.v4/storage/memory"
+	"gopkg.in/src-d/go-git.v4/storage/memory"
 	"indeed/gophers/rlog"
 	"os"
 	"sync"
@@ -52,35 +52,50 @@ func (d *Directory) Lookup(ctx context.Context, name string) (fs.Node, error) {
 	var directory fs.Node
 
 	if len(node.URL) > 0 {
-		storage := gitmemory.NewStorage()
-		fileSystem := memfs.New()
+		storage := memory.NewStorage()
+		myfs := memfs.New()
 
 		rlog.Infof("cloning repository: %s", node.URL)
 
 		// shallow clone for now since we only support read only
-		repository, err := git.Clone(storage, fileSystem, &git.CloneOptions{
+		repository, err := git.Clone(storage, myfs, &git.CloneOptions{
 			URL:   node.URL,
 			Depth: 1,
 		})
 
 		if err != nil {
-			rlog.Error("failed to clone repository: %v", err)
+			rlog.Errorf("failed to clone repository: %v", err)
 			return nil, fuse.ENOENT
 		}
 
 		wt, err := repository.Worktree()
 
 		if err != nil {
-			rlog.Error("failed to obtain work tree: %v", err)
+			rlog.Errorf("failed to obtain work tree: %v", err)
 			return nil, fuse.ENOENT
 		}
 
-		directory = &BillyDirectory{
-			uid: d.uid,
-			gid: d.gid,
+		//directory = &BillyDirectory{
+		//	uid: d.uid,
+		//	gid: d.gid,
+		//	path: "",
+		//	fs: wt.Filesystem,
+		//	mu: sync.Mutex{},
+		//}
+
+		directory = &BillyNode{
+			bfs: wt.Filesystem,
 			path: "",
-			fs:   wt.Filesystem,
+			target: "",
+			user: BillyUser{
+				uid: d.uid,
+				gid: d.gid,
+			},
+			mode: os.ModeDir | defaultPerms,
+			size: 0,
+			data: nil,
 			mu:   sync.Mutex{},
+			cache: make(map[string]*BillyNode),
 		}
 	} else {
 		directory = NewDirectory(d.uid, d.gid, node)
