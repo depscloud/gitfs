@@ -16,8 +16,8 @@ import (
 )
 
 // node functions
-var _ fs.Node = &BillyNode{}               // Attr
-var _ fs.NodeSetattrer = &BillyNode{}      // Setattr
+var _ fs.Node = &BillyNode{}          // Attr
+var _ fs.NodeSetattrer = &BillyNode{} // Setattr
 
 // directory functions
 var _ fs.NodeStringLookuper = &BillyNode{} // Lookup
@@ -29,19 +29,19 @@ var _ fs.NodeRenamer = &BillyNode{}        // Rename
 var _ fs.NodeSymlinker = &BillyNode{}      // Symlink
 
 // handle functions
-var _ fs.NodeOpener = &BillyNode{}		   // Open
-var _ fs.HandleWriter = &BillyNode{}       // Write
-var _ fs.HandleReader = &BillyNode{}       // Read
-var _ fs.HandleFlusher = &BillyNode{}      // Flush
-var _ fs.HandleReleaser = &BillyNode{}     // Release
+var _ fs.NodeOpener = &BillyNode{}     // Open
+var _ fs.HandleWriter = &BillyNode{}   // Write
+var _ fs.HandleReader = &BillyNode{}   // Read
+var _ fs.HandleFlusher = &BillyNode{}  // Flush
+var _ fs.HandleReleaser = &BillyNode{} // Release
 
 // symlink functions
-var _ fs.NodeReadlinker = &BillyNode{}     // Readlink
+var _ fs.NodeReadlinker = &BillyNode{} // Readlink
 
 const defaultPerms = 0755
 const allPerms = 0777
 const maxFileSize = math.MaxUint64
-const createFileFlags = os.O_RDWR|os.O_CREATE|os.O_TRUNC
+const createFileFlags = os.O_RDWR | os.O_CREATE | os.O_TRUNC
 const maxInt = uint64(int(^uint(0) >> 1))
 
 type BillyUser struct {
@@ -51,25 +51,25 @@ type BillyUser struct {
 
 type BillyNode struct {
 	// common between directories and files
-	bfs  	billy.Filesystem
-	path 	string
+	bfs  billy.Filesystem
+	path string
 
 	// used only for symlinks
-	target	string
+	target string
 
 	// metadata about the underlying file / directory
-	user 	BillyUser
-	mode 	os.FileMode
+	user BillyUser
+	mode os.FileMode
 
 	// data for files
-	size    uint64
-	data    []byte
+	size uint64
+	data []byte
 
 	// support file level locking
-	mu   	sync.Mutex
+	mu sync.Mutex
 
 	// node cache for re-use
-	cache   map[string]*BillyNode
+	cache map[string]*BillyNode
 }
 
 // symlink functions
@@ -156,8 +156,8 @@ func (n *BillyNode) Write(ctx context.Context, req *fuse.WriteRequest, resp *fus
 		return fuse.Errno(syscall.EFBIG)
 	}
 
-	if newLen > n.size{
-		n.data = append(n.data, make([]byte, newLen - n.size)...)
+	if newLen > n.size {
+		n.data = append(n.data, make([]byte, newLen-n.size)...)
 		n.size = newLen
 	}
 
@@ -209,14 +209,14 @@ func (n *BillyNode) Symlink(ctx context.Context, req *fuse.SymlinkRequest) (fs.N
 	}
 
 	node := &BillyNode{
-		bfs: n.bfs,
-		path: fullPath,
+		bfs:    n.bfs,
+		path:   fullPath,
 		target: req.Target,
-		user: n.user,
-		mode: os.ModeSymlink | defaultPerms,
-		size: uint64(len(req.Target)),
-		data: nil,
-		mu: sync.Mutex{},
+		user:   n.user,
+		mode:   os.ModeSymlink | defaultPerms,
+		size:   uint64(len(req.Target)),
+		data:   nil,
+		mu:     sync.Mutex{},
 	}
 
 	n.cache[req.NewName] = node
@@ -314,7 +314,7 @@ func (n *BillyNode) Mkdir(ctx context.Context, req *fuse.MkdirRequest) (fs.Node,
 		size:   0,
 		data:   nil,
 		mu:     sync.Mutex{},
-		cache: make(map[string]*BillyNode),
+		cache:  make(map[string]*BillyNode),
 	}
 
 	n.cache[req.Name] = node
@@ -436,15 +436,15 @@ func (n *BillyNode) createOrOpen(name string, create bool) (*BillyNode, error) {
 	// symlink
 	if target, err := n.bfs.Readlink(fullPath); err == nil {
 		node := &BillyNode{
-			bfs: n.bfs,
-			path: fullPath,
+			bfs:    n.bfs,
+			path:   fullPath,
 			target: target,
-			user: n.user,
-			mode: os.ModeSymlink | defaultPerms,
-			size: uint64(len(target)),
-			data: nil,
-			mu: sync.Mutex{},
-			cache: make(map[string]*BillyNode),
+			user:   n.user,
+			mode:   os.ModeSymlink | defaultPerms,
+			size:   uint64(len(target)),
+			data:   nil,
+			mu:     sync.Mutex{},
+			cache:  make(map[string]*BillyNode),
 		}
 		n.cache[name] = node
 		return node, nil
@@ -462,7 +462,7 @@ func (n *BillyNode) createOrOpen(name string, create bool) (*BillyNode, error) {
 			size:   uint64(finfo.Size()),
 			data:   nil,
 			mu:     sync.Mutex{},
-			cache: make(map[string]*BillyNode),
+			cache:  make(map[string]*BillyNode),
 		}
 
 		n.cache[name] = node
@@ -487,7 +487,7 @@ func (n *BillyNode) createOrOpen(name string, create bool) (*BillyNode, error) {
 		size:   0,
 		data:   make([]byte, 0),
 		mu:     sync.Mutex{},
-		cache: make(map[string]*BillyNode),
+		cache:  make(map[string]*BillyNode),
 	}
 
 	n.cache[name] = node

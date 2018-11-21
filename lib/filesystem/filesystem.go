@@ -6,8 +6,8 @@ import (
 )
 
 type FileSystem struct {
-	Uid uint32
-	Gid uint32
+	Uid  uint32
+	Gid  uint32
 	Tree *gitfstree.TreeNode
 }
 

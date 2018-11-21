@@ -83,8 +83,8 @@ func main() {
 	gid, _ := strconv.Atoi(currentUser.Gid)
 
 	filesys := &filesystem.FileSystem{
-		Uid: uint32(uid),
-		Gid: uint32(gid),
+		Uid:  uint32(uid),
+		Gid:  uint32(gid),
 		Tree: tree,
 	}
 
