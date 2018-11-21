@@ -76,7 +76,7 @@ func (d *Directory) Lookup(ctx context.Context, name string) (fs.Node, error) {
 		}
 
 		directory = &BillyNode{
-			bfs:    wt.Filesystem,
+			wt:     wt,
 			path:   "",
 			target: "",
 			user: BillyUser{
@@ -86,7 +86,7 @@ func (d *Directory) Lookup(ctx context.Context, name string) (fs.Node, error) {
 			mode:  os.ModeDir | defaultPerms,
 			size:  0,
 			data:  nil,
-			mu:    sync.Mutex{},
+			mu:    &sync.Mutex{},
 			cache: make(map[string]*BillyNode),
 		}
 	} else {
