@@ -53,12 +53,14 @@ func (d *Directory) Lookup(ctx context.Context, name string) (fs.Node, error) {
 
 	if len(node.URL) > 0 {
 		storage := memory.NewStorage()
-		myfs := memfs.New()
+		myfs := &SynchronizedFilesystem{
+			Delegate: memfs.New(),
+		}
 
 		rlog.Infof("cloning repository: %s", node.URL)
 
 		// shallow clone for now since we only support read only
-		repository, err := git.Clone(storage, myfs, &git.CloneOptions{
+		_, err := git.Clone(storage, myfs, &git.CloneOptions{
 			URL:   node.URL,
 			Depth: 1,
 		})
@@ -68,15 +70,8 @@ func (d *Directory) Lookup(ctx context.Context, name string) (fs.Node, error) {
 			return nil, fuse.ENOENT
 		}
 
-		wt, err := repository.Worktree()
-
-		if err != nil {
-			rlog.Errorf("failed to obtain work tree: %v", err)
-			return nil, fuse.ENOENT
-		}
-
 		directory = &BillyNode{
-			wt:     wt,
+			fs:     myfs,
 			path:   "",
 			target: "",
 			user: BillyUser{
