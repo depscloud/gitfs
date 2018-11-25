@@ -32,6 +32,7 @@ var _ fs.NodeSymlinker = &BillyNode{}      // Symlink
 var _ fs.NodeOpener = &BillyNode{}     // Open
 var _ fs.HandleWriter = &BillyNode{}   // Write
 var _ fs.HandleReader = &BillyNode{}   // Read
+var _ fs.NodeFsyncer = &BillyNode{}    // fsync
 var _ fs.HandleFlusher = &BillyNode{}  // Flush
 var _ fs.HandleReleaser = &BillyNode{} // Release
 
@@ -70,6 +71,13 @@ type BillyNode struct {
 
 	// node cache for re-use
 	cache map[string]*BillyNode
+}
+
+func (n *BillyNode) Fsync(ctx context.Context, req *fuse.FsyncRequest) error {
+	n.debug("Fsync", req)
+
+	// call flush for now
+	return n.Flush(ctx, nil)
 }
 
 // symlink functions
@@ -231,10 +239,13 @@ func (n *BillyNode) Rename(ctx context.Context, req *fuse.RenameRequest, newDir 
 
 	newBillyNode, ok := newDir.(*BillyNode)
 	if !ok {
-		return fmt.Errorf("newDir is not a BillyNode")
+		err := fmt.Errorf("newDir is not a BillyNode")
+		n.error("Rename", err)
+		return err
 	}
 
 	if !n.isDir() || !newBillyNode.isDir() {
+		n.error("Rename", fmt.Errorf("n or newBillyNode is not a directory"))
 		return fuse.Errno(syscall.ENOTDIR)
 	}
 
@@ -244,7 +255,14 @@ func (n *BillyNode) Rename(ctx context.Context, req *fuse.RenameRequest, newDir 
 	oldFullPath := n.fs.Join(n.path, req.OldName)
 	newFullPath := n.fs.Join(newBillyNode.path, req.NewName)
 
-	return n.fs.Rename(oldFullPath, newFullPath)
+	err := n.fs.Rename(oldFullPath, newFullPath)
+
+	if err != nil {
+		n.error("Rename", err)
+		return fuse.ENOENT
+	}
+
+	return nil
 }
 
 func (n *BillyNode) Remove(ctx context.Context, req *fuse.RemoveRequest) error {
@@ -257,11 +275,16 @@ func (n *BillyNode) Remove(ctx context.Context, req *fuse.RemoveRequest) error {
 	n.mu.Lock()
 	defer n.mu.Unlock()
 
+	// remove from the file system
 	fullPath := n.fs.Join(n.path, req.Name)
 
 	if err := n.fs.Remove(fullPath); err != nil {
+		n.error("Remove", err)
 		return fuse.ENOENT
 	}
+
+	// remove the cached reference
+	delete(n.cache, req.Name)
 
 	return nil
 }
@@ -278,6 +301,7 @@ func (n *BillyNode) Create(ctx context.Context, req *fuse.CreateRequest, resp *f
 
 	node, err := n.createOrOpen(req.Name, true)
 	if err != nil {
+		n.error("Create", err)
 		return nil, nil, err
 	}
 
@@ -305,6 +329,7 @@ func (n *BillyNode) Mkdir(ctx context.Context, req *fuse.MkdirRequest) (fs.Node,
 	fullPath := n.fs.Join(n.path, req.Name)
 
 	if err := n.fs.MkdirAll(fullPath, defaultPerms); err != nil {
+		n.error("Mkdir", err)
 		return nil, fuse.EEXIST
 	}
 
@@ -336,6 +361,7 @@ func (n *BillyNode) ReadDirAll(ctx context.Context) ([]fuse.Dirent, error) {
 
 	finfos, err := n.fs.ReadDir(n.path)
 	if err != nil {
+		n.error("ReadDirAll", err)
 		return nil, fuse.ENOENT
 	}
 
@@ -364,7 +390,11 @@ func (n *BillyNode) Lookup(ctx context.Context, name string) (fs.Node, error) {
 
 	node, err := n.createOrOpen(name, false)
 
-	return node, err
+	if err != nil {
+		return nil, fuse.ENOENT
+	}
+
+	return node, nil
 }
 
 // node functions
@@ -477,6 +507,7 @@ func (n *BillyNode) createOrOpen(name string, create bool) (*BillyNode, error) {
 
 	// don't use bfs.Create since it assigns 666 permissions
 	if _, err := n.fs.OpenFile(fullPath, createFileFlags, defaultPerms); err != nil {
+		n.error("createOrOpen", err)
 		// shouldn't really happen but lets just account for it just in case
 		return nil, fuse.EEXIST
 	}
@@ -539,14 +570,17 @@ func (n *BillyNode) isSymlink() bool {
 }
 
 func (n *BillyNode) error(method string, err error) {
-	rlog.Errorf("[BillyNode#%s] [path=%s] %v", method, n.path, err)
+	rlog.Errorf(
+		"[mode=%s, path=%s] [BillyNode#%s] %v",
+		n.mode, n.path, method, err,
+	)
 }
 
 func (n *BillyNode) debug(method string, req interface{}) {
 	reqData, _ := json.Marshal(req)
 
 	rlog.Infof(
-		"[BillyNode#%s] [mode=%s, path=%s] [req=%s]",
-		method, n.mode, n.path, string(reqData),
+		"[mode=%s, path=%s] [BillyNode#%s] [req=%s]",
+		n.mode, n.path, method, string(reqData),
 	)
 }
