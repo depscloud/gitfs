@@ -71,9 +71,10 @@ func (d *Directory) Lookup(ctx context.Context, name string) (fs.Node, error) {
 		}
 
 		directory = &BillyNode{
-			fs:     myfs,
-			path:   "",
-			target: "",
+			repourl: node.URL,
+			fs:      myfs,
+			path:    "",
+			target:  "",
 			user: BillyUser{
 				uid: d.uid,
 				gid: d.gid,

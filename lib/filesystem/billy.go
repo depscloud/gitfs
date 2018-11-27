@@ -52,8 +52,9 @@ type BillyUser struct {
 
 type BillyNode struct {
 	// common between directories and files
-	fs   billy.Filesystem
-	path string
+	repourl string
+	fs      billy.Filesystem
+	path    string
 
 	// used only for symlinks
 	target string
@@ -220,14 +221,15 @@ func (n *BillyNode) Symlink(ctx context.Context, req *fuse.SymlinkRequest) (fs.N
 	}
 
 	node := &BillyNode{
-		fs:     n.fs,
-		path:   fullPath,
-		target: req.Target,
-		user:   n.user,
-		mode:   os.ModeSymlink | defaultPerms,
-		size:   uint64(len(req.Target)),
-		data:   nil,
-		mu:     &sync.Mutex{},
+		repourl: n.repourl,
+		fs:      n.fs,
+		path:    fullPath,
+		target:  req.Target,
+		user:    n.user,
+		mode:    os.ModeSymlink | defaultPerms,
+		size:    uint64(len(req.Target)),
+		data:    nil,
+		mu:      &sync.Mutex{},
 	}
 
 	n.cache[req.NewName] = node
@@ -334,15 +336,16 @@ func (n *BillyNode) Mkdir(ctx context.Context, req *fuse.MkdirRequest) (fs.Node,
 	}
 
 	node := &BillyNode{
-		fs:     n.fs,
-		path:   fullPath,
-		target: "",
-		user:   n.user,
-		mode:   os.ModeDir | defaultPerms,
-		size:   0,
-		data:   nil,
-		mu:     &sync.Mutex{},
-		cache:  make(map[string]*BillyNode),
+		repourl: n.repourl,
+		fs:      n.fs,
+		path:    fullPath,
+		target:  "",
+		user:    n.user,
+		mode:    os.ModeDir | defaultPerms,
+		size:    0,
+		data:    nil,
+		mu:      &sync.Mutex{},
+		cache:   make(map[string]*BillyNode),
 	}
 
 	n.cache[req.Name] = node
@@ -469,15 +472,16 @@ func (n *BillyNode) createOrOpen(name string, create bool) (*BillyNode, error) {
 	// symlink
 	if target, err := n.fs.Readlink(fullPath); err == nil {
 		node := &BillyNode{
-			fs:     n.fs,
-			path:   fullPath,
-			target: target,
-			user:   n.user,
-			mode:   os.ModeSymlink | defaultPerms,
-			size:   uint64(len(target)),
-			data:   nil,
-			mu:     &sync.Mutex{},
-			cache:  make(map[string]*BillyNode),
+			repourl: n.repourl,
+			fs:      n.fs,
+			path:    fullPath,
+			target:  target,
+			user:    n.user,
+			mode:    os.ModeSymlink | defaultPerms,
+			size:    uint64(len(target)),
+			data:    nil,
+			mu:      &sync.Mutex{},
+			cache:   make(map[string]*BillyNode),
 		}
 		n.cache[name] = node
 		return node, nil
@@ -487,15 +491,16 @@ func (n *BillyNode) createOrOpen(name string, create bool) (*BillyNode, error) {
 	if err == nil {
 		// file exists, create reference
 		node := &BillyNode{
-			fs:     n.fs,
-			path:   fullPath,
-			target: "",
-			user:   n.user,
-			mode:   finfo.Mode(),
-			size:   uint64(finfo.Size()),
-			data:   nil,
-			mu:     &sync.Mutex{},
-			cache:  make(map[string]*BillyNode),
+			repourl: n.repourl,
+			fs:      n.fs,
+			path:    fullPath,
+			target:  "",
+			user:    n.user,
+			mode:    finfo.Mode(),
+			size:    uint64(finfo.Size()),
+			data:    nil,
+			mu:      &sync.Mutex{},
+			cache:   make(map[string]*BillyNode),
 		}
 
 		n.cache[name] = node
@@ -513,15 +518,16 @@ func (n *BillyNode) createOrOpen(name string, create bool) (*BillyNode, error) {
 	}
 
 	node := &BillyNode{
-		fs:     n.fs,
-		path:   fullPath,
-		target: "",
-		user:   n.user,
-		mode:   defaultPerms,
-		size:   0,
-		data:   make([]byte, 0),
-		mu:     &sync.Mutex{},
-		cache:  make(map[string]*BillyNode),
+		repourl: n.repourl,
+		fs:      n.fs,
+		path:    fullPath,
+		target:  "",
+		user:    n.user,
+		mode:    defaultPerms,
+		size:    0,
+		data:    make([]byte, 0),
+		mu:      &sync.Mutex{},
+		cache:   make(map[string]*BillyNode),
 	}
 
 	n.cache[name] = node
@@ -571,8 +577,8 @@ func (n *BillyNode) isSymlink() bool {
 
 func (n *BillyNode) error(method string, err error) {
 	rlog.Errorf(
-		"[mode=%s, path=%s] [BillyNode#%s] %v",
-		n.mode, n.path, method, err,
+		"[repo=%s, path=%s] [BillyNode#%s] %v",
+		n.repourl, n.path, method, err,
 	)
 }
 
@@ -580,7 +586,7 @@ func (n *BillyNode) debug(method string, req interface{}) {
 	reqData, _ := json.Marshal(req)
 
 	rlog.Infof(
-		"[mode=%s, path=%s] [BillyNode#%s] [req=%s]",
-		n.mode, n.path, method, string(reqData),
+		"[repo=%s, path=%s] [BillyNode#%s] [req=%s]",
+		n.repourl, n.path, method, string(reqData),
 	)
 }
