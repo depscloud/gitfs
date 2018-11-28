@@ -7,7 +7,8 @@ import (
 	"golang.org/x/net/context"
 	"gopkg.in/src-d/go-billy.v4/memfs"
 	"gopkg.in/src-d/go-git.v4"
-	"gopkg.in/src-d/go-git.v4/storage/memory"
+	"gopkg.in/src-d/go-git.v4/plumbing/cache"
+	"gopkg.in/src-d/go-git.v4/storage/filesystem"
 	"indeed/gophers/rlog"
 	"os"
 	"sync"
@@ -52,15 +53,22 @@ func (d *Directory) Lookup(ctx context.Context, name string) (fs.Node, error) {
 	var directory fs.Node
 
 	if len(node.URL) > 0 {
-		storage := memory.NewStorage()
 		myfs := &SynchronizedFilesystem{
 			Delegate: memfs.New(),
 		}
 
+		gitfs, err := myfs.Chroot(git.GitDirName)
+		if err != nil {
+			rlog.Errorf("failed to create .git dir")
+			return nil, fuse.ENOENT
+		}
+
+		storage := filesystem.NewStorage(gitfs, cache.NewObjectLRUDefault())
+
 		rlog.Infof("cloning repository: %s", node.URL)
 
 		// shallow clone for now since we only support read only
-		_, err := git.Clone(storage, myfs, &git.CloneOptions{
+		_, err = git.Clone(storage, myfs, &git.CloneOptions{
 			URL:   node.URL,
 			Depth: 1,
 		})

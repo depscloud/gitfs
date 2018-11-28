@@ -39,7 +39,7 @@ var _ fs.HandleReleaser = &BillyNode{} // Release
 // symlink functions
 var _ fs.NodeReadlinker = &BillyNode{} // Readlink
 
-const defaultPerms = 0755
+const defaultPerms = 0644
 const allPerms = 0777
 const maxFileSize = math.MaxUint64
 const createFileFlags = os.O_RDWR | os.O_CREATE | os.O_TRUNC
@@ -119,7 +119,7 @@ func (n *BillyNode) Flush(ctx context.Context, req *fuse.FlushRequest) error {
 	n.mu.Lock()
 	defer n.mu.Unlock()
 
-	file, err := n.fs.OpenFile(n.path, os.O_WRONLY, defaultPerms)
+	file, err := n.fs.OpenFile(n.path, os.O_WRONLY, n.mode)
 	if err != nil {
 		return err
 	}
@@ -304,7 +304,7 @@ func (n *BillyNode) Create(ctx context.Context, req *fuse.CreateRequest, resp *f
 	n.mu.Lock()
 	defer n.mu.Unlock()
 
-	node, err := n.createOrOpen(req.Name, true)
+	node, err := n.createOrOpen(req.Name, true, req.Mode)
 	if err != nil {
 		n.error("Create", err)
 		return nil, nil, err
@@ -395,7 +395,7 @@ func (n *BillyNode) Lookup(ctx context.Context, name string) (fs.Node, error) {
 	n.mu.Lock()
 	defer n.mu.Unlock()
 
-	node, err := n.createOrOpen(name, false)
+	node, err := n.createOrOpen(name, false, defaultPerms)
 
 	if err != nil {
 		return nil, fuse.ENOENT
@@ -464,7 +464,7 @@ func (n *BillyNode) Attr(ctx context.Context, attr *fuse.Attr) error {
 
 // helper functions
 
-func (n *BillyNode) createOrOpen(name string, create bool) (*BillyNode, error) {
+func (n *BillyNode) createOrOpen(name string, create bool, mode os.FileMode) (*BillyNode, error) {
 	n.debug("createOrOpen", name)
 
 	if node, ok := n.cache[name]; ok {
@@ -515,7 +515,7 @@ func (n *BillyNode) createOrOpen(name string, create bool) (*BillyNode, error) {
 	}
 
 	// don't use bfs.Create since it assigns 666 permissions
-	if _, err := n.fs.OpenFile(fullPath, createFileFlags, defaultPerms); err != nil {
+	if _, err := n.fs.OpenFile(fullPath, createFileFlags, mode); err != nil {
 		n.error("createOrOpen", err)
 		// shouldn't really happen but lets just account for it just in case
 		return nil, fuse.EEXIST
@@ -527,7 +527,7 @@ func (n *BillyNode) createOrOpen(name string, create bool) (*BillyNode, error) {
 		path:    fullPath,
 		target:  "",
 		user:    n.user,
-		mode:    defaultPerms,
+		mode:    mode,
 		size:    0,
 		data:    make([]byte, 0),
 		mu:      &sync.Mutex{},
@@ -546,7 +546,7 @@ func (n *BillyNode) load() error {
 
 	n.debug("load", nil)
 
-	file, err := n.fs.OpenFile(n.path, os.O_RDONLY, defaultPerms)
+	file, err := n.fs.OpenFile(n.path, os.O_RDONLY, n.mode)
 	if err != nil {
 		n.error("load", err)
 		return fuse.ENOENT
