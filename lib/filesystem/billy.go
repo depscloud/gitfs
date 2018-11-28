@@ -264,6 +264,9 @@ func (n *BillyNode) Rename(ctx context.Context, req *fuse.RenameRequest, newDir 
 		return fuse.ENOENT
 	}
 
+	// once the entry has been renamed, we need to purge the cache
+	delete(n.cache, req.OldName)
+
 	return nil
 }
 
@@ -318,6 +321,7 @@ func (n *BillyNode) Mkdir(ctx context.Context, req *fuse.MkdirRequest) (fs.Node,
 	n.debug("Mkdir", req)
 
 	if !n.isDir() {
+		n.error("Mkdir", fmt.Errorf("not a directory"))
 		return nil, fuse.Errno(syscall.ENOTDIR)
 	}
 
