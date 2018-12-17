@@ -1,9 +1,10 @@
 package filesystem
 
 import (
-	"gopkg.in/src-d/go-billy.v4"
 	"os"
 	"sync"
+
+	"gopkg.in/src-d/go-billy.v4"
 )
 
 var _ billy.Filesystem = &SynchronizedFilesystem{}

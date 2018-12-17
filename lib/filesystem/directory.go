@@ -1,17 +1,18 @@
 package filesystem
 
 import (
+	"os"
+	"sync"
+
 	"bazil.org/fuse"
 	"bazil.org/fuse/fs"
 	"github.com/indeedeng/gitfs/lib/tree"
+	rlog "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 	"gopkg.in/src-d/go-billy.v4/memfs"
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing/cache"
 	"gopkg.in/src-d/go-git.v4/storage/filesystem"
-	"indeed/gophers/rlog"
-	"os"
-	"sync"
 )
 
 func NewDirectory(uid, gid uint32, tree *gitfstree.TreeNode) fs.Node {

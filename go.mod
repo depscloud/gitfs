@@ -1,7 +1,10 @@
 module github.com/indeedeng/gitfs
 
 require (
+	bazil.org/fuse v0.0.0-20180421153158-65cc252bf669
+	github.com/pkg/errors v0.8.0
+	github.com/sirupsen/logrus v1.2.0
 	golang.org/x/net v0.0.0-20181129055619-fae4c4e3ad76
-	indeed/gophers/3rdparty v0.0.5
-	indeed/gophers/rlog v2.0.1
+	gopkg.in/src-d/go-billy.v4 v4.3.0
+	gopkg.in/src-d/go-git.v4 v4.8.1
 )

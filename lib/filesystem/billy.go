@@ -1,18 +1,19 @@
 package filesystem
 
 import (
-	"bazil.org/fuse"
-	"bazil.org/fuse/fs"
-	"bazil.org/fuse/fuseutil"
-	"encoding/json"
 	"fmt"
-	"golang.org/x/net/context"
-	"gopkg.in/src-d/go-billy.v4"
-	"indeed/gophers/rlog"
 	"math"
 	"os"
 	"sync"
 	"syscall"
+
+	"bazil.org/fuse"
+	"bazil.org/fuse/fs"
+	"bazil.org/fuse/fuseutil"
+	"encoding/json"
+	rlog "github.com/sirupsen/logrus"
+	"golang.org/x/net/context"
+	"gopkg.in/src-d/go-billy.v4"
 )
 
 // node functions

@@ -1,18 +1,19 @@
 package main
 
 import (
-	"bazil.org/fuse"
-	"bazil.org/fuse/fs"
 	"flag"
 	"fmt"
-	"github.com/indeedeng/gitfs/lib/filesystem"
-	"github.com/indeedeng/gitfs/lib/remotes"
-	"github.com/indeedeng/gitfs/lib/tree"
-	"indeed/gophers/rlog"
 	"os"
 	"os/user"
 	"strconv"
 	"strings"
+
+	"bazil.org/fuse"
+	"bazil.org/fuse/fs"
+	"github.com/indeedeng/gitfs/lib/filesystem"
+	"github.com/indeedeng/gitfs/lib/remotes"
+	"github.com/indeedeng/gitfs/lib/tree"
+	rlog "github.com/sirupsen/logrus"
 )
 
 func usage() {
@@ -36,7 +37,7 @@ func main() {
 	mountpoint := flag.Args()[0]
 	rlog.Infof("configured mount point: %s", mountpoint)
 
-	darwin := remotes.NewDarwinRemote()
+	darwin := remotes.NewDarwinRemote("https://darwin.sandbox.indeed.net")
 	tree := gitfstree.NewTreeNode()
 
 	rlog.Info("fetching repositories from darwin")
