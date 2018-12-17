@@ -3,11 +3,12 @@ package remotes
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
-	rlog "github.com/sirupsen/logrus"
 	"net/http"
 	"net/url"
 	"strconv"
+
+	"github.com/pkg/errors"
+	rlog "github.com/sirupsen/logrus"
 )
 
 // NewDarwinRemote constructs a Remote pointing at the base url, using the semantics of Indeed's internal
