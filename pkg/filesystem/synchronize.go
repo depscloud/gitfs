@@ -8,7 +8,11 @@ import (
 )
 
 var _ billy.Filesystem = &SynchronizedFilesystem{}
+var _ billy.Change
 
+// SynchronizedFilesystem implements a billy.Filesystem, but adds a mutex around all operations.
+// The mutex around operations. The in-memory implementation is unsafe for concurrent use, so this
+// wrapper makes it easy to synchronize
 type SynchronizedFilesystem struct {
 	sync.Mutex
 

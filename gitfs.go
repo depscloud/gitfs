@@ -10,9 +10,9 @@ import (
 
 	"bazil.org/fuse"
 	"bazil.org/fuse/fs"
-	"github.com/indeedeng/gitfs/lib/filesystem"
-	"github.com/indeedeng/gitfs/lib/remotes"
-	"github.com/indeedeng/gitfs/lib/tree"
+	"github.com/indeedeng/gitfs/pkg/filesystem"
+	"github.com/indeedeng/gitfs/pkg/remotes"
+	"github.com/indeedeng/gitfs/pkg/tree"
 	rlog "github.com/sirupsen/logrus"
 )
 

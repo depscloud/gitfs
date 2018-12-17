@@ -2,7 +2,7 @@ package filesystem
 
 import (
 	"bazil.org/fuse/fs"
-	"github.com/indeedeng/gitfs/lib/tree"
+	"github.com/indeedeng/gitfs/pkg/tree"
 )
 
 type FileSystem struct {

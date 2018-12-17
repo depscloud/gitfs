@@ -10,16 +10,26 @@ import (
 	"strconv"
 )
 
+// NewDarwinRemote constructs a Remote pointing at the base url, using the semantics of Indeed's internal
+// darwin api. Eventually, this will support systems like gitlab, github, and bitbucket.
 func NewDarwinRemote(baseUrl string) *DarwinRemote {
 	return &DarwinRemote{
 		baseUrl: baseUrl,
 	}
 }
 
+var _ Remote = &DarwinRemote{}
+
+// DarwinRemote implements the Remote interface. The implementation calls out to our internal darwin api
+// which uses a similar api definition to Gitlab. Because the service is written in Java, it changes the
+// formatting for datetime, making it incompatible with the go-gitlab client.
 type DarwinRemote struct {
 	baseUrl string
 }
 
+// fetch defines a common way to perform HTTP GET requests. Since darwin is readonly, we do not need to
+// support other operations. This function encapsulates the URL construction, and the construction of the
+// decoder.
 func (darwin *DarwinRemote) fetch(path string, qs url.Values) (*json.Decoder, error) {
 	fullUrl := fmt.Sprintf("%s%s", darwin.baseUrl, path)
 
@@ -35,7 +45,8 @@ func (darwin *DarwinRemote) fetch(path string, qs url.Values) (*json.Decoder, er
 	return json.NewDecoder(resp.Body), nil
 }
 
-
+// getProjects calls the /api/projects endpoint for the requested page. Additional wrapping logic, as seen
+// in the ListRepositories, is required for paginating results.
 func (darwin *DarwinRemote) getProjects(page, pageSize int) ([]map[string]interface{}, error) {
 	qs := url.Values{}
 	qs.Set("page", strconv.Itoa(page))
