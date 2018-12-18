@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package mjpitz.gitfs;
+
+import "github.com/golang/protobuf/ptypes/wrappers/wrappers.proto";
+
+option go_package="config";
+
+message Basic {
+    string username = 1;
+    google.protobuf.StringValue password = 2;
+}
+
+message OAuthToken {
+    string token = 1;
+    google.protobuf.StringValue application_id = 2;
+}
+
+message OAuth2Token {
+    string token = 1;
+    google.protobuf.StringValue token_type = 2;
+    google.protobuf.StringValue refresh_token = 3;
+    google.protobuf.StringValue expiry = 4;
+}
+
+message Github {
+    google.protobuf.StringValue base_url = 1;
+    google.protobuf.StringValue upload_url = 2;
+
+    oneof authentication {
+        OAuth2Token oauth2 = 6;
+    }
+}
+
+message Gitlab {
+    google.protobuf.StringValue base_url = 1;
+
+    oneof authentication {
+        OAuthToken oauth = 7;
+    }
+}
+
+message Bitbucket {
+    oneof authentication {
+        Basic basic = 5;
+        OAuthToken oauth = 7;
+    }
+}
+
+message Darwin {
+    google.protobuf.StringValue base_url = 1;
+
+    oneof authentication {
+        Basic basic = 5;
+    }
+}
+
+message Account {
+    oneof backend {
+        Github github = 1;
+        Gitlab gitlab = 2;
+        Bitbucket bitbucket = 3;
+        Darwin darwin = 4;
+    }
+}
+
+message Configuration {
+    repeated Account accounts = 1;
+}
