@@ -31,7 +31,7 @@ func (m *Basic) Reset()         { *m = Basic{} }
 func (m *Basic) String() string { return proto.CompactTextString(m) }
 func (*Basic) ProtoMessage()    {}
 func (*Basic) Descriptor() ([]byte, []int) {
-	return fileDescriptor_config_0804ed8bb2df311c, []int{0}
+	return fileDescriptor_config_565ff4ee129b61d0, []int{0}
 }
 func (m *Basic) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Basic.Unmarshal(m, b)
@@ -77,7 +77,7 @@ func (m *OAuthToken) Reset()         { *m = OAuthToken{} }
 func (m *OAuthToken) String() string { return proto.CompactTextString(m) }
 func (*OAuthToken) ProtoMessage()    {}
 func (*OAuthToken) Descriptor() ([]byte, []int) {
-	return fileDescriptor_config_0804ed8bb2df311c, []int{1}
+	return fileDescriptor_config_565ff4ee129b61d0, []int{1}
 }
 func (m *OAuthToken) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_OAuthToken.Unmarshal(m, b)
@@ -125,7 +125,7 @@ func (m *OAuth2Token) Reset()         { *m = OAuth2Token{} }
 func (m *OAuth2Token) String() string { return proto.CompactTextString(m) }
 func (*OAuth2Token) ProtoMessage()    {}
 func (*OAuth2Token) Descriptor() ([]byte, []int) {
-	return fileDescriptor_config_0804ed8bb2df311c, []int{2}
+	return fileDescriptor_config_565ff4ee129b61d0, []int{2}
 }
 func (m *OAuth2Token) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_OAuth2Token.Unmarshal(m, b)
@@ -174,21 +174,19 @@ func (m *OAuth2Token) GetExpiry() *wrappers.StringValue {
 }
 
 type Github struct {
-	BaseUrl   *wrappers.StringValue `protobuf:"bytes,1,opt,name=base_url,json=baseUrl" json:"base_url,omitempty"`
-	UploadUrl *wrappers.StringValue `protobuf:"bytes,2,opt,name=upload_url,json=uploadUrl" json:"upload_url,omitempty"`
-	// Types that are valid to be assigned to Authentication:
-	//	*Github_Oauth2
-	Authentication       isGithub_Authentication `protobuf_oneof:"authentication"`
-	XXX_NoUnkeyedLiteral struct{}                `json:"-"`
-	XXX_unrecognized     []byte                  `json:"-"`
-	XXX_sizecache        int32                   `json:"-"`
+	BaseUrl              *wrappers.StringValue `protobuf:"bytes,1,opt,name=base_url,json=baseUrl" json:"base_url,omitempty"`
+	UploadUrl            *wrappers.StringValue `protobuf:"bytes,2,opt,name=upload_url,json=uploadUrl" json:"upload_url,omitempty"`
+	Oauth2               *OAuth2Token          `protobuf:"bytes,5,opt,name=oauth2" json:"oauth2,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
+	XXX_unrecognized     []byte                `json:"-"`
+	XXX_sizecache        int32                 `json:"-"`
 }
 
 func (m *Github) Reset()         { *m = Github{} }
 func (m *Github) String() string { return proto.CompactTextString(m) }
 func (*Github) ProtoMessage()    {}
 func (*Github) Descriptor() ([]byte, []int) {
-	return fileDescriptor_config_0804ed8bb2df311c, []int{3}
+	return fileDescriptor_config_565ff4ee129b61d0, []int{3}
 }
 func (m *Github) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Github.Unmarshal(m, b)
@@ -208,23 +206,6 @@ func (m *Github) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_Github proto.InternalMessageInfo
 
-type isGithub_Authentication interface {
-	isGithub_Authentication()
-}
-
-type Github_Oauth2 struct {
-	Oauth2 *OAuth2Token `protobuf:"bytes,6,opt,name=oauth2,oneof"`
-}
-
-func (*Github_Oauth2) isGithub_Authentication() {}
-
-func (m *Github) GetAuthentication() isGithub_Authentication {
-	if m != nil {
-		return m.Authentication
-	}
-	return nil
-}
-
 func (m *Github) GetBaseUrl() *wrappers.StringValue {
 	if m != nil {
 		return m.BaseUrl
@@ -240,82 +221,26 @@ func (m *Github) GetUploadUrl() *wrappers.StringValue {
 }
 
 func (m *Github) GetOauth2() *OAuth2Token {
-	if x, ok := m.GetAuthentication().(*Github_Oauth2); ok {
-		return x.Oauth2
+	if m != nil {
+		return m.Oauth2
 	}
 	return nil
-}
-
-// XXX_OneofFuncs is for the internal use of the proto package.
-func (*Github) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
-	return _Github_OneofMarshaler, _Github_OneofUnmarshaler, _Github_OneofSizer, []interface{}{
-		(*Github_Oauth2)(nil),
-	}
-}
-
-func _Github_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
-	m := msg.(*Github)
-	// authentication
-	switch x := m.Authentication.(type) {
-	case *Github_Oauth2:
-		_ = b.EncodeVarint(6<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.Oauth2); err != nil {
-			return err
-		}
-	case nil:
-	default:
-		return fmt.Errorf("Github.Authentication has unexpected type %T", x)
-	}
-	return nil
-}
-
-func _Github_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
-	m := msg.(*Github)
-	switch tag {
-	case 6: // authentication.oauth2
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(OAuth2Token)
-		err := b.DecodeMessage(msg)
-		m.Authentication = &Github_Oauth2{msg}
-		return true, err
-	default:
-		return false, nil
-	}
-}
-
-func _Github_OneofSizer(msg proto.Message) (n int) {
-	m := msg.(*Github)
-	// authentication
-	switch x := m.Authentication.(type) {
-	case *Github_Oauth2:
-		s := proto.Size(x.Oauth2)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case nil:
-	default:
-		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
-	}
-	return n
 }
 
 type Gitlab struct {
-	BaseUrl *wrappers.StringValue `protobuf:"bytes,1,opt,name=base_url,json=baseUrl" json:"base_url,omitempty"`
-	// Types that are valid to be assigned to Authentication:
-	//	*Gitlab_Oauth
-	Authentication       isGitlab_Authentication `protobuf_oneof:"authentication"`
-	XXX_NoUnkeyedLiteral struct{}                `json:"-"`
-	XXX_unrecognized     []byte                  `json:"-"`
-	XXX_sizecache        int32                   `json:"-"`
+	BaseUrl              *wrappers.StringValue `protobuf:"bytes,1,opt,name=base_url,json=baseUrl" json:"base_url,omitempty"`
+	Private              *OAuthToken           `protobuf:"bytes,5,opt,name=private" json:"private,omitempty"`
+	Oauth                *OAuthToken           `protobuf:"bytes,6,opt,name=oauth" json:"oauth,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
+	XXX_unrecognized     []byte                `json:"-"`
+	XXX_sizecache        int32                 `json:"-"`
 }
 
 func (m *Gitlab) Reset()         { *m = Gitlab{} }
 func (m *Gitlab) String() string { return proto.CompactTextString(m) }
 func (*Gitlab) ProtoMessage()    {}
 func (*Gitlab) Descriptor() ([]byte, []int) {
-	return fileDescriptor_config_0804ed8bb2df311c, []int{4}
+	return fileDescriptor_config_565ff4ee129b61d0, []int{4}
 }
 func (m *Gitlab) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Gitlab.Unmarshal(m, b)
@@ -335,23 +260,6 @@ func (m *Gitlab) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_Gitlab proto.InternalMessageInfo
 
-type isGitlab_Authentication interface {
-	isGitlab_Authentication()
-}
-
-type Gitlab_Oauth struct {
-	Oauth *OAuthToken `protobuf:"bytes,7,opt,name=oauth,oneof"`
-}
-
-func (*Gitlab_Oauth) isGitlab_Authentication() {}
-
-func (m *Gitlab) GetAuthentication() isGitlab_Authentication {
-	if m != nil {
-		return m.Authentication
-	}
-	return nil
-}
-
 func (m *Gitlab) GetBaseUrl() *wrappers.StringValue {
 	if m != nil {
 		return m.BaseUrl
@@ -359,83 +267,33 @@ func (m *Gitlab) GetBaseUrl() *wrappers.StringValue {
 	return nil
 }
 
+func (m *Gitlab) GetPrivate() *OAuthToken {
+	if m != nil {
+		return m.Private
+	}
+	return nil
+}
+
 func (m *Gitlab) GetOauth() *OAuthToken {
-	if x, ok := m.GetAuthentication().(*Gitlab_Oauth); ok {
-		return x.Oauth
+	if m != nil {
+		return m.Oauth
 	}
 	return nil
-}
-
-// XXX_OneofFuncs is for the internal use of the proto package.
-func (*Gitlab) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
-	return _Gitlab_OneofMarshaler, _Gitlab_OneofUnmarshaler, _Gitlab_OneofSizer, []interface{}{
-		(*Gitlab_Oauth)(nil),
-	}
-}
-
-func _Gitlab_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
-	m := msg.(*Gitlab)
-	// authentication
-	switch x := m.Authentication.(type) {
-	case *Gitlab_Oauth:
-		_ = b.EncodeVarint(7<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.Oauth); err != nil {
-			return err
-		}
-	case nil:
-	default:
-		return fmt.Errorf("Gitlab.Authentication has unexpected type %T", x)
-	}
-	return nil
-}
-
-func _Gitlab_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
-	m := msg.(*Gitlab)
-	switch tag {
-	case 7: // authentication.oauth
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(OAuthToken)
-		err := b.DecodeMessage(msg)
-		m.Authentication = &Gitlab_Oauth{msg}
-		return true, err
-	default:
-		return false, nil
-	}
-}
-
-func _Gitlab_OneofSizer(msg proto.Message) (n int) {
-	m := msg.(*Gitlab)
-	// authentication
-	switch x := m.Authentication.(type) {
-	case *Gitlab_Oauth:
-		s := proto.Size(x.Oauth)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case nil:
-	default:
-		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
-	}
-	return n
 }
 
 type Bitbucket struct {
-	// Types that are valid to be assigned to Authentication:
-	//	*Bitbucket_Basic
-	//	*Bitbucket_Oauth
-	Authentication       isBitbucket_Authentication `protobuf_oneof:"authentication"`
-	XXX_NoUnkeyedLiteral struct{}                   `json:"-"`
-	XXX_unrecognized     []byte                     `json:"-"`
-	XXX_sizecache        int32                      `json:"-"`
+	Basic                *Basic      `protobuf:"bytes,5,opt,name=basic" json:"basic,omitempty"`
+	Oauth                *OAuthToken `protobuf:"bytes,6,opt,name=oauth" json:"oauth,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
+	XXX_unrecognized     []byte      `json:"-"`
+	XXX_sizecache        int32       `json:"-"`
 }
 
 func (m *Bitbucket) Reset()         { *m = Bitbucket{} }
 func (m *Bitbucket) String() string { return proto.CompactTextString(m) }
 func (*Bitbucket) ProtoMessage()    {}
 func (*Bitbucket) Descriptor() ([]byte, []int) {
-	return fileDescriptor_config_0804ed8bb2df311c, []int{5}
+	return fileDescriptor_config_565ff4ee129b61d0, []int{5}
 }
 func (m *Bitbucket) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Bitbucket.Unmarshal(m, b)
@@ -455,130 +313,33 @@ func (m *Bitbucket) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_Bitbucket proto.InternalMessageInfo
 
-type isBitbucket_Authentication interface {
-	isBitbucket_Authentication()
-}
-
-type Bitbucket_Basic struct {
-	Basic *Basic `protobuf:"bytes,5,opt,name=basic,oneof"`
-}
-type Bitbucket_Oauth struct {
-	Oauth *OAuthToken `protobuf:"bytes,7,opt,name=oauth,oneof"`
-}
-
-func (*Bitbucket_Basic) isBitbucket_Authentication() {}
-func (*Bitbucket_Oauth) isBitbucket_Authentication() {}
-
-func (m *Bitbucket) GetAuthentication() isBitbucket_Authentication {
-	if m != nil {
-		return m.Authentication
-	}
-	return nil
-}
-
 func (m *Bitbucket) GetBasic() *Basic {
-	if x, ok := m.GetAuthentication().(*Bitbucket_Basic); ok {
-		return x.Basic
+	if m != nil {
+		return m.Basic
 	}
 	return nil
 }
 
 func (m *Bitbucket) GetOauth() *OAuthToken {
-	if x, ok := m.GetAuthentication().(*Bitbucket_Oauth); ok {
-		return x.Oauth
+	if m != nil {
+		return m.Oauth
 	}
 	return nil
-}
-
-// XXX_OneofFuncs is for the internal use of the proto package.
-func (*Bitbucket) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
-	return _Bitbucket_OneofMarshaler, _Bitbucket_OneofUnmarshaler, _Bitbucket_OneofSizer, []interface{}{
-		(*Bitbucket_Basic)(nil),
-		(*Bitbucket_Oauth)(nil),
-	}
-}
-
-func _Bitbucket_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
-	m := msg.(*Bitbucket)
-	// authentication
-	switch x := m.Authentication.(type) {
-	case *Bitbucket_Basic:
-		_ = b.EncodeVarint(5<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.Basic); err != nil {
-			return err
-		}
-	case *Bitbucket_Oauth:
-		_ = b.EncodeVarint(7<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.Oauth); err != nil {
-			return err
-		}
-	case nil:
-	default:
-		return fmt.Errorf("Bitbucket.Authentication has unexpected type %T", x)
-	}
-	return nil
-}
-
-func _Bitbucket_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
-	m := msg.(*Bitbucket)
-	switch tag {
-	case 5: // authentication.basic
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(Basic)
-		err := b.DecodeMessage(msg)
-		m.Authentication = &Bitbucket_Basic{msg}
-		return true, err
-	case 7: // authentication.oauth
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(OAuthToken)
-		err := b.DecodeMessage(msg)
-		m.Authentication = &Bitbucket_Oauth{msg}
-		return true, err
-	default:
-		return false, nil
-	}
-}
-
-func _Bitbucket_OneofSizer(msg proto.Message) (n int) {
-	m := msg.(*Bitbucket)
-	// authentication
-	switch x := m.Authentication.(type) {
-	case *Bitbucket_Basic:
-		s := proto.Size(x.Basic)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Bitbucket_Oauth:
-		s := proto.Size(x.Oauth)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case nil:
-	default:
-		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
-	}
-	return n
 }
 
 type Darwin struct {
-	BaseUrl *wrappers.StringValue `protobuf:"bytes,1,opt,name=base_url,json=baseUrl" json:"base_url,omitempty"`
-	// Types that are valid to be assigned to Authentication:
-	//	*Darwin_Basic
-	Authentication       isDarwin_Authentication `protobuf_oneof:"authentication"`
-	XXX_NoUnkeyedLiteral struct{}                `json:"-"`
-	XXX_unrecognized     []byte                  `json:"-"`
-	XXX_sizecache        int32                   `json:"-"`
+	BaseUrl              *wrappers.StringValue `protobuf:"bytes,1,opt,name=base_url,json=baseUrl" json:"base_url,omitempty"`
+	Basic                *Basic                `protobuf:"bytes,5,opt,name=basic" json:"basic,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
+	XXX_unrecognized     []byte                `json:"-"`
+	XXX_sizecache        int32                 `json:"-"`
 }
 
 func (m *Darwin) Reset()         { *m = Darwin{} }
 func (m *Darwin) String() string { return proto.CompactTextString(m) }
 func (*Darwin) ProtoMessage()    {}
 func (*Darwin) Descriptor() ([]byte, []int) {
-	return fileDescriptor_config_0804ed8bb2df311c, []int{6}
+	return fileDescriptor_config_565ff4ee129b61d0, []int{6}
 }
 func (m *Darwin) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Darwin.Unmarshal(m, b)
@@ -598,23 +359,6 @@ func (m *Darwin) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_Darwin proto.InternalMessageInfo
 
-type isDarwin_Authentication interface {
-	isDarwin_Authentication()
-}
-
-type Darwin_Basic struct {
-	Basic *Basic `protobuf:"bytes,5,opt,name=basic,oneof"`
-}
-
-func (*Darwin_Basic) isDarwin_Authentication() {}
-
-func (m *Darwin) GetAuthentication() isDarwin_Authentication {
-	if m != nil {
-		return m.Authentication
-	}
-	return nil
-}
-
 func (m *Darwin) GetBaseUrl() *wrappers.StringValue {
 	if m != nil {
 		return m.BaseUrl
@@ -623,84 +367,27 @@ func (m *Darwin) GetBaseUrl() *wrappers.StringValue {
 }
 
 func (m *Darwin) GetBasic() *Basic {
-	if x, ok := m.GetAuthentication().(*Darwin_Basic); ok {
-		return x.Basic
+	if m != nil {
+		return m.Basic
 	}
 	return nil
-}
-
-// XXX_OneofFuncs is for the internal use of the proto package.
-func (*Darwin) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
-	return _Darwin_OneofMarshaler, _Darwin_OneofUnmarshaler, _Darwin_OneofSizer, []interface{}{
-		(*Darwin_Basic)(nil),
-	}
-}
-
-func _Darwin_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
-	m := msg.(*Darwin)
-	// authentication
-	switch x := m.Authentication.(type) {
-	case *Darwin_Basic:
-		_ = b.EncodeVarint(5<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.Basic); err != nil {
-			return err
-		}
-	case nil:
-	default:
-		return fmt.Errorf("Darwin.Authentication has unexpected type %T", x)
-	}
-	return nil
-}
-
-func _Darwin_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
-	m := msg.(*Darwin)
-	switch tag {
-	case 5: // authentication.basic
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(Basic)
-		err := b.DecodeMessage(msg)
-		m.Authentication = &Darwin_Basic{msg}
-		return true, err
-	default:
-		return false, nil
-	}
-}
-
-func _Darwin_OneofSizer(msg proto.Message) (n int) {
-	m := msg.(*Darwin)
-	// authentication
-	switch x := m.Authentication.(type) {
-	case *Darwin_Basic:
-		s := proto.Size(x.Basic)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case nil:
-	default:
-		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
-	}
-	return n
 }
 
 type Account struct {
-	// Types that are valid to be assigned to Backend:
-	//	*Account_Github
-	//	*Account_Gitlab
-	//	*Account_Bitbucket
-	//	*Account_Darwin
-	Backend              isAccount_Backend `protobuf_oneof:"backend"`
-	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
-	XXX_unrecognized     []byte            `json:"-"`
-	XXX_sizecache        int32             `json:"-"`
+	Github               *Github    `protobuf:"bytes,1,opt,name=github" json:"github,omitempty"`
+	Gitlab               *Gitlab    `protobuf:"bytes,2,opt,name=gitlab" json:"gitlab,omitempty"`
+	Bitbucket            *Bitbucket `protobuf:"bytes,3,opt,name=bitbucket" json:"bitbucket,omitempty"`
+	Darwin               *Darwin    `protobuf:"bytes,4,opt,name=darwin" json:"darwin,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
+	XXX_unrecognized     []byte     `json:"-"`
+	XXX_sizecache        int32      `json:"-"`
 }
 
 func (m *Account) Reset()         { *m = Account{} }
 func (m *Account) String() string { return proto.CompactTextString(m) }
 func (*Account) ProtoMessage()    {}
 func (*Account) Descriptor() ([]byte, []int) {
-	return fileDescriptor_config_0804ed8bb2df311c, []int{7}
+	return fileDescriptor_config_565ff4ee129b61d0, []int{7}
 }
 func (m *Account) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Account.Unmarshal(m, b)
@@ -720,173 +407,32 @@ func (m *Account) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_Account proto.InternalMessageInfo
 
-type isAccount_Backend interface {
-	isAccount_Backend()
-}
-
-type Account_Github struct {
-	Github *Github `protobuf:"bytes,1,opt,name=github,oneof"`
-}
-type Account_Gitlab struct {
-	Gitlab *Gitlab `protobuf:"bytes,2,opt,name=gitlab,oneof"`
-}
-type Account_Bitbucket struct {
-	Bitbucket *Bitbucket `protobuf:"bytes,3,opt,name=bitbucket,oneof"`
-}
-type Account_Darwin struct {
-	Darwin *Darwin `protobuf:"bytes,4,opt,name=darwin,oneof"`
-}
-
-func (*Account_Github) isAccount_Backend()    {}
-func (*Account_Gitlab) isAccount_Backend()    {}
-func (*Account_Bitbucket) isAccount_Backend() {}
-func (*Account_Darwin) isAccount_Backend()    {}
-
-func (m *Account) GetBackend() isAccount_Backend {
-	if m != nil {
-		return m.Backend
-	}
-	return nil
-}
-
 func (m *Account) GetGithub() *Github {
-	if x, ok := m.GetBackend().(*Account_Github); ok {
-		return x.Github
+	if m != nil {
+		return m.Github
 	}
 	return nil
 }
 
 func (m *Account) GetGitlab() *Gitlab {
-	if x, ok := m.GetBackend().(*Account_Gitlab); ok {
-		return x.Gitlab
+	if m != nil {
+		return m.Gitlab
 	}
 	return nil
 }
 
 func (m *Account) GetBitbucket() *Bitbucket {
-	if x, ok := m.GetBackend().(*Account_Bitbucket); ok {
-		return x.Bitbucket
+	if m != nil {
+		return m.Bitbucket
 	}
 	return nil
 }
 
 func (m *Account) GetDarwin() *Darwin {
-	if x, ok := m.GetBackend().(*Account_Darwin); ok {
-		return x.Darwin
+	if m != nil {
+		return m.Darwin
 	}
 	return nil
-}
-
-// XXX_OneofFuncs is for the internal use of the proto package.
-func (*Account) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
-	return _Account_OneofMarshaler, _Account_OneofUnmarshaler, _Account_OneofSizer, []interface{}{
-		(*Account_Github)(nil),
-		(*Account_Gitlab)(nil),
-		(*Account_Bitbucket)(nil),
-		(*Account_Darwin)(nil),
-	}
-}
-
-func _Account_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
-	m := msg.(*Account)
-	// backend
-	switch x := m.Backend.(type) {
-	case *Account_Github:
-		_ = b.EncodeVarint(1<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.Github); err != nil {
-			return err
-		}
-	case *Account_Gitlab:
-		_ = b.EncodeVarint(2<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.Gitlab); err != nil {
-			return err
-		}
-	case *Account_Bitbucket:
-		_ = b.EncodeVarint(3<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.Bitbucket); err != nil {
-			return err
-		}
-	case *Account_Darwin:
-		_ = b.EncodeVarint(4<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.Darwin); err != nil {
-			return err
-		}
-	case nil:
-	default:
-		return fmt.Errorf("Account.Backend has unexpected type %T", x)
-	}
-	return nil
-}
-
-func _Account_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
-	m := msg.(*Account)
-	switch tag {
-	case 1: // backend.github
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(Github)
-		err := b.DecodeMessage(msg)
-		m.Backend = &Account_Github{msg}
-		return true, err
-	case 2: // backend.gitlab
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(Gitlab)
-		err := b.DecodeMessage(msg)
-		m.Backend = &Account_Gitlab{msg}
-		return true, err
-	case 3: // backend.bitbucket
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(Bitbucket)
-		err := b.DecodeMessage(msg)
-		m.Backend = &Account_Bitbucket{msg}
-		return true, err
-	case 4: // backend.darwin
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(Darwin)
-		err := b.DecodeMessage(msg)
-		m.Backend = &Account_Darwin{msg}
-		return true, err
-	default:
-		return false, nil
-	}
-}
-
-func _Account_OneofSizer(msg proto.Message) (n int) {
-	m := msg.(*Account)
-	// backend
-	switch x := m.Backend.(type) {
-	case *Account_Github:
-		s := proto.Size(x.Github)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Account_Gitlab:
-		s := proto.Size(x.Gitlab)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Account_Bitbucket:
-		s := proto.Size(x.Bitbucket)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Account_Darwin:
-		s := proto.Size(x.Darwin)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case nil:
-	default:
-		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
-	}
-	return n
 }
 
 type Configuration struct {
@@ -900,7 +446,7 @@ func (m *Configuration) Reset()         { *m = Configuration{} }
 func (m *Configuration) String() string { return proto.CompactTextString(m) }
 func (*Configuration) ProtoMessage()    {}
 func (*Configuration) Descriptor() ([]byte, []int) {
-	return fileDescriptor_config_0804ed8bb2df311c, []int{8}
+	return fileDescriptor_config_565ff4ee129b61d0, []int{8}
 }
 func (m *Configuration) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Configuration.Unmarshal(m, b)
@@ -939,43 +485,42 @@ func init() {
 	proto.RegisterType((*Configuration)(nil), "mjpitz.gitfs.Configuration")
 }
 
-func init() { proto.RegisterFile("config.proto", fileDescriptor_config_0804ed8bb2df311c) }
+func init() { proto.RegisterFile("config.proto", fileDescriptor_config_565ff4ee129b61d0) }
 
-var fileDescriptor_config_0804ed8bb2df311c = []byte{
-	// 550 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x94, 0x4d, 0x8f, 0xd2, 0x40,
-	0x18, 0xc7, 0xb7, 0xae, 0x14, 0x78, 0x80, 0x8d, 0xa9, 0x6b, 0xac, 0x1b, 0x0f, 0xa4, 0x27, 0x12,
-	0x93, 0xa2, 0xac, 0x89, 0x1a, 0x4f, 0x74, 0x4d, 0x5c, 0x4f, 0x26, 0xb8, 0x7a, 0x30, 0x31, 0x64,
-	0x5a, 0x86, 0x32, 0x52, 0x66, 0x26, 0xd3, 0x99, 0x20, 0xc6, 0x83, 0x17, 0x3f, 0x9a, 0x1f, 0xc2,
-	0x83, 0xdf, 0xc5, 0xcc, 0x0b, 0x2c, 0xac, 0x44, 0xeb, 0xcb, 0x6d, 0x9a, 0xfe, 0x9e, 0xff, 0xff,
-	0x79, 0x99, 0x67, 0xa0, 0x9d, 0x31, 0x3a, 0x25, 0x79, 0xcc, 0x05, 0x93, 0x2c, 0x68, 0x2f, 0xde,
-	0x73, 0x22, 0x3f, 0xc6, 0x39, 0x91, 0xd3, 0xf2, 0xe4, 0x49, 0x4e, 0xe4, 0x4c, 0xa5, 0x71, 0xc6,
-	0x16, 0xfd, 0x9c, 0x15, 0x88, 0xe6, 0x7d, 0x83, 0xa5, 0x6a, 0xda, 0xe7, 0x72, 0xc5, 0x71, 0xd9,
-	0x5f, 0x0a, 0xc4, 0x39, 0x16, 0x97, 0x07, 0x2b, 0x14, 0xbd, 0x83, 0x5a, 0x82, 0x4a, 0x92, 0x05,
-	0x27, 0xd0, 0x50, 0x25, 0x16, 0x14, 0x2d, 0x70, 0xe8, 0x75, 0xbd, 0x5e, 0x73, 0xb4, 0xf9, 0x0e,
-	0x1e, 0x43, 0x83, 0xa3, 0xb2, 0x5c, 0x32, 0x31, 0x09, 0xaf, 0x75, 0xbd, 0x5e, 0x6b, 0x70, 0x37,
-	0xce, 0x19, 0xcb, 0x0b, 0x1c, 0xaf, 0x7d, 0xe2, 0x57, 0x52, 0x10, 0x9a, 0xbf, 0x41, 0x85, 0xc2,
-	0xa3, 0x0d, 0x1d, 0xe5, 0x00, 0x2f, 0x87, 0x4a, 0xce, 0x2e, 0xd8, 0x1c, 0xd3, 0xe0, 0x18, 0x6a,
-	0x52, 0x1f, 0x9c, 0x81, 0xfd, 0x08, 0xce, 0xe0, 0x08, 0x71, 0x5e, 0x90, 0x0c, 0x49, 0xc2, 0xe8,
-	0x98, 0x54, 0xf3, 0xe8, 0x6c, 0xc5, 0xbc, 0x98, 0x44, 0xdf, 0x3c, 0x68, 0x19, 0xa7, 0xc1, 0xaf,
-	0xac, 0x9e, 0x02, 0x98, 0xc3, 0x58, 0x37, 0xa5, 0x92, 0x4d, 0xd3, 0xf0, 0x17, 0x2b, 0x8e, 0x83,
-	0x21, 0x74, 0x04, 0x9e, 0x0a, 0x5c, 0xce, 0xc6, 0x56, 0xfa, 0xb0, 0x42, 0x7c, 0xdb, 0x85, 0xd8,
-	0xac, 0x1e, 0x82, 0x8f, 0x3f, 0x70, 0x22, 0x56, 0xe1, 0xf5, 0x0a, 0xb1, 0x8e, 0x8d, 0xbe, 0x7a,
-	0xe0, 0x3f, 0x37, 0x13, 0x0e, 0x1e, 0x41, 0x23, 0x45, 0x25, 0x1e, 0x2b, 0x51, 0x98, 0xca, 0x7e,
-	0x27, 0x51, 0xd7, 0xf4, 0x6b, 0x51, 0xe8, 0xca, 0x15, 0x2f, 0x18, 0x9a, 0x98, 0xd0, 0x4a, 0x95,
-	0x5b, 0x5e, 0x07, 0x9f, 0x82, 0xcf, 0x90, 0xee, 0x6d, 0xe8, 0x9b, 0xc0, 0x3b, 0xf1, 0xf6, 0xf5,
-	0x8b, 0xb7, 0xfa, 0x7e, 0x7e, 0x30, 0x72, 0x68, 0x72, 0x03, 0x8e, 0xf4, 0x01, 0x53, 0xe9, 0xa6,
-	0x14, 0x7d, 0xb1, 0x75, 0x14, 0xe8, 0x1f, 0xea, 0xb8, 0x0f, 0x35, 0xa3, 0x1f, 0xd6, 0x4d, 0x54,
-	0xb8, 0x27, 0x93, 0x75, 0x22, 0x16, 0xdc, 0x93, 0xc7, 0x27, 0x68, 0x26, 0x44, 0xa6, 0x2a, 0x9b,
-	0x63, 0x19, 0xdc, 0x83, 0x5a, 0xaa, 0x17, 0x20, 0xac, 0x19, 0xc1, 0x9b, 0xbb, 0x82, 0x66, 0x37,
-	0xb4, 0x96, 0x61, 0xfe, 0x8b, 0xfb, 0x67, 0x0f, 0xfc, 0x67, 0x48, 0x2c, 0x09, 0xfd, 0xfb, 0x2e,
-	0xfc, 0x49, 0xd2, 0x7b, 0x52, 0xf8, 0xee, 0x41, 0x7d, 0x98, 0x65, 0x4c, 0x51, 0x19, 0xc4, 0xe0,
-	0xdb, 0xd7, 0xc3, 0x65, 0x70, 0xbc, 0xab, 0x65, 0xef, 0x9d, 0x1e, 0xab, 0xa5, 0x1c, 0x5f, 0xa0,
-	0xd4, 0x5d, 0xa2, 0x9f, 0xf9, 0x02, 0xad, 0x79, 0x3b, 0xe9, 0x66, 0xba, 0x6e, 0xb6, 0xdb, 0x98,
-	0xdb, 0x57, 0xd2, 0x5d, 0xff, 0x3e, 0x3f, 0x18, 0x5d, 0xb2, 0xda, 0x68, 0x62, 0xda, 0xe4, 0x76,
-	0xe5, 0x8a, 0x91, 0x6d, 0xa1, 0x36, 0xb2, 0x54, 0xd2, 0x84, 0x7a, 0x8a, 0xb2, 0x39, 0xa6, 0x93,
-	0x28, 0x81, 0xce, 0x99, 0x79, 0x2d, 0x95, 0x30, 0x05, 0x07, 0x0f, 0xa0, 0x81, 0x6c, 0xbd, 0x65,
-	0xe8, 0x75, 0x0f, 0x7b, 0xad, 0xc1, 0xad, 0x5d, 0x35, 0xd7, 0x8d, 0xd1, 0x06, 0x4b, 0x1a, 0x6f,
-	0x7d, 0xfb, 0xe2, 0xa6, 0xbe, 0x99, 0xc5, 0xe9, 0x8f, 0x00, 0x00, 0x00, 0xff, 0xff, 0x6f, 0x46,
-	0x66, 0x92, 0x82, 0x05, 0x00, 0x00,
+var fileDescriptor_config_565ff4ee129b61d0 = []byte{
+	// 529 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x94, 0xc1, 0x8e, 0xd3, 0x3c,
+	0x14, 0x85, 0x95, 0x7f, 0xfe, 0xa4, 0xe9, 0x6d, 0xcb, 0xc2, 0x0c, 0x22, 0x8c, 0x58, 0x54, 0x59,
+	0x15, 0x09, 0xa5, 0x9a, 0x02, 0x02, 0xc4, 0xaa, 0x1d, 0x24, 0xc4, 0x0a, 0x29, 0x0c, 0x2c, 0x90,
+	0x50, 0xe5, 0xa4, 0x4e, 0x6a, 0xc6, 0x8d, 0x2d, 0xc7, 0xa6, 0x94, 0xf7, 0xe1, 0x01, 0x78, 0x0d,
+	0xde, 0x80, 0xb7, 0x41, 0xb1, 0xdd, 0x4e, 0x3b, 0x20, 0x26, 0xc0, 0xce, 0x51, 0xbe, 0xe3, 0x73,
+	0xef, 0xb1, 0xaf, 0xa1, 0x9f, 0xf3, 0xaa, 0xa0, 0x65, 0x22, 0x24, 0x57, 0x1c, 0xf5, 0x57, 0x1f,
+	0x04, 0x55, 0x9f, 0x93, 0x92, 0xaa, 0xa2, 0x3e, 0x79, 0x5a, 0x52, 0xb5, 0xd4, 0x59, 0x92, 0xf3,
+	0xd5, 0xb8, 0xe4, 0x0c, 0x57, 0xe5, 0xd8, 0x60, 0x99, 0x2e, 0xc6, 0x42, 0x6d, 0x04, 0xa9, 0xc7,
+	0x6b, 0x89, 0x85, 0x20, 0xf2, 0x72, 0x61, 0x37, 0x8a, 0xdf, 0x83, 0x3f, 0xc3, 0x35, 0xcd, 0xd1,
+	0x09, 0x84, 0xba, 0x26, 0xb2, 0xc2, 0x2b, 0x12, 0x79, 0x43, 0x6f, 0xd4, 0x4d, 0x77, 0xdf, 0xe8,
+	0x09, 0x84, 0x02, 0xd7, 0xf5, 0x9a, 0xcb, 0x45, 0xf4, 0xdf, 0xd0, 0x1b, 0xf5, 0x26, 0x77, 0x93,
+	0x92, 0xf3, 0x92, 0x91, 0x64, 0xeb, 0x93, 0xbc, 0x56, 0x92, 0x56, 0xe5, 0x5b, 0xcc, 0x34, 0x49,
+	0x77, 0x74, 0x5c, 0x02, 0xbc, 0x9a, 0x6a, 0xb5, 0x3c, 0xe7, 0x17, 0xa4, 0x42, 0xc7, 0xe0, 0xab,
+	0x66, 0xe1, 0x0c, 0xec, 0x07, 0x3a, 0x83, 0x1b, 0x58, 0x08, 0x46, 0x73, 0xac, 0x28, 0xaf, 0xe6,
+	0xb4, 0x9d, 0xc7, 0x60, 0x4f, 0xf3, 0x72, 0x11, 0x7f, 0xf7, 0xa0, 0x67, 0x9c, 0x26, 0xbf, 0xb3,
+	0x7a, 0x06, 0x60, 0x16, 0xf3, 0x26, 0x94, 0x56, 0x36, 0x5d, 0xc3, 0x9f, 0x6f, 0x04, 0x41, 0x53,
+	0x18, 0x48, 0x52, 0x48, 0x52, 0x2f, 0xe7, 0x76, 0xeb, 0xa3, 0x16, 0xfa, 0xbe, 0x93, 0xd8, 0xaa,
+	0x1e, 0x42, 0x40, 0x3e, 0x09, 0x2a, 0x37, 0xd1, 0xff, 0x2d, 0xb4, 0x8e, 0x8d, 0xbf, 0x7a, 0x10,
+	0xbc, 0x30, 0x27, 0x8c, 0x1e, 0x43, 0x98, 0xe1, 0x9a, 0xcc, 0xb5, 0x64, 0xa6, 0xb3, 0xeb, 0xb6,
+	0xe8, 0x34, 0xf4, 0x1b, 0xc9, 0x9a, 0xce, 0xb5, 0x60, 0x1c, 0x2f, 0x8c, 0xb4, 0x55, 0xe7, 0x96,
+	0x6f, 0xc4, 0xa7, 0x10, 0x70, 0xdc, 0x64, 0x1b, 0xf9, 0x46, 0x78, 0x27, 0xd9, 0xbf, 0x7e, 0xc9,
+	0x5e, 0xee, 0xa9, 0x03, 0xe3, 0x2f, 0xb6, 0x66, 0x86, 0xff, 0xa1, 0xe6, 0x09, 0x74, 0x84, 0xa4,
+	0x1f, 0xb1, 0x22, 0xce, 0x37, 0xfa, 0x85, 0xaf, 0xb5, 0xdd, 0x82, 0x28, 0x01, 0xdf, 0x54, 0x10,
+	0x05, 0xd7, 0x28, 0x2c, 0x16, 0x17, 0xd0, 0x9d, 0x51, 0x95, 0xe9, 0xfc, 0x82, 0x28, 0x74, 0x0f,
+	0xfc, 0xac, 0x19, 0x06, 0x67, 0x77, 0xf3, 0x50, 0x6c, 0xe6, 0x24, 0xb5, 0xc4, 0x1f, 0xfb, 0x30,
+	0x08, 0x9e, 0x63, 0xb9, 0xa6, 0xd5, 0xdf, 0xc7, 0xd1, 0xbe, 0xba, 0xf8, 0x9b, 0x07, 0x9d, 0x69,
+	0x9e, 0x73, 0x5d, 0x29, 0x74, 0x1f, 0x02, 0xfb, 0x3c, 0x38, 0xb7, 0xe3, 0x43, 0x9d, 0xbd, 0x58,
+	0xa9, 0x63, 0x1c, 0xcd, 0x70, 0xe6, 0xee, 0xc8, 0xcf, 0x34, 0xc3, 0x96, 0x6e, 0x8e, 0xf6, 0x11,
+	0x74, 0xb3, 0x6d, 0x7a, 0x6e, 0x1c, 0x6e, 0x5f, 0x29, 0x6b, 0xfb, 0x3b, 0xbd, 0x24, 0x1b, 0x93,
+	0x85, 0x09, 0xc3, 0x8d, 0xc1, 0x15, 0x13, 0x1b, 0x54, 0xea, 0x98, 0x78, 0x06, 0x83, 0x33, 0xf3,
+	0xf6, 0x69, 0x69, 0xa6, 0x1d, 0x9d, 0x42, 0x88, 0x6d, 0x73, 0x75, 0xe4, 0x0d, 0x8f, 0x46, 0xbd,
+	0xc9, 0xad, 0xc3, 0x0d, 0x5c, 0xeb, 0xe9, 0x0e, 0x9b, 0x85, 0xef, 0x02, 0xfb, 0x7e, 0x66, 0x81,
+	0x09, 0xf9, 0xc1, 0x8f, 0x00, 0x00, 0x00, 0xff, 0xff, 0xd8, 0x3e, 0x0c, 0x27, 0x50, 0x05, 0x00,
+	0x00,
 }

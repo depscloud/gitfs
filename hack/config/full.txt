@@ -1,0 +1,92 @@
+accounts {
+    darwin {
+        base_url: {
+            value: "base_url"
+        }
+    }
+}
+accounts {
+    darwin {
+        base_url: {
+            value: "base_url"
+        }
+        basic {
+            username: "username"
+            password: {
+                value: "password"
+            }
+        }
+    }
+}
+accounts {
+    gitlab {
+        base_url: {
+            value: "base_url"
+        }
+        private {
+            token: "token"
+        }
+    }
+}
+accounts {
+    gitlab {
+        base_url: {
+            value: "base_url"
+        }
+        oauth {
+            token: "token"
+        }
+    }
+}
+accounts {
+    github {
+        base_url: {
+            value: "base_url"
+        }
+        upload_url: {
+            value: "upload_url"
+        }
+    }
+}
+accounts {
+    github {
+        base_url: {
+            value: "base_url"
+        }
+        upload_url: {
+            value: "upload_url"
+        }
+        oauth2 {
+            token: "token"
+            token_type: {
+                value: "token_type"
+            }
+            refresh_token: {
+                value: "refresh_token"
+            }
+            expiry: {
+                value: "expiry"
+            }
+        }
+    }
+}
+accounts {
+    bitbucket {
+        basic {
+            username: "username"
+            password: {
+                value: "password"
+            }
+        }
+    }
+}
+accounts {
+    bitbucket {
+        oauth {
+            token: "token"
+            application_id: {
+                value: "application_id"
+            }
+        }
+    }
+}

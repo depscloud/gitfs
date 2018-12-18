@@ -27,41 +27,32 @@ message Github {
     google.protobuf.StringValue base_url = 1;
     google.protobuf.StringValue upload_url = 2;
 
-    oneof authentication {
-        OAuth2Token oauth2 = 6;
-    }
+    OAuth2Token oauth2 = 5;
 }
 
 message Gitlab {
     google.protobuf.StringValue base_url = 1;
 
-    oneof authentication {
-        OAuthToken oauth = 7;
-    }
+    OAuthToken private = 5;
+    OAuthToken oauth = 6;
 }
 
 message Bitbucket {
-    oneof authentication {
-        Basic basic = 5;
-        OAuthToken oauth = 7;
-    }
+    Basic basic = 5;
+    OAuthToken oauth = 6;
 }
 
 message Darwin {
     google.protobuf.StringValue base_url = 1;
 
-    oneof authentication {
-        Basic basic = 5;
-    }
+    Basic basic = 5;
 }
 
 message Account {
-    oneof backend {
-        Github github = 1;
-        Gitlab gitlab = 2;
-        Bitbucket bitbucket = 3;
-        Darwin darwin = 4;
-    }
+    Github github = 1;
+    Gitlab gitlab = 2;
+    Bitbucket bitbucket = 3;
+    Darwin darwin = 4;
 }
 
 message Configuration {

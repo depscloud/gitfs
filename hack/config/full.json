@@ -1,0 +1,68 @@
+{
+  "accounts": [
+    {
+      "darwin": {
+        "baseUrl": "base_url"
+      }
+    },
+    {
+      "darwin": {
+        "baseUrl": "base_url",
+        "basic": {
+          "password": "password",
+          "username": "username"
+        }
+      }
+    },
+    {
+      "gitlab": {
+        "baseUrl": "base_url",
+        "private": {
+          "token": "token"
+        }
+      }
+    },
+    {
+      "gitlab": {
+        "baseUrl": "base_url",
+        "oauth": {
+          "token": "token"
+        }
+      }
+    },
+    {
+      "github": {
+        "baseUrl": "base_url",
+        "uploadUrl": "upload_url"
+      }
+    },
+    {
+      "github": {
+        "baseUrl": "base_url",
+        "oauth2": {
+          "expiry": "expiry",
+          "refreshToken": "refresh_token",
+          "token": "token",
+          "tokenType": "token_type"
+        },
+        "uploadUrl": "upload_url"
+      }
+    },
+    {
+      "bitbucket": {
+        "basic": {
+          "password": "password",
+          "username": "username"
+        }
+      }
+    },
+    {
+      "bitbucket": {
+        "oauth": {
+          "applicationId": "application_id",
+          "token": "token"
+        }
+      }
+    }
+  ]
+}
