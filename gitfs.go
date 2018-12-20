@@ -43,17 +43,17 @@ func main() {
 		fail("missing config file")
 	}
 
-	config, err := config.Load(os.ExpandEnv(props))
+	cfg, err := config.Load(os.ExpandEnv(props))
 	if err != nil {
 		fail("failed to parse configuration: %v", err)
 	}
 
-	remote, err := remotes.ParseConfig(config)
+	remote, err := remotes.ParseConfig(cfg)
 	if err != nil {
 		fail("failed to parse remote configuration: %v", err)
 	}
 
-	mountpoint := os.ExpandEnv(config.Mount)
+	mountpoint := os.ExpandEnv(cfg.Mount)
 	rlog.Infof("configured mount point: %s", mountpoint)
 
 	tree := gitfstree.NewTreeNode()
