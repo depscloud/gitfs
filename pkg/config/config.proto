@@ -26,20 +26,22 @@ message OAuth2Token {
 message Github {
     google.protobuf.StringValue base_url = 1;
     google.protobuf.StringValue upload_url = 2;
+    repeated string users = 3;
+    repeated string organizations = 4;
 
-    OAuth2Token oauth2 = 5;
+    OAuth2Token oauth2 = 10;
 }
 
 message Gitlab {
     google.protobuf.StringValue base_url = 1;
 
-    OAuthToken private = 5;
-    OAuthToken oauth = 6;
+    OAuthToken private = 10;
+    OAuthToken oauth = 11;
 }
 
 message Bitbucket {
-    Basic basic = 5;
-    OAuthToken oauth = 6;
+    Basic basic = 10;
+    OAuthToken oauth = 11;
 }
 
 message Generic {

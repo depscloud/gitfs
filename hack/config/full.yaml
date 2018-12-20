@@ -28,9 +28,17 @@ accounts:
 - github:
     baseUrl: "base_url"
     uploadUrl: "upload_url"
+    organizations:
+    - org1
+    users:
+    - user1
 - github:
     baseUrl: "base_url"
     uploadUrl: "upload_url"
+    organizations:
+    - org1
+    users:
+    - user1
     oauth2:
       token: "token"
       tokenType: "token_type"

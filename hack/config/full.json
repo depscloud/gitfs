@@ -44,19 +44,31 @@
     {
       "github": {
         "baseUrl": "base_url",
-        "uploadUrl": "upload_url"
+        "uploadUrl": "upload_url",
+        "organizations": [
+          "org1"
+        ],
+        "users": [
+          "user1"
+        ]
       }
     },
     {
       "github": {
         "baseUrl": "base_url",
+        "uploadUrl": "upload_url",
+        "organizations": [
+          "org1"
+        ],
+        "users": [
+          "user1"
+        ],
         "oauth2": {
           "expiry": "expiry",
           "refreshToken": "refresh_token",
           "token": "token",
           "tokenType": "token_type"
-        },
-        "uploadUrl": "upload_url"
+        }
       }
     },
     {
