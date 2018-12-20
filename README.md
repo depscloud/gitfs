@@ -11,6 +11,8 @@ Instead, it creates a virtual directory structure around git urls, making it eas
 
 Support on this library is limited right now, but open for active development.
 
+[![Build Status](https://travis-ci.org/mjpitz/gitfs.svg?branch=master)](https://travis-ci.org/mjpitz/gitfs)
+
 ### Remotes
 
 Currently, it supports a generic endpoint, but are open to supporting new remotes for various integrations.
