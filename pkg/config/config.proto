@@ -61,5 +61,6 @@ message Account {
 }
 
 message Configuration {
-    repeated Account accounts = 1;
+    string mount = 1;
+    repeated Account accounts = 2;
 }

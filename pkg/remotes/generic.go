@@ -1,26 +1,27 @@
 package remotes
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
 
 	"github.com/mjpitz/gitfs/pkg/config"
+	"github.com/nytlabs/gojee"
 	"github.com/pkg/errors"
-	"github.com/savaki/jq"
 	"github.com/sirupsen/logrus"
 )
 
-func NewGenericRemote(config *config.Generic) *GenericRemote {
-	return &GenericRemote{
+func NewGenericRemote(config *config.Generic) Remote {
+	return &genericRemote{
 		config: config,
 	}
 }
 
-var _ Remote = &GenericRemote{}
+var _ Remote = &genericRemote{}
 
-type GenericRemote struct {
+type genericRemote struct {
 	config *config.Generic
 }
 
@@ -36,8 +37,13 @@ func parseJQResult(jqResult string) []string {
 	return parsed
 }
 
-func (r *GenericRemote) ListRepositories() ([]string, error) {
-	op, err := jq.Parse(r.config.Selector)
+func (r *genericRemote) ListRepositories() ([]string, error) {
+	tokens, err := jee.Lexer(r.config.Selector)
+	if err != nil {
+		return nil, err
+	}
+
+	parser, err := jee.Parser(tokens)
 	if err != nil {
 		return nil, err
 	}
@@ -66,17 +72,28 @@ func (r *GenericRemote) ListRepositories() ([]string, error) {
 		}
 
 		body, err := ioutil.ReadAll(resp.Body)
-
-		selected, err := op.Apply(body)
 		if err != nil {
-			return nil, errors.Wrap(err,
-				fmt.Sprintf("failed to extract content using selector: %s", r.config.Selector))
+			return nil, errors.Wrapf(err, "failed to read body")
 		}
 
-		currentPage := parseJQResult(string(selected))
-		repositories = append(repositories, currentPage...)
+		var umsg jee.BMsg
+		if err := json.Unmarshal(body, &umsg); err != nil {
+			return nil, errors.Wrapf(err, "failed to unmarshal JSON")
+		}
 
-		if int32(len(currentPage)) < r.config.PageSize {
+		result, err := jee.Eval(parser, umsg)
+		if err != nil {
+			return nil, errors.Wrapf(err,
+				fmt.Sprintf("failed to extract response from page using selector: %s", r.config.Selector))
+		}
+
+		resultArray := result.([]interface{})
+		for _, entry := range resultArray {
+			entryString := entry.(string)
+			repositories = append(repositories, entryString)
+		}
+
+		if int32(len(resultArray)) < r.config.PageSize {
 			logrus.Infof("encountered an incomplete page. assuming end of data")
 			break
 		}
