@@ -1,4 +1,4 @@
-mount "mount"
+mount: "mount"
 accounts {
     generic {
         base_url: "base_url"
