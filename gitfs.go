@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/user"
+	"path"
 	"strconv"
 	"strings"
 
@@ -29,15 +30,20 @@ func fail(message string, data ...interface{}) {
 }
 
 func main() {
-	props := ""
-	flag.StringVar(&props, "config", "", "Specify the configuration path")
+	current, err := user.Current()
+	if err != nil {
+		fail("failed to determine current user")
+	}
+
+	props := path.Join(current.HomeDir, ".gitfs.yml")
+	flag.StringVar(&props, "config", props, "Specify the configuration path")
 	flag.Parse()
 
 	if len(props) == 0 {
 		fail("missing config file")
 	}
 
-	config, err := config.Load(props)
+	config, err := config.Load(os.ExpandEnv(props))
 	if err != nil {
 		fail("failed to parse configuration: %v", err)
 	}
@@ -60,8 +66,6 @@ func main() {
 
 	rlog.Info("parsing repositories into a directory structure")
 	for _, repository := range repositories {
-		rlog.Infof("repository: %s", repository)
-
 		start := 4
 		separator := strings.Index(repository, ":")
 		end := len(repository) - 4
