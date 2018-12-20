@@ -1,4 +1,5 @@
 {
+  "mount": "mount",
   "accounts": [
     {
       "generic": {
@@ -6,7 +7,8 @@
         "path": "path",
         "pageParameter": "page_parameter",
         "perPageParameter": "per_page_parameter",
-        "pageSize": 20
+        "pageSize": 20,
+        "selector": "selector"
       }
     },
     {
@@ -16,6 +18,7 @@
         "pageParameter": "page_parameter",
         "perPageParameter": "per_page_parameter",
         "pageSize": 20,
+        "selector": "selector",
         "basic": {
           "password": "password",
           "username": "username"

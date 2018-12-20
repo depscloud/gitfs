@@ -1,3 +1,4 @@
+mount "mount"
 accounts {
     generic {
         base_url: "base_url"
@@ -5,6 +6,7 @@ accounts {
         page_parameter: "page_parameter"
         per_page_parameter: "per_page_parameter"
         page_size: 20
+        selector: "selector"
     }
 }
 accounts {
@@ -14,6 +16,7 @@ accounts {
         page_parameter: "page_parameter"
         per_page_parameter: "per_page_parameter"
         page_size: 20
+        selector: "selector"
         basic {
             username: "username"
             password: {

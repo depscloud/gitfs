@@ -1,3 +1,4 @@
+mount: "mount"
 accounts:
 - generic:
     baseUrl: "base_url"
@@ -5,12 +6,14 @@ accounts:
     pageParameter: "page_parameter"
     perPageParameter: "per_page_parameter"
     pageSize: 20
+    selector: "selector"
 - generic:
     baseUrl: "base_url"
     path: "path"
     pageParameter: "page_parameter"
     perPageParameter: "per_page_parameter"
     pageSize: 20
+    selector: "selector"
     basic:
       username: "username"
       password: "password"
