@@ -12,6 +12,7 @@ Instead, it creates a virtual directory structure around git urls, making it eas
 Support on this library is limited right now, but open for active development.
 
 [![Build Status](https://travis-ci.org/mjpitz/gitfs.svg?branch=master)](https://travis-ci.org/mjpitz/gitfs)
+[![Go Report Card](https://goreportcard.com/badge/github.com/mjpitz/gitfs)](https://goreportcard.com/report/github.com/mjpitz/gitfs)
 
 ### Remotes
 
