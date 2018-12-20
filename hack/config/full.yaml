@@ -1,8 +1,16 @@
 accounts:
-- darwin:
+- generic:
     baseUrl: "base_url"
-- darwin:
+    path: "path"
+    pageParameter: "page_parameter"
+    perPageParameter: "per_page_parameter"
+    pageSize: 20
+- generic:
     baseUrl: "base_url"
+    path: "path"
+    pageParameter: "page_parameter"
+    perPageParameter: "per_page_parameter"
+    pageSize: 20
     basic:
       username: "username"
       password: "password"

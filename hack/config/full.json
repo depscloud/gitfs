@@ -1,13 +1,21 @@
 {
   "accounts": [
     {
-      "darwin": {
-        "baseUrl": "base_url"
+      "generic": {
+        "baseUrl": "base_url",
+        "path": "path",
+        "pageParameter": "page_parameter",
+        "perPageParameter": "per_page_parameter",
+        "pageSize": 20
       }
     },
     {
-      "darwin": {
+      "generic": {
         "baseUrl": "base_url",
+        "path": "path",
+        "pageParameter": "page_parameter",
+        "perPageParameter": "per_page_parameter",
+        "pageSize": 20,
         "basic": {
           "password": "password",
           "username": "username"

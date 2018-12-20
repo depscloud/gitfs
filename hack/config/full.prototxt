@@ -1,15 +1,19 @@
 accounts {
-    darwin {
-        base_url: {
-            value: "base_url"
-        }
+    generic {
+        base_url: "base_url"
+        path: "path"
+        page_parameter: "page_parameter"
+        per_page_parameter: "per_page_parameter"
+        page_size: 20
     }
 }
 accounts {
-    darwin {
-        base_url: {
-            value: "base_url"
-        }
+    generic {
+        base_url: "base_url"
+        path: "path"
+        page_parameter: "page_parameter"
+        per_page_parameter: "per_page_parameter"
+        page_size: 20
         basic {
             username: "username"
             password: {
