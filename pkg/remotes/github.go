@@ -13,11 +13,11 @@ func NewGithubRemote(cfg *config.Github) (Remote, error) {
 	baseUrl := cfg.GetBaseUrl()
 	uploadUrl := cfg.GetUploadUrl()
 
-	fn := func (client *http.Client) (*github.Client, error) {
+	fn := func(client *http.Client) (*github.Client, error) {
 		return github.NewClient(client), nil
 	}
 	if baseUrl != nil && uploadUrl != nil {
-		fn = func (client *http.Client) (*github.Client, error) {
+		fn = func(client *http.Client) (*github.Client, error) {
 			return github.NewEnterpriseClient(baseUrl.Value, uploadUrl.Value, client)
 		}
 	}
