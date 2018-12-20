@@ -10,6 +10,7 @@ import (
 
 	"bazil.org/fuse"
 	"bazil.org/fuse/fs"
+	"github.com/mjpitz/gitfs/pkg/config"
 	"github.com/mjpitz/gitfs/pkg/filesystem"
 	"github.com/mjpitz/gitfs/pkg/remotes"
 	"github.com/mjpitz/gitfs/pkg/tree"
@@ -17,37 +18,50 @@ import (
 )
 
 func usage() {
-	rlog.Warn("usage: gitfs <mountpoint>")
+	fmt.Println("usage: gitfs")
 	flag.PrintDefaults()
 	os.Exit(2)
 }
 
 func fail(message string, data ...interface{}) {
-	fmt.Fprintf(os.Stderr, message, data...)
+	fmt.Println(fmt.Sprintf(message, data...))
 	os.Exit(1)
 }
 
 func main() {
+	props := ""
+	flag.StringVar(&props, "config", "", "Specify the configuration path")
 	flag.Parse()
 
-	if flag.NArg() < 1 {
-		usage()
+	if len(props) == 0 {
+		fail("missing config file")
 	}
 
-	mountpoint := flag.Args()[0]
+	config, err := config.Load(props)
+	if err != nil {
+		fail("failed to parse configuration: %v", err)
+	}
+
+	remote, err := remotes.ParseConfig(config)
+	if err != nil {
+		fail("failed to parse remote configuration: %v", err)
+	}
+
+	mountpoint := os.ExpandEnv(config.Mount)
 	rlog.Infof("configured mount point: %s", mountpoint)
 
-	darwin := remotes.NewDarwinRemote("https://darwin.sandbox.indeed.net")
 	tree := gitfstree.NewTreeNode()
 
-	rlog.Info("fetching repositories from darwin")
-	repositories, err := darwin.ListRepositories()
+	rlog.Info("fetching repositories")
+	repositories, err := remote.ListRepositories()
 	if err != nil {
 		fail("failed to fetch repositories: %v", err)
 	}
 
 	rlog.Info("parsing repositories into a directory structure")
 	for _, repository := range repositories {
+		rlog.Infof("repository: %s", repository)
+
 		start := 4
 		separator := strings.Index(repository, ":")
 		end := len(repository) - 4
@@ -64,7 +78,7 @@ func main() {
 		fullPathParts = append(fullPathParts, host)
 		fullPathParts = append(fullPathParts, parts...)
 
-		rlog.Infof("parts: [%s]", strings.Join(fullPathParts, ","))
+		//rlog.Infof("parts: [%s]", strings.Join(fullPathParts, ","))
 		tree.Insert(fullPathParts, repository)
 	}
 

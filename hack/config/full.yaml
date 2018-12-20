@@ -1,0 +1,46 @@
+mount: "mount"
+accounts:
+- generic:
+    baseUrl: "base_url"
+    path: "path"
+    pageParameter: "page_parameter"
+    perPageParameter: "per_page_parameter"
+    pageSize: 20
+    selector: "selector"
+- generic:
+    baseUrl: "base_url"
+    path: "path"
+    pageParameter: "page_parameter"
+    perPageParameter: "per_page_parameter"
+    pageSize: 20
+    selector: "selector"
+    basic:
+      username: "username"
+      password: "password"
+- gitlab:
+    baseUrl: "base_url"
+    private:
+      token: "token"
+- gitlab:
+    baseUrl: "base_url"
+    oauth:
+      token: "token"
+- github:
+    baseUrl: "base_url"
+    uploadUrl: "upload_url"
+- github:
+    baseUrl: "base_url"
+    uploadUrl: "upload_url"
+    oauth2:
+      token: "token"
+      tokenType: "token_type"
+      refreshToken: "refresh_token"
+      expiry: "expiry"
+- bitbucket:
+    basic:
+      username: "username"
+      password: "password"
+- bitbucket:
+    oauth:
+      token: "token"
+      applicationId: "application_id"
