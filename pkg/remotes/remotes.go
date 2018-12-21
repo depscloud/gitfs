@@ -7,18 +7,29 @@ import (
 
 func ParseConfig(configuration *config.Configuration) (Remote, error) {
 	remotes := make([]Remote, len(configuration.Accounts))
+
 	for i, account := range configuration.Accounts {
+		var remote Remote
+		var err error
+
 		if generic := account.GetGeneric(); generic != nil {
-			remotes[i] = NewGenericRemote(generic)
+			remote = NewGenericRemote(generic)
 		} else if bitbucket := account.GetBitbucket(); bitbucket != nil {
-			return nil, fmt.Errorf("upsupported: bitbucket")
+			err = fmt.Errorf("upsupported: bitbucket")
 		} else if github := account.GetGithub(); github != nil {
-			return nil, fmt.Errorf("upsupported: github")
+			remote, err = NewGithubRemote(github)
 		} else if gitlab := account.GetGitlab(); gitlab != nil {
-			return nil, fmt.Errorf("upsupported: gitlab")
+			err = fmt.Errorf("upsupported: gitlab")
 		} else {
-			return nil, fmt.Errorf("unrecognized account")
+			err = fmt.Errorf("unrecognized account")
 		}
+
+		if err != nil {
+			return nil, err
+		}
+
+		remotes[i] = remote
 	}
+
 	return NewCompositeRemote(remotes...), nil
 }

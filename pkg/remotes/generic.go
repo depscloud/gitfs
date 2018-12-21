@@ -11,9 +11,9 @@ import (
 	"net/http"
 )
 
-func NewGenericRemote(config *config.Generic) Remote {
+func NewGenericRemote(cfg *config.Generic) Remote {
 	return &genericRemote{
-		config: config,
+		config: cfg,
 	}
 }
 
