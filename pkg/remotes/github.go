@@ -2,6 +2,7 @@ package remotes
 
 import (
 	"context"
+	"github.com/sirupsen/logrus"
 	"net/http"
 
 	"github.com/google/go-github/v20/github"
@@ -37,6 +38,7 @@ func NewGithubRemote(cfg *config.Github) (Remote, error) {
 	}
 
 	return &githubRemote{
+		config: cfg,
 		client: client,
 	}, nil
 }
@@ -49,21 +51,26 @@ type githubRemote struct {
 }
 
 func (r *githubRemote) ListRepositories() ([]string, error) {
+	organizations := make([]string, 0)
 	repositories := make([]string, 0)
 
-	// init with configured orgs
-	organizations := make([]string, len(r.config.Organizations))
-	copy(organizations, r.config.Organizations)
+	if r.config.Organizations != nil {
+		// init with configured orgs
+		organizations = append(organizations, r.config.Organizations...)
+	}
 
 	// discover more from users
 	for _, user := range r.config.Users {
+		logrus.Infof("[remotes.github] processing organizations for user: %s", user)
+
 		for orgPage := 1; orgPage != 0; {
 			orgs, response, err := r.client.Organizations.List(context.Background(), user, &github.ListOptions{
 				Page: orgPage,
 			})
 
 			if err != nil {
-				return nil, err
+				logrus.Errorf("[remotes.github] encountered err on orgPage %d, %v", orgPage, err)
+				break
 			}
 
 			orgLogins := make([]string, len(orgs))
@@ -76,6 +83,8 @@ func (r *githubRemote) ListRepositories() ([]string, error) {
 			orgPage = response.NextPage
 		}
 
+		logrus.Infof("[remotes.github] processing repositories for user: %s", user)
+
 		for repoPage := 1; repoPage != 0; {
 			repos, response, err := r.client.Repositories.List(context.Background(), user, &github.RepositoryListOptions{
 				ListOptions: github.ListOptions{
@@ -84,7 +93,8 @@ func (r *githubRemote) ListRepositories() ([]string, error) {
 			})
 
 			if err != nil {
-				return nil, err
+				logrus.Errorf("[remotes.github] encountered err on repoPage %d, %v", repoPage, err)
+				break
 			}
 
 			repoUrls := make([]string, len(repos))
@@ -99,6 +109,8 @@ func (r *githubRemote) ListRepositories() ([]string, error) {
 	}
 
 	for _, organization := range organizations {
+		logrus.Infof("[remotes.github] processing repositories for organization: %s", organization)
+
 		for orgRepoPage := 1; orgRepoPage != 0; {
 			orgRepos, response, err := r.client.Repositories.ListByOrg(context.Background(), organization, &github.RepositoryListByOrgOptions{
 				ListOptions: github.ListOptions{
@@ -107,6 +119,7 @@ func (r *githubRemote) ListRepositories() ([]string, error) {
 			})
 
 			if err != nil {
+				logrus.Errorf("[remotes.github] encountered err on orgRepoPage %d, %v", orgRepoPage, err)
 				break
 			}
 
