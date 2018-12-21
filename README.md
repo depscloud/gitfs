@@ -45,6 +45,13 @@ For directions on how to install, see the [libfuse](https://github.com/libfuse/l
 In addition to the libfuse module, you will also need [go 11](https://golang.org/doc/install) installed.
 This is only needed while I work on making a binary available for general use.
 For now, you'll need to build from source.
+
+Lastly, you will need the [protocol buffers compiler](https://developers.google.com/protocol-buffers/docs/downloads) should you plan on doing any development on this project.
+We also use the [gogo](https://github.com/gogo/protobuf) generation for protobuf, so you will need the compiler plugin installed.
+
+```
+go get github.com/gogo/protobuf/protoc-gen-gogo
+```
  
 ### Building from Source
 
