@@ -3,14 +3,12 @@ package remotes
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
-	"strings"
-
 	"github.com/mjpitz/gitfs/pkg/config"
 	"github.com/nytlabs/gojee"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"io/ioutil"
+	"net/http"
 )
 
 func NewGenericRemote(config *config.Generic) Remote {
@@ -23,18 +21,6 @@ var _ Remote = &genericRemote{}
 
 type genericRemote struct {
 	config *config.Generic
-}
-
-func parseJQResult(jqResult string) []string {
-	lines := strings.Split(jqResult, "\n")
-
-	parsed := make([]string, len(lines))
-	for i, line := range lines {
-		cleaned := strings.TrimPrefix(line, "\"")
-		cleaned = strings.TrimSuffix(cleaned, "\"")
-		parsed[i] = cleaned
-	}
-	return parsed
 }
 
 func (r *genericRemote) ListRepositories() ([]string, error) {
