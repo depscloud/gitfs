@@ -7,7 +7,7 @@ import (
 	"bazil.org/fuse"
 	"bazil.org/fuse/fs"
 	"github.com/mjpitz/gitfs/pkg/tree"
-	rlog "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 	"gopkg.in/src-d/go-billy.v4/memfs"
 	"gopkg.in/src-d/go-git.v4"
@@ -60,13 +60,13 @@ func (d *Directory) Lookup(ctx context.Context, name string) (fs.Node, error) {
 
 		gitfs, err := myfs.Chroot(git.GitDirName)
 		if err != nil {
-			rlog.Errorf("failed to create .git dir")
+			logrus.Errorf("[filesystem.directory] failed to create .git dir")
 			return nil, fuse.ENOENT
 		}
 
 		storage := filesystem.NewStorage(gitfs, cache.NewObjectLRUDefault())
 
-		rlog.Infof("cloning repository: %s", node.URL)
+		logrus.Infof("[filesystem.directory] cloning repository: %s", node.URL)
 
 		// shallow clone for now since we only support read only
 		_, err = git.Clone(storage, myfs, &git.CloneOptions{
@@ -75,7 +75,7 @@ func (d *Directory) Lookup(ctx context.Context, name string) (fs.Node, error) {
 		})
 
 		if err != nil {
-			rlog.Errorf("failed to clone repository: %v", err)
+			logrus.Errorf("[filesystem.directory] failed to clone repository: %v", err)
 			return nil, fuse.ENOENT
 		}
 

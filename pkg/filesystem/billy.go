@@ -11,7 +11,7 @@ import (
 	"bazil.org/fuse"
 	"bazil.org/fuse/fs"
 	"bazil.org/fuse/fuseutil"
-	rlog "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 	"gopkg.in/src-d/go-billy.v4"
 )
@@ -581,8 +581,8 @@ func (n *BillyNode) isSymlink() bool {
 }
 
 func (n *BillyNode) error(method string, err error) {
-	rlog.Errorf(
-		"[repo=%s, path=%s] [BillyNode#%s] %v",
+	logrus.Errorf(
+		"[filesystem.billy] [repo=%s, path=%s] [BillyNode#%s] %v",
 		n.repourl, n.path, method, err,
 	)
 }
@@ -590,8 +590,8 @@ func (n *BillyNode) error(method string, err error) {
 func (n *BillyNode) debug(method string, req interface{}) {
 	reqData, _ := json.Marshal(req)
 
-	rlog.Infof(
-		"[repo=%s, path=%s] [BillyNode#%s] [req=%s]",
+	logrus.Infof(
+		"[filesystem.billy] [repo=%s, path=%s] [BillyNode#%s] [req=%s]",
 		n.repourl, n.path, method, string(reqData),
 	)
 }

@@ -34,6 +34,8 @@ func (r *genericRemote) ListRepositories() ([]string, error) {
 		return nil, err
 	}
 
+	logrus.Infof("[remotes.generic] requesting data from generic endpoint: %s", r.config.BaseUrl)
+
 	repositories := make([]string, 0)
 	for page := 1; true; page++ {
 		fullUrl := fmt.Sprintf(
@@ -53,7 +55,7 @@ func (r *genericRemote) ListRepositories() ([]string, error) {
 		}
 
 		if resp.StatusCode == http.StatusNotFound {
-			logrus.Infof("encountered a 404. assuming end of data")
+			logrus.Infof("[remotes.generic] encountered a 404. assuming end of data")
 			break
 		}
 
@@ -80,7 +82,7 @@ func (r *genericRemote) ListRepositories() ([]string, error) {
 		}
 
 		if int32(len(resultArray)) < r.config.PageSize {
-			logrus.Infof("encountered an incomplete page. assuming end of data")
+			logrus.Infof("[remotes.generic] encountered an incomplete page. assuming end of data")
 			break
 		}
 	}

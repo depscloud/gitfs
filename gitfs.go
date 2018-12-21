@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"os"
 	"os/user"
 	"path"
@@ -15,17 +14,11 @@ import (
 	"github.com/mjpitz/gitfs/pkg/filesystem"
 	"github.com/mjpitz/gitfs/pkg/remotes"
 	"github.com/mjpitz/gitfs/pkg/tree"
-	rlog "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
-func usage() {
-	fmt.Println("usage: gitfs")
-	flag.PrintDefaults()
-	os.Exit(2)
-}
-
 func fail(message string, data ...interface{}) {
-	fmt.Println(fmt.Sprintf(message, data...))
+	logrus.Errorf("[main] " + message, data...)
 	os.Exit(1)
 }
 
@@ -35,7 +28,7 @@ func main() {
 		fail("failed to determine current user")
 	}
 
-	props := path.Join(current.HomeDir, ".gitfs.yml")
+	props := path.Join(current.HomeDir, ".gitfs/config.yml")
 	flag.StringVar(&props, "config", props, "Specify the configuration path")
 	flag.Parse()
 
@@ -54,17 +47,17 @@ func main() {
 	}
 
 	mountpoint := os.ExpandEnv(cfg.Mount)
-	rlog.Infof("configured mount point: %s", mountpoint)
+	logrus.Infof("[main] configured mount point: %s", mountpoint)
 
 	tree := gitfstree.NewTreeNode()
 
-	rlog.Info("fetching repositories")
+	logrus.Info("[main] fetching repositories")
 	repositories, err := remote.ListRepositories()
 	if err != nil {
 		fail("failed to fetch repositories: %v", err)
 	}
 
-	rlog.Info("parsing repositories into a directory structure")
+	logrus.Info("[main] parsing repositories into a directory structure")
 	for _, repository := range repositories {
 		start := 4
 		separator := strings.Index(repository, ":")
@@ -82,24 +75,18 @@ func main() {
 		fullPathParts = append(fullPathParts, host)
 		fullPathParts = append(fullPathParts, parts...)
 
-		//rlog.Infof("parts: [%s]", strings.Join(fullPathParts, ","))
 		tree.Insert(fullPathParts, repository)
 	}
 
-	rlog.Infof("attempting to mount %s", mountpoint)
+	logrus.Infof("[main] attempting to mount %s", mountpoint)
 	c, err := fuse.Mount(mountpoint)
 	if err != nil {
 		fail("failed to mount mountpoint: %v", err)
 	}
 	defer c.Close()
 
-	currentUser, err := user.Current()
-	if err != nil {
-		fail("failed to determine current user: %v", err)
-	}
-
-	uid, _ := strconv.Atoi(currentUser.Uid)
-	gid, _ := strconv.Atoi(currentUser.Gid)
+	uid, _ := strconv.Atoi(current.Uid)
+	gid, _ := strconv.Atoi(current.Gid)
 
 	filesys := &filesystem.FileSystem{
 		Uid:  uint32(uid),
@@ -107,7 +94,7 @@ func main() {
 		Tree: tree,
 	}
 
-	rlog.Info("now serving file system")
+	logrus.Info("[main] now serving file system")
 	if err := fs.Serve(c, filesys); err != nil {
 		fail("failed to serve filesystem: %v", err)
 	}
