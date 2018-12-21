@@ -18,7 +18,7 @@ import (
 )
 
 func fail(message string, data ...interface{}) {
-	logrus.Errorf("[main] " + message, data...)
+	logrus.Errorf("[main] "+message, data...)
 	os.Exit(1)
 }
 
