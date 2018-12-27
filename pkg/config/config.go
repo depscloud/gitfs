@@ -12,7 +12,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-//go:generate protoc -I=. -I=$GOPATH/src -I=$GOPATH/src/github.com/gogo/protobuf/protobuf --gogo_out=. config.proto
+//go:generate protoc -I=. -I=$GOPATH/src --gogo_out=. config.proto
 
 func json(body []byte) (*Configuration, error) {
 	cfg := &Configuration{}
@@ -66,17 +66,17 @@ func Load(url string) (*Configuration, error) {
 	ext := path.Ext(url)
 	parser, ok := idx[ext]
 	if !ok {
-		return nil, fmt.Errorf("")
+		return nil, fmt.Errorf("unsupported extension: %s", ext)
 	}
 
 	body, err := ioutil.ReadFile(url)
 	if err != nil {
-		return nil, errors.Wrap(err, "")
+		return nil, errors.Wrap(err, fmt.Sprintf("failed to read file: %s", url))
 	}
 
 	config, err := parser(body)
 	if err != nil {
-		return nil, errors.Wrap(err, "")
+		return nil, errors.Wrap(err, "failed to parse body of file")
 	}
 
 	return config, nil

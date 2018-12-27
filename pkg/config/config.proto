@@ -62,7 +62,20 @@ message Account {
     Generic generic = 4;
 }
 
+message CloneOverride {
+    google.protobuf.StringValue repository_root = 1;
+    google.protobuf.Int32Value depth = 2;
+}
+
+message CloneConfiguration {
+    google.protobuf.StringValue repository_root = 1;
+    google.protobuf.Int32Value depth = 2;
+
+    map<string, CloneOverride> overrides = 10;
+}
+
 message Configuration {
     string mount = 1;
     repeated Account accounts = 2;
+    CloneConfiguration clone = 3;
 }

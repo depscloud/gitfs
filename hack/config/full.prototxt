@@ -101,3 +101,33 @@ accounts {
         }
     }
 }
+clone {
+    repository_root {
+        value: "repository_root"
+    }
+    depth {
+        value: 1
+    }
+    overrides {
+        key: "regex.*"
+        value {
+            repository_root {
+                value: "repository_root"
+            }
+            depth {
+                value: 0
+            }
+        }
+    }
+    overrides {
+        key: "string-match"
+        value {
+            repository_root {
+                value: "repository_root"
+            }
+            depth {
+                value: 0
+            }
+        }
+    }
+}
