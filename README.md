@@ -9,16 +9,21 @@ Instead, it creates a virtual directory structure around git urls, making it eas
 
 ## Support
 
-Support on this library is limited right now, but open for active development.
+Support on this library is limited right now, but open and under for active development.
+Below, you will find some of the current limitations / capabilities for the project.
 
 [![Build Status](https://travis-ci.org/mjpitz/gitfs.svg?branch=master)](https://travis-ci.org/mjpitz/gitfs)
 [![Go Report Card](https://goreportcard.com/badge/github.com/mjpitz/gitfs)](https://goreportcard.com/report/github.com/mjpitz/gitfs)
 
-### Remotes
+### Limited Remote Implementations
 
 Currently, it supports a generic endpoint, but are open to supporting new remotes for various integrations.
 We are planning to support Github, Gitlab, and Bitbucket in the short term.
 PR's for each of these remotes based on their [config](pkg/config/config.proto) definitions are welcome.
+
+- [ ] [gh-3: Add remote implementation for gitlab](https://github.com/mjpitz/gitfs/issues/3)
+- [ ] [gh-2: Add remote implementation for bitbucket](https://github.com/mjpitz/gitfs/issues/2)
+- [x] [gh-1: Add remote implementation for github](https://github.com/mjpitz/gitfs/issues/1)
 
 ### In Memory Storage
 
@@ -26,11 +31,15 @@ For the proof of concept, this project leverages an in memory file system to sto
 This leverages the billy library, making it really easy to swap the underlying git filesystem for an alternative implementation.
 Support for on persistent stores will be added for better long term support.
 
+- [ ] [gh-4: Add support for both memfs and osfs](https://github.com/mjpitz/gitfs/issues/4)
+
 ### Shallow Clones
 
 It's important to note that when navigating to a repository, we perform a shallow clone on the fly.
 The shallow clone helps keep your footprint to a minimum while keeping developers waiting to a minimum.
 We do plan on adding support for full clones in a background process upon request.
+
+- [ ] [gh-5: Support non-shallow clones](https://github.com/mjpitz/gitfs/issues/5)
 
 ## Getting Started
 
@@ -39,14 +48,49 @@ It will get better over time as development continues on the project.
 
 ### Prerequisites
 
+**libfuse**
+
 You'll need to install FUSE on your system in order to use this project.
 For directions on how to install, see the [libfuse](https://github.com/libfuse/libfuse) github page.
 
+```
+apt-get install libfuse-dev   # linux
+brew cask install osxfuse     # osx
+```
+
+**Golang 11**
+
 In addition to the libfuse module, you will also need [go 11](https://golang.org/doc/install) installed.
-This is only needed while I work on making a binary available for general use.
-For now, you'll need to build from source.
+
+```
+wget -O go1.11.tar.gz https://dl.google.com/go/go1.11.linux-amd64.tar.gz   # linux
+wget -O go1.11.tar.gz https://dl.google.com/go/go1.11.darwin-amd64.tar.gz  # osx
+
+tar -xvf go1.11.tar.gz
+sudo mv go /usr/local
+rm go1.11.tar.gz
+
+# add these to your environment
+export GOROOT=/usr/local/go
+export GOPATH=$HOME/go
+export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
+```
+  
+**Protocol Buffers**
 
 Lastly, you will need the [protocol buffers compiler](https://developers.google.com/protocol-buffers/docs/downloads) should you plan on doing any development on this project.
+
+```
+wget -O protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v3.6.1/protoc-3.6.1-linux-x86_64.zip   #linux
+wget -O protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v3.6.1/protoc-3.6.1-osx-x86_64.zip     #osx
+
+unzip -d protoc protoc.zip
+sudo mv protoc /usr/local
+
+# add this to your environment 
+export PATH=/usr/local/protoc/bin:$PATH
+```
+
 We also use the [gogo](https://github.com/gogo/protobuf) generation for protobuf, so you will need the compiler plugin installed.
 
 ```
