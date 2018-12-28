@@ -2,6 +2,7 @@ package clone
 
 import (
 	"crypto/sha256"
+	"encoding/base32"
 	"github.com/mjpitz/gitfs/pkg/config"
 	"github.com/mjpitz/gitfs/pkg/sync"
 	"github.com/pkg/errors"
@@ -76,7 +77,7 @@ func (c *Cloner) Resolve(url string) (string, int32, error) {
 	return root, depth, nil
 }
 
-func (c *Cloner) fs(root, url string) billy.Filesystem {
+func (c *Cloner) fs(root string) billy.Filesystem {
 	fs, ok := c.rootfs[root]
 
 	if !ok {
@@ -99,15 +100,17 @@ func (c *Cloner) Clone(url string) (billy.Filesystem, error) {
 		return nil, errors.Wrapf(err, "failed to resolve url: %s", url)
 	}
 
-	fs := c.fs(root, url)
-
 	// use a sha256 in the url to insulate the paths
-	urlPath := string(sha256.New().Sum([]byte(url)))
+	hash := sha256.New()
+	hash.Write([]byte(url))
+	urlPath := base32.HexEncoding.
+		WithPadding(base32.NoPadding).
+		EncodeToString(hash.Sum(nil))
 
 	// pull from a cache before chroot
 	urlfs, ok := c.fscache[urlPath]
 	if !ok {
-		urlfs, err = fs.Chroot(urlPath)
+		urlfs, err = c.fs(root).Chroot(urlPath)
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to create %s dir for %s", urlPath, url)
 		}
