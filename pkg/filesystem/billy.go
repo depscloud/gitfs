@@ -16,29 +16,7 @@ import (
 	"gopkg.in/src-d/go-billy.v4"
 )
 
-// node functions
-var _ fs.Node = &BillyNode{}          // Attr
-var _ fs.NodeSetattrer = &BillyNode{} // Setattr
-
-// directory functions
-var _ fs.NodeStringLookuper = &BillyNode{} // Lookup
-var _ fs.HandleReadDirAller = &BillyNode{} // HandleReadDirAller
-var _ fs.NodeMkdirer = &BillyNode{}        // Mkdir
-var _ fs.NodeCreater = &BillyNode{}        // Create
-var _ fs.NodeRemover = &BillyNode{}        // Remove
-var _ fs.NodeRenamer = &BillyNode{}        // Rename
-var _ fs.NodeSymlinker = &BillyNode{}      // Symlink
-
-// handle functions
-var _ fs.NodeOpener = &BillyNode{}     // Open
-var _ fs.HandleWriter = &BillyNode{}   // Write
-var _ fs.HandleReader = &BillyNode{}   // Read
-var _ fs.NodeFsyncer = &BillyNode{}    // fsync
-var _ fs.HandleFlusher = &BillyNode{}  // Flush
-var _ fs.HandleReleaser = &BillyNode{} // Release
-
-// symlink functions
-var _ fs.NodeReadlinker = &BillyNode{} // Readlink
+var _ INode = &BillyNode{}
 
 const defaultPerms = 0644
 const allPerms = 0777
@@ -70,9 +48,6 @@ type BillyNode struct {
 
 	// support file level locking
 	mu *sync.Mutex
-
-	// node cache for re-use
-	cache map[string]*BillyNode
 }
 
 func (n *BillyNode) Fsync(ctx context.Context, req *fuse.FsyncRequest) error {
@@ -125,8 +100,20 @@ func (n *BillyNode) Flush(ctx context.Context, req *fuse.FlushRequest) error {
 		return err
 	}
 
-	file.Lock()
-	defer file.Unlock()
+	if err = file.Lock(); err != nil {
+		n.error("load", err)
+		return fuse.ENOENT
+	}
+
+	defer func() {
+		if err := file.Unlock(); err != nil {
+			n.error("load", err)
+		}
+
+		if err := file.Close(); err != nil {
+			n.error("load", err)
+		}
+	}()
 
 	if _, err := file.Write(n.data); err != nil {
 		return err
@@ -210,10 +197,6 @@ func (n *BillyNode) Symlink(ctx context.Context, req *fuse.SymlinkRequest) (fs.N
 	n.mu.Lock()
 	defer n.mu.Unlock()
 
-	if node, ok := n.cache[req.NewName]; ok {
-		return node, nil
-	}
-
 	fullPath := n.fs.Join(n.path, req.NewName)
 
 	if err := n.fs.Symlink(req.Target, fullPath); err != nil {
@@ -233,7 +216,6 @@ func (n *BillyNode) Symlink(ctx context.Context, req *fuse.SymlinkRequest) (fs.N
 		mu:      &sync.Mutex{},
 	}
 
-	n.cache[req.NewName] = node
 	return node, nil
 }
 
@@ -265,9 +247,6 @@ func (n *BillyNode) Rename(ctx context.Context, req *fuse.RenameRequest, newDir 
 		return fuse.ENOENT
 	}
 
-	// once the entry has been renamed, we need to purge the cache
-	delete(n.cache, req.OldName)
-
 	return nil
 }
 
@@ -288,9 +267,6 @@ func (n *BillyNode) Remove(ctx context.Context, req *fuse.RemoveRequest) error {
 		n.error("Remove", err)
 		return fuse.ENOENT
 	}
-
-	// remove the cached reference
-	delete(n.cache, req.Name)
 
 	return nil
 }
@@ -313,7 +289,7 @@ func (n *BillyNode) Create(ctx context.Context, req *fuse.CreateRequest, resp *f
 
 	// force load the data
 	// ensure proper file handle
-	node.load()
+	err = node.load()
 
 	return node, node, err
 }
@@ -328,10 +304,6 @@ func (n *BillyNode) Mkdir(ctx context.Context, req *fuse.MkdirRequest) (fs.Node,
 
 	n.mu.Lock()
 	defer n.mu.Unlock()
-
-	if node, ok := n.cache[req.Name]; ok {
-		return node, nil
-	}
 
 	fullPath := n.fs.Join(n.path, req.Name)
 
@@ -350,10 +322,8 @@ func (n *BillyNode) Mkdir(ctx context.Context, req *fuse.MkdirRequest) (fs.Node,
 		size:    0,
 		data:    nil,
 		mu:      &sync.Mutex{},
-		cache:   make(map[string]*BillyNode),
 	}
 
-	n.cache[req.Name] = node
 	return node, nil
 }
 
@@ -468,10 +438,6 @@ func (n *BillyNode) Attr(ctx context.Context, attr *fuse.Attr) error {
 func (n *BillyNode) createOrOpen(name string, create bool, mode os.FileMode) (*BillyNode, error) {
 	n.debug("createOrOpen", name)
 
-	if node, ok := n.cache[name]; ok {
-		return node, nil
-	}
-
 	fullPath := n.fs.Join(n.path, name)
 
 	// symlink
@@ -486,9 +452,7 @@ func (n *BillyNode) createOrOpen(name string, create bool, mode os.FileMode) (*B
 			size:    uint64(len(target)),
 			data:    nil,
 			mu:      &sync.Mutex{},
-			cache:   make(map[string]*BillyNode),
 		}
-		n.cache[name] = node
 		return node, nil
 	}
 
@@ -505,10 +469,8 @@ func (n *BillyNode) createOrOpen(name string, create bool, mode os.FileMode) (*B
 			size:    uint64(finfo.Size()),
 			data:    nil,
 			mu:      &sync.Mutex{},
-			cache:   make(map[string]*BillyNode),
 		}
 
-		n.cache[name] = node
 		return node, nil
 	} else if !create {
 		// file does not exist, not creating
@@ -516,9 +478,15 @@ func (n *BillyNode) createOrOpen(name string, create bool, mode os.FileMode) (*B
 	}
 
 	// don't use bfs.Create since it assigns 666 permissions
-	if _, err := n.fs.OpenFile(fullPath, createFileFlags, mode); err != nil {
+	file, err := n.fs.OpenFile(fullPath, createFileFlags, mode)
+	if err != nil {
 		n.error("createOrOpen", err)
 		// shouldn't really happen but lets just account for it just in case
+		return nil, fuse.EEXIST
+	}
+
+	if err := file.Close(); err != nil {
+		n.error("createOrOpen", err)
 		return nil, fuse.EEXIST
 	}
 
@@ -532,10 +500,8 @@ func (n *BillyNode) createOrOpen(name string, create bool, mode os.FileMode) (*B
 		size:    0,
 		data:    make([]byte, 0),
 		mu:      &sync.Mutex{},
-		cache:   make(map[string]*BillyNode),
 	}
 
-	n.cache[name] = node
 	return node, nil
 }
 
@@ -553,8 +519,20 @@ func (n *BillyNode) load() error {
 		return fuse.ENOENT
 	}
 
-	file.Lock()
-	defer file.Unlock()
+	if err = file.Lock(); err != nil {
+		n.error("load", err)
+		return fuse.ENOENT
+	}
+
+	defer func() {
+		if err := file.Unlock(); err != nil {
+			n.error("load", err)
+		}
+
+		if err := file.Close(); err != nil {
+			n.error("load", err)
+		}
+	}()
 
 	data := make([]byte, n.size)
 	if n.size > 0 {
@@ -565,6 +543,7 @@ func (n *BillyNode) load() error {
 	}
 
 	n.data = data
+
 	return nil
 }
 
@@ -588,10 +567,12 @@ func (n *BillyNode) error(method string, err error) {
 }
 
 func (n *BillyNode) debug(method string, req interface{}) {
-	reqData, _ := json.Marshal(req)
+	if os.Getenv("DEBUG") == "true" {
+		reqData, _ := json.Marshal(req)
 
-	logrus.Infof(
-		"[filesystem.billy] [repo=%s, path=%s] [BillyNode#%s] [req=%s]",
-		n.repourl, n.path, method, string(reqData),
-	)
+		logrus.Infof(
+			"[filesystem.billy] [repo=%s, path=%s] [BillyNode#%s] [req=%s]",
+			n.repourl, n.path, method, string(reqData),
+		)
+	}
 }

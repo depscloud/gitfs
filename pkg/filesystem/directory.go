@@ -13,15 +13,12 @@ import (
 )
 
 func NewDirectory(uid, gid uint32, tree *gitfstree.TreeNode, cloner *clone.Cloner) fs.Node {
-	cache := make(map[string]fs.Node)
-
 	return &Directory{
-		uid:       uid,
-		gid:       gid,
-		tree:      tree,
-		cloner:    cloner,
-		cacheLock: sync.Mutex{},
-		cache:     cache,
+		uid:    uid,
+		gid:    gid,
+		tree:   tree,
+		cloner: cloner,
+		lock:   &sync.Mutex{},
 	}
 }
 
@@ -30,24 +27,16 @@ type Directory struct {
 	gid    uint32
 	tree   *gitfstree.TreeNode
 	cloner *clone.Cloner
-
-	// use a cache so that you always get the same reference back
-	// todo: prune cache
-	cacheLock sync.Mutex
-	cache     map[string]fs.Node
+	lock   *sync.Mutex
 }
 
 func (d *Directory) Lookup(ctx context.Context, name string) (fs.Node, error) {
-	d.cacheLock.Lock()
-	defer d.cacheLock.Unlock()
+	d.lock.Lock()
+	defer d.lock.Unlock()
 
 	node, ok := d.tree.Child(name)
 	if !ok {
 		return nil, fuse.ENOENT
-	}
-
-	if entry, ok := d.cache[name]; ok {
-		return entry, nil
 	}
 
 	var directory fs.Node
@@ -70,17 +59,15 @@ func (d *Directory) Lookup(ctx context.Context, name string) (fs.Node, error) {
 				uid: d.uid,
 				gid: d.gid,
 			},
-			mode:  os.ModeDir | defaultPerms,
-			size:  0,
-			data:  nil,
-			mu:    &sync.Mutex{},
-			cache: make(map[string]*BillyNode),
+			mode: os.ModeDir | defaultPerms,
+			size: 0,
+			data: nil,
+			mu:   &sync.Mutex{},
 		}
 	} else {
 		directory = NewDirectory(d.uid, d.gid, node, d.cloner)
 	}
 
-	d.cache[name] = directory
 	return directory, nil
 }
 
