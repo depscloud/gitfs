@@ -33,13 +33,19 @@ type Cloner struct {
 	fscache map[string]billy.Filesystem
 }
 
-func (c *Cloner) Resolve(url string) (string, int32, error) {
+func (c *Cloner) Resolve(url string) (string, string, int32, error) {
 	cfg := c.cfg
 	root := ""
 	depth := int32(1)
 
+	hash := sha256.New()
+	hash.Write([]byte(url))
+	bucket := base32.HexEncoding.
+		WithPadding(base32.NoPadding).
+		EncodeToString(hash.Sum(nil))
+
 	if cfg == nil {
-		return root, depth, nil
+		return root, bucket, depth, nil
 	}
 
 	if cfg.RepositoryRoot != nil {
@@ -55,7 +61,7 @@ func (c *Cloner) Resolve(url string) (string, int32, error) {
 			regex, err := regexp.Compile(key)
 
 			if err != nil {
-				return "", 0, err
+				return "", "", 0, err
 			}
 
 			if !regex.Match([]byte(url)) {
@@ -74,7 +80,7 @@ func (c *Cloner) Resolve(url string) (string, int32, error) {
 		break
 	}
 
-	return root, depth, nil
+	return root, bucket, depth, nil
 }
 
 func (c *Cloner) fs(root string) billy.Filesystem {
@@ -95,24 +101,17 @@ func (c *Cloner) fs(root string) billy.Filesystem {
 }
 
 func (c *Cloner) Clone(url string) (billy.Filesystem, error) {
-	root, depth, err := c.Resolve(url)
+	root, bucket, depth, err := c.Resolve(url)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to resolve url: %s", url)
 	}
 
-	// use a sha256 in the url to insulate the paths
-	hash := sha256.New()
-	hash.Write([]byte(url))
-	urlPath := base32.HexEncoding.
-		WithPadding(base32.NoPadding).
-		EncodeToString(hash.Sum(nil))
-
 	// pull from a cache before chroot
-	urlfs, ok := c.fscache[urlPath]
+	urlfs, ok := c.fscache[bucket]
 	if !ok {
-		urlfs, err = c.fs(root).Chroot(urlPath)
+		urlfs, err = c.fs(root).Chroot(bucket)
 		if err != nil {
-			return nil, errors.Wrapf(err, "failed to create %s dir for %s", urlPath, url)
+			return nil, errors.Wrapf(err, "failed to create %s dir for %s", bucket, url)
 		}
 
 		gitfs, err := urlfs.Chroot(git.GitDirName)
@@ -127,7 +126,7 @@ func (c *Cloner) Clone(url string) (billy.Filesystem, error) {
 			Depth: int(depth),
 		})
 
-		c.fscache[urlPath] = urlfs
+		c.fscache[bucket] = urlfs
 	}
 	return urlfs, nil
 }
