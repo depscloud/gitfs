@@ -6,6 +6,7 @@ import (
 	"github.com/mjpitz/gitfs/pkg/config"
 	"github.com/mjpitz/gitfs/pkg/sync"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/src-d/go-billy.v4"
 	"gopkg.in/src-d/go-billy.v4/memfs"
 	"gopkg.in/src-d/go-billy.v4/osfs"
@@ -121,10 +122,22 @@ func (c *Cloner) Clone(url string) (billy.Filesystem, error) {
 
 		storage := filesystem.NewStorage(gitfs, cache.NewObjectLRUDefault())
 
+
 		_, err = git.Clone(storage, urlfs, &git.CloneOptions{
 			URL:   url,
 			Depth: int(depth),
 		})
+
+		if err == git.ErrRepositoryAlreadyExists {
+			// gracefully handle the case where the repo already exists
+			// intentionally empty block
+			// probably could use a debug log
+		} else if err != nil {
+			// propagate other errors
+			return nil, errors.Wrapf(err, "failed to clone repo: %s", url)
+		} else {
+			logrus.Infof("[clone.cloner] repo %s successfully cloned", url)
+		}
 
 		c.fscache[bucket] = urlfs
 	}

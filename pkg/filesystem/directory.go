@@ -42,8 +42,6 @@ func (d *Directory) Lookup(ctx context.Context, name string) (fs.Node, error) {
 	var directory fs.Node
 
 	if len(node.URL) > 0 {
-		logrus.Infof("[filesystem.directory] cloning %s", node.URL)
-
 		cloned, err := d.cloner.Clone(node.URL)
 		if err != nil {
 			logrus.Errorf("[filesystem.directory] failed to clone url: %s, %v", node.URL, err)
