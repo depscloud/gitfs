@@ -33,13 +33,17 @@ type Cloner struct {
 
 func (c *Cloner) Resolve(url string) (string, int32, error) {
 	cfg := c.cfg
-
 	root := ""
+	depth := int32(1)
+
+	if cfg == nil {
+		return root, depth, nil
+	}
+
 	if cfg.RepositoryRoot != nil {
 		root = cfg.RepositoryRoot.Value
 	}
 
-	depth := int32(1)
 	if cfg.Depth != nil {
 		depth = cfg.Depth.Value
 	}
