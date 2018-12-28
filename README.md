@@ -25,22 +25,6 @@ PR's for each of these remotes based on their [config](pkg/config/config.proto) 
 - [ ] [gh-2: Add remote implementation for bitbucket](https://github.com/mjpitz/gitfs/issues/2)
 - [x] [gh-1: Add remote implementation for github](https://github.com/mjpitz/gitfs/issues/1)
 
-### In Memory Storage
-
-For the proof of concept, this project leverages an in memory file system to store the cloned repositories.
-This leverages the billy library, making it really easy to swap the underlying git filesystem for an alternative implementation.
-Support for on persistent stores will be added for better long term support.
-
-- [ ] [gh-4: Add support for both memfs and osfs](https://github.com/mjpitz/gitfs/issues/4)
-
-### Shallow Clones
-
-It's important to note that when navigating to a repository, we perform a shallow clone on the fly.
-The shallow clone helps keep your footprint to a minimum while keeping developers waiting to a minimum.
-We do plan on adding support for full clones in a background process upon request.
-
-- [ ] [gh-5: Support non-shallow clones](https://github.com/mjpitz/gitfs/issues/5)
-
 ## Getting Started
 
 Getting started with this tool can be a little bit of a hassle for now.
@@ -127,6 +111,9 @@ accounts:
         token: <oauth_token>
       users:
       - <username>
+clone:
+  repositoryRoot: "${HOME}/.gitfs/cache" # this is where your repos will be cloned
+  depth: 0 # depth 0 means full clone
 ```
 
 ### Running gitfs
