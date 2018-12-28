@@ -11,6 +11,7 @@ import (
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing/cache"
 	"gopkg.in/src-d/go-git.v4/storage/filesystem"
+	"os"
 	"regexp"
 )
 
@@ -84,7 +85,7 @@ func (c *Cloner) fs(root, url string) billy.Filesystem {
 				Delegate: memfs.New(),
 			}
 		} else {
-			fs = osfs.New(root)
+			fs = osfs.New(os.ExpandEnv(root))
 		}
 		c.rootfs[root] = fs
 	}
