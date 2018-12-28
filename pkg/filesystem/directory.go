@@ -6,99 +6,66 @@ import (
 
 	"bazil.org/fuse"
 	"bazil.org/fuse/fs"
+	"github.com/mjpitz/gitfs/pkg/clone"
 	"github.com/mjpitz/gitfs/pkg/tree"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
-	"gopkg.in/src-d/go-billy.v4/memfs"
-	"gopkg.in/src-d/go-git.v4"
-	"gopkg.in/src-d/go-git.v4/plumbing/cache"
-	"gopkg.in/src-d/go-git.v4/storage/filesystem"
 )
 
-func NewDirectory(uid, gid uint32, tree *gitfstree.TreeNode) fs.Node {
-	cache := make(map[string]fs.Node)
-
+func NewDirectory(uid, gid uint32, tree *gitfstree.TreeNode, cloner *clone.Cloner) fs.Node {
 	return &Directory{
-		uid:       uid,
-		gid:       gid,
-		tree:      tree,
-		cacheLock: sync.Mutex{},
-		cache:     cache,
+		uid:    uid,
+		gid:    gid,
+		tree:   tree,
+		cloner: cloner,
+		lock:   &sync.Mutex{},
 	}
 }
 
 type Directory struct {
-	uid  uint32
-	gid  uint32
-	tree *gitfstree.TreeNode
-
-	// use a cache so that you always get the same reference back
-	// todo: prune cache
-	cacheLock sync.Mutex
-	cache     map[string]fs.Node
+	uid    uint32
+	gid    uint32
+	tree   *gitfstree.TreeNode
+	cloner *clone.Cloner
+	lock   *sync.Mutex
 }
 
 func (d *Directory) Lookup(ctx context.Context, name string) (fs.Node, error) {
-	d.cacheLock.Lock()
-	defer d.cacheLock.Unlock()
+	d.lock.Lock()
+	defer d.lock.Unlock()
 
 	node, ok := d.tree.Child(name)
 	if !ok {
 		return nil, fuse.ENOENT
 	}
 
-	if entry, ok := d.cache[name]; ok {
-		return entry, nil
-	}
-
 	var directory fs.Node
 
 	if len(node.URL) > 0 {
-		myfs := &SynchronizedFilesystem{
-			Delegate: memfs.New(),
-		}
-
-		gitfs, err := myfs.Chroot(git.GitDirName)
+		cloned, err := d.cloner.Clone(node.URL)
 		if err != nil {
-			logrus.Errorf("[filesystem.directory] failed to create .git dir")
-			return nil, fuse.ENOENT
-		}
-
-		storage := filesystem.NewStorage(gitfs, cache.NewObjectLRUDefault())
-
-		logrus.Infof("[filesystem.directory] cloning repository: %s", node.URL)
-
-		// shallow clone for now since we only support read only
-		_, err = git.Clone(storage, myfs, &git.CloneOptions{
-			URL:   node.URL,
-			Depth: 1,
-		})
-
-		if err != nil {
-			logrus.Errorf("[filesystem.directory] failed to clone repository: %v", err)
+			logrus.Errorf("[filesystem.directory] failed to clone url: %s, %v", node.URL, err)
 			return nil, fuse.ENOENT
 		}
 
 		directory = &BillyNode{
 			repourl: node.URL,
-			fs:      myfs,
+			fs:      cloned,
 			path:    "",
 			target:  "",
 			user: BillyUser{
 				uid: d.uid,
 				gid: d.gid,
 			},
-			mode:  os.ModeDir | defaultPerms,
-			size:  0,
-			data:  nil,
-			mu:    &sync.Mutex{},
-			cache: make(map[string]*BillyNode),
+			mode: os.ModeDir | defaultPerms,
+			size: 0,
+			data: nil,
+			mu:   &sync.Mutex{},
 		}
 	} else {
-		directory = NewDirectory(d.uid, d.gid, node)
+		directory = NewDirectory(d.uid, d.gid, node, d.cloner)
 	}
 
-	d.cache[name] = directory
 	return directory, nil
 }
 

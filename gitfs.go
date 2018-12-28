@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"github.com/mjpitz/gitfs/pkg/clone"
 	"os"
 	"os/user"
 	"path"
@@ -88,10 +89,13 @@ func main() {
 	uid, _ := strconv.Atoi(current.Uid)
 	gid, _ := strconv.Atoi(current.Gid)
 
+	cloner := clone.NewCloner(cfg.Clone)
+
 	filesys := &filesystem.FileSystem{
-		Uid:  uint32(uid),
-		Gid:  uint32(gid),
-		Tree: tree,
+		Uid:    uint32(uid),
+		Gid:    uint32(gid),
+		Tree:   tree,
+		Cloner: cloner,
 	}
 
 	logrus.Info("[main] now serving file system")

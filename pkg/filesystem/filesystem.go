@@ -2,17 +2,19 @@ package filesystem
 
 import (
 	"bazil.org/fuse/fs"
+	"github.com/mjpitz/gitfs/pkg/clone"
 	"github.com/mjpitz/gitfs/pkg/tree"
 )
 
 type FileSystem struct {
-	Uid  uint32
-	Gid  uint32
-	Tree *gitfstree.TreeNode
+	Uid    uint32
+	Gid    uint32
+	Tree   *gitfstree.TreeNode
+	Cloner *clone.Cloner
 }
 
 var _ fs.FS = (*FileSystem)(nil)
 
-func (fs *FileSystem) Root() (fs.Node, error) {
-	return NewDirectory(fs.Uid, fs.Gid, fs.Tree), nil
+func (f *FileSystem) Root() (fs.Node, error) {
+	return NewDirectory(f.Uid, f.Gid, f.Tree, f.Cloner), nil
 }

@@ -87,5 +87,19 @@
         }
       }
     }
-  ]
+  ],
+  "clone": {
+    "repositoryRoot": "repository_root",
+    "depth": 1,
+    "overrides": {
+      "regex.*": {
+        "repositoryRoot": "repository_root",
+        "depth": 0
+      },
+      "string-match": {
+        "repositoryRoot": "repository_root",
+        "depth": 0
+      }
+    }
+  }
 }
