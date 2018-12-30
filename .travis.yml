@@ -24,3 +24,18 @@ script:
   # special build for linux arm systems, both 32 and 64 bit.
   # can't build arm64 yet. some code seems to allude to it, but the gox tool still reports an error.
   - gox -os="linux" -arch="arm" -output="bin/{{.Dir}}_{{.OS}}_{{.Arch}}" ./...
+
+deploy:
+  provider: releases
+  skip_cleanup: true
+  api_key:
+    secure: "${GITHUB_OAUTH_TOKEN_SECURE}"
+  file:
+    - bin/gitfs_darwin_386
+    - bin/gitfs_darwin_amd64
+    - bin/gitfs_linux_386
+    - bin/gitfs_linux_amd64
+    - bin/gitfs_linux_arm
+  on:
+    repo: mjpitz/gitfs
+    tags: true
