@@ -3,7 +3,6 @@ package cmd
 import (
 	"bazil.org/fuse"
 	"bazil.org/fuse/fs"
-	"flag"
 	"github.com/mjpitz/gitfs/pkg/clone"
 	"github.com/mjpitz/gitfs/pkg/config"
 	"github.com/mjpitz/gitfs/pkg/filesystem"
@@ -13,13 +12,12 @@ import (
 	"github.com/spf13/cobra"
 	"os"
 	"os/user"
-	"path"
 	"strconv"
 	"strings"
 )
 
 var StartCommand = &cobra.Command{
-	Use:   "start [configfile]",
+	Use:   "start",
 	Short: "Starts the file system server.",
 	Run: func(cmd *cobra.Command, args []string) {
 		current, err := user.Current()
@@ -27,10 +25,7 @@ var StartCommand = &cobra.Command{
 			fail("failed to determine current user")
 		}
 
-		props := path.Join(current.HomeDir, ".gitfs/config.yml")
-		flag.StringVar(&props, "config", props, "Specify the configuration path")
-		flag.Parse()
-
+		props := ConfigPath
 		if len(props) == 0 {
 			fail("missing config file")
 		}

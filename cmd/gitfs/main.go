@@ -2,20 +2,20 @@ package main
 
 import (
 	"fmt"
-	"os"
-
 	"github.com/mjpitz/gitfs/cmd"
 	"github.com/spf13/cobra"
+	"os"
 )
 
 func main() {
 	rootCmd := &cobra.Command{
 		Use: "gitfs",
-		Run: func(this *cobra.Command, args []string) {
-			// run the start command by default
-			cmd.StartCommand.Run(this, args)
-		},
 	}
+
+	// all commands need config
+	rootCmd.PersistentFlags().StringVar(&cmd.ConfigPath, "config",
+		cmd.ConfigPath,
+		"Specify the configuration path")
 
 	rootCmd.AddCommand(cmd.StartCommand)
 
