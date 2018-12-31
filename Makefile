@@ -1,14 +1,16 @@
 default: gitfs
 
-fmt:
-	go fmt
+deps:
+	go get -t -v ./...
 
 test:
-	go test
+	go vet ./...
+	go test -v -race ./...
 
 install:
-	go install
+	go build -o "${GOPATH}/bin/gitfs" cmd/gitfs/main.go
 
-gitfs: install
-	gitfs
-
+deploy:
+	mkdir -p bin
+	gox -os="linux darwin" -arch="amd64 386" -output="bin/{{.Dir}}_{{.OS}}_{{.Arch}}" ./...
+	gox -os="linux" -arch="arm" -output="bin/{{.Dir}}_{{.OS}}_{{.Arch}}" ./...

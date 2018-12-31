@@ -122,7 +122,6 @@ func (c *Cloner) Clone(url string) (billy.Filesystem, error) {
 
 		storage := filesystem.NewStorage(gitfs, cache.NewObjectLRUDefault())
 
-
 		_, err = git.Clone(storage, urlfs, &git.CloneOptions{
 			URL:   url,
 			Depth: int(depth),
