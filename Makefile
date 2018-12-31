@@ -11,6 +11,6 @@ install:
 	go build -o "${GOPATH}/bin/gitfs" cmd/gitfs/main.go
 
 deploy:
-	mkdir bin
+	mkdir -p bin
 	gox -os="linux darwin" -arch="amd64 386" -output="bin/{{.Dir}}_{{.OS}}_{{.Arch}}" ./...
 	gox -os="linux" -arch="arm" -output="bin/{{.Dir}}_{{.OS}}_{{.Arch}}" ./...

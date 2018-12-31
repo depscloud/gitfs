@@ -20,8 +20,7 @@ import (
 
 var StartCommand = &cobra.Command{
 	Use:   "start [configfile]",
-	Short: "Short description shown in 'help' output",
-	Long:  "Long message show in the 'helo command' output",
+	Short: "Starts the file system server.",
 	Run: func(cmd *cobra.Command, args []string) {
 		current, err := user.Current()
 		if err != nil {
