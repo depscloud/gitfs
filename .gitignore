@@ -1,4 +1,5 @@
 .idea/
 tmp/
-gitfs
+cmd/gitfs/gitfs
+cmd/gitfs-start/gitfs-start
 bin/
