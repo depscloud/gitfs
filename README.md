@@ -42,58 +42,11 @@ apt-get install libfuse-dev   # linux
 brew cask install osxfuse     # osx
 ```
 
-**Golang 11**
+### Releases
 
-In addition to the libfuse module, you will also need [go 11](https://golang.org/doc/install) installed.
+Releases for this project can be found here under github's releases integration.
 
-```
-wget -O go1.11.tar.gz https://dl.google.com/go/go1.11.linux-amd64.tar.gz   # linux
-wget -O go1.11.tar.gz https://dl.google.com/go/go1.11.darwin-amd64.tar.gz  # osx
-
-tar -xvf go1.11.tar.gz
-sudo mv go /usr/local
-rm go1.11.tar.gz
-
-# add these to your environment
-export GOROOT=/usr/local/go
-export GOPATH=$HOME/go
-export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
-```
-  
-**Protocol Buffers**
-
-Lastly, you will need the [protocol buffers compiler](https://developers.google.com/protocol-buffers/docs/downloads) should you plan on doing any development on this project.
-
-```
-wget -O protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v3.6.1/protoc-3.6.1-linux-x86_64.zip   #linux
-wget -O protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v3.6.1/protoc-3.6.1-osx-x86_64.zip     #osx
-
-unzip -d protoc protoc.zip
-sudo mv protoc /usr/local
-
-# add this to your environment 
-export PATH=/usr/local/protoc/bin:$PATH
-```
-
-We also use the [gogo](https://github.com/gogo/protobuf) generation for protobuf, so you will need the compiler plugin installed.
-
-```
-go get github.com/gogo/protobuf/protoc-gen-gogo
-```
- 
-### Building from Source
-
-This project was written using Golang 11's modules.
-As a result, we require that you use the modules component for installation.
-The 5 commands below should install a working copy to your `${GOPATH}/bin` path.
-
-```bash
-mkdir -p ${GOPATH}/src/github.com/mjpitz
-cd ${GOPATH}/src/github.com/mjpitz
-git clone git@github.come:mjpitz/gitfs.git
-cd gitfs
-GO11MODULES=on go install
-```
+https://github.com/mjpitz/gitfs/releases
 
 ### Configuring gitfs
 
