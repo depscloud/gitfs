@@ -18,6 +18,7 @@ func main() {
 		"Specify the configuration path")
 
 	rootCmd.AddCommand(cmd.StartCommand)
+	rootCmd.AddCommand(cmd.StopCommand)
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
