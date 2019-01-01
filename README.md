@@ -71,16 +71,16 @@ clone:
 
 ### Running gitfs
 
-Once your configuration has been created and values have been replaced, you can run `gitfs`.
+Once your configuration has been created and values have been replaced, you can run `gitfs start`.
 Note that running `gitfs` will spawn the filesystem service as a blocking process in your active terminal window.
 You can run this as a systemctl daemon, but I find having access to the logs more readily at this time is a bit nicer.
 
-To run, simply execute `gitfs`.
+To run, simply execute `gitfs start`.
 When run successfully, you should see an output message similar to the one below.
 
 ```
 [mjpitz@mjpitz ~/Development/go/src/github.com/mjpitz/gitfs master]
-$ gitfs
+$ gitfs start
 INFO[0000] [main] configured mount point: /Users/mjpitz/Development/code 
 INFO[0000] [main] fetching repositories                 
 INFO[0000] [remotes.github] processing organizations for user: mjpitz 
