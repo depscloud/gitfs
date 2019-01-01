@@ -3,6 +3,9 @@ package clone
 import (
 	"crypto/sha256"
 	"encoding/base32"
+	"os"
+	"regexp"
+
 	"github.com/mjpitz/gitfs/pkg/config"
 	"github.com/mjpitz/gitfs/pkg/sync"
 	"github.com/pkg/errors"
@@ -13,8 +16,6 @@ import (
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing/cache"
 	"gopkg.in/src-d/go-git.v4/storage/filesystem"
-	"os"
-	"regexp"
 )
 
 func NewCloner(cfg *config.CloneConfiguration) *Cloner {

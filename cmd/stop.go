@@ -1,12 +1,13 @@
 package cmd
 
 import (
+	"os"
+	"syscall"
+
 	"github.com/mjpitz/gitfs/pkg/config"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"golang.org/x/sys/unix"
-	"os"
-	"syscall"
 )
 
 var StopCommand = &cobra.Command{
