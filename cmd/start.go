@@ -1,6 +1,11 @@
 package cmd
 
 import (
+	"os"
+	"os/user"
+	"strconv"
+	"strings"
+
 	"bazil.org/fuse"
 	"bazil.org/fuse/fs"
 	"github.com/mjpitz/gitfs/pkg/clone"
@@ -10,10 +15,6 @@ import (
 	"github.com/mjpitz/gitfs/pkg/tree"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"os"
-	"os/user"
-	"strconv"
-	"strings"
 )
 
 var StartCommand = &cobra.Command{

@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	"github.com/sirupsen/logrus"
 	"os"
+
+	"github.com/sirupsen/logrus"
 )
 
 var (
