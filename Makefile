@@ -1,4 +1,4 @@
-default: gitfs
+default: install
 
 deps:
 	go get -t -v ./...
