@@ -19,9 +19,8 @@ import (
 var _ INode = &BillyNode{}
 
 const defaultPerms = 0644
-const allPerms = 0777
 const maxFileSize = math.MaxUint64
-const createFileFlags = os.O_RDWR | os.O_CREATE | os.O_TRUNC
+const createFileFlags = os.O_WRONLY | os.O_CREATE | os.O_TRUNC
 const maxInt = uint64(int(^uint(0) >> 1))
 
 type BillyUser struct {
@@ -52,9 +51,8 @@ type BillyNode struct {
 
 func (n *BillyNode) Fsync(ctx context.Context, req *fuse.FsyncRequest) error {
 	n.debug("Fsync", req)
-
-	// call flush for now
-	return n.Flush(ctx, nil)
+	// not quite sure what to do here, but it needs to be implemented and return nil.
+	return nil
 }
 
 // symlink functions
@@ -95,27 +93,29 @@ func (n *BillyNode) Flush(ctx context.Context, req *fuse.FlushRequest) error {
 	n.mu.Lock()
 	defer n.mu.Unlock()
 
-	file, err := n.fs.OpenFile(n.path, os.O_WRONLY, n.mode)
+	file, err := n.fs.OpenFile(n.path, createFileFlags, n.mode)
 	if err != nil {
+		n.error("Flush", err)
 		return err
 	}
 
 	if err = file.Lock(); err != nil {
-		n.error("load", err)
+		n.error("Flush", err)
 		return fuse.ENOENT
 	}
 
 	defer func() {
 		if err := file.Unlock(); err != nil {
-			n.error("load", err)
+			n.error("Flush", err)
 		}
 
 		if err := file.Close(); err != nil {
-			n.error("load", err)
+			n.error("Flush", err)
 		}
 	}()
 
 	if _, err := file.Write(n.data); err != nil {
+		n.error("Flush", err)
 		return err
 	}
 
@@ -281,17 +281,21 @@ func (n *BillyNode) Create(ctx context.Context, req *fuse.CreateRequest, resp *f
 	n.mu.Lock()
 	defer n.mu.Unlock()
 
-	node, err := n.createOrOpen(req.Name, true, req.Mode)
-	if err != nil {
-		n.error("Create", err)
-		return nil, nil, err
+	fullPath := n.fs.Join(n.path, req.Name)
+
+	node := &BillyNode{
+		repourl: n.repourl,
+		fs:      n.fs,
+		path:    fullPath,
+		target:  "",
+		user:    n.user,
+		mode:    req.Mode,
+		size:    uint64(0),
+		data:    make([]byte, 0),
+		mu:      &sync.Mutex{},
 	}
 
-	// force load the data
-	// ensure proper file handle
-	err = node.load()
-
-	return node, node, err
+	return node, node, nil
 }
 
 func (n *BillyNode) Mkdir(ctx context.Context, req *fuse.MkdirRequest) (fs.Node, error) {
@@ -366,13 +370,40 @@ func (n *BillyNode) Lookup(ctx context.Context, name string) (fs.Node, error) {
 	n.mu.Lock()
 	defer n.mu.Unlock()
 
-	node, err := n.createOrOpen(name, false, defaultPerms)
+	fullPath := n.fs.Join(n.path, name)
 
-	if err != nil {
-		return nil, fuse.ENOENT
+	// symlink
+	if target, err := n.fs.Readlink(fullPath); err == nil {
+		node := &BillyNode{
+			repourl: n.repourl,
+			fs:      n.fs,
+			path:    fullPath,
+			target:  target,
+			user:    n.user,
+			mode:    os.ModeSymlink | 0755,
+			size:    uint64(len(target)),
+			data:    nil,
+			mu:      &sync.Mutex{},
+		}
+		return node, nil
 	}
 
-	return node, nil
+	if finfo, err := n.fs.Stat(fullPath); err != nil {
+		// assumed file does not exist
+		return nil, fuse.ENOENT
+	} else {
+		return &BillyNode{
+			repourl: n.repourl,
+			fs:      n.fs,
+			path:    fullPath,
+			target:  "",
+			user:    n.user,
+			mode:    finfo.Mode(),
+			size:    uint64(finfo.Size()),
+			data:    nil,
+			mu:      &sync.Mutex{},
+		}, nil
+	}
 }
 
 // node functions
@@ -434,76 +465,6 @@ func (n *BillyNode) Attr(ctx context.Context, attr *fuse.Attr) error {
 }
 
 // helper functions
-
-func (n *BillyNode) createOrOpen(name string, create bool, mode os.FileMode) (*BillyNode, error) {
-	n.debug("createOrOpen", name)
-
-	fullPath := n.fs.Join(n.path, name)
-
-	// symlink
-	if target, err := n.fs.Readlink(fullPath); err == nil {
-		node := &BillyNode{
-			repourl: n.repourl,
-			fs:      n.fs,
-			path:    fullPath,
-			target:  target,
-			user:    n.user,
-			mode:    os.ModeSymlink | defaultPerms,
-			size:    uint64(len(target)),
-			data:    nil,
-			mu:      &sync.Mutex{},
-		}
-		return node, nil
-	}
-
-	finfo, err := n.fs.Stat(fullPath)
-	if err == nil {
-		// file exists, create reference
-		node := &BillyNode{
-			repourl: n.repourl,
-			fs:      n.fs,
-			path:    fullPath,
-			target:  "",
-			user:    n.user,
-			mode:    finfo.Mode(),
-			size:    uint64(finfo.Size()),
-			data:    nil,
-			mu:      &sync.Mutex{},
-		}
-
-		return node, nil
-	} else if !create {
-		// file does not exist, not creating
-		return nil, fuse.ENOENT
-	}
-
-	// don't use bfs.Create since it assigns 666 permissions
-	file, err := n.fs.OpenFile(fullPath, createFileFlags, mode)
-	if err != nil {
-		n.error("createOrOpen", err)
-		// shouldn't really happen but lets just account for it just in case
-		return nil, fuse.EEXIST
-	}
-
-	if err := file.Close(); err != nil {
-		n.error("createOrOpen", err)
-		return nil, fuse.EEXIST
-	}
-
-	node := &BillyNode{
-		repourl: n.repourl,
-		fs:      n.fs,
-		path:    fullPath,
-		target:  "",
-		user:    n.user,
-		mode:    mode,
-		size:    0,
-		data:    make([]byte, 0),
-		mu:      &sync.Mutex{},
-	}
-
-	return node, nil
-}
 
 func (n *BillyNode) load() error {
 	if n.data != nil {
