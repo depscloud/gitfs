@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"os"
 
 	"github.com/mjpitz/gitfs/cmd"
@@ -9,6 +10,8 @@ import (
 )
 
 func main() {
+	logrus.SetOutput(os.Stdout)
+
 	rootCmd := &cobra.Command{
 		Use: "gitfs",
 	}
