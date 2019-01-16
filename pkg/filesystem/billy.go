@@ -51,9 +51,8 @@ type BillyNode struct {
 
 func (n *BillyNode) Fsync(ctx context.Context, req *fuse.FsyncRequest) error {
 	n.debug("Fsync", req)
-
-	// call flush for now
-	return n.Flush(ctx, nil)
+	// not quite sure what to do here, but it needs to be implemented and return nil.
+	return nil
 }
 
 // symlink functions
