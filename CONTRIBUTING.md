@@ -66,6 +66,10 @@ Your first commit will be used as the commit message, unless project owners desi
 
 **Dependency Management**
 
+This project uses go modules for managing it's dependencies.
+When working on this project, always make sure you run `go mod tidy` before pushing.
+This will ensure that we do not pull in more dependencies then needed for compilation. 
+
 ```
 go get -u <dependency>
 go mod tidy
@@ -74,16 +78,15 @@ go mod tidy
 **Testing**
 
 ```
-go vet ./...
-go test -v -race ./...
+make test
 ```
 
 **Building / Installing**
 
-```
-go build
-go install
-```
+`make install` can be used to compile a development version for the current platform.
+The binary will be placed in your `$GOPATH/bin` directory.
+
+`make deploy` can be used to cross compile the application for different platforms using `gox`.
 
 **Issue Reporting**
 
