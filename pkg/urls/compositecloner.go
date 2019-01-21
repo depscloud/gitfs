@@ -2,6 +2,7 @@ package urls
 
 import (
 	"fmt"
+
 	"gopkg.in/src-d/go-billy.v4"
 )
 

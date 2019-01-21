@@ -2,6 +2,7 @@ package remotes
 
 import (
 	"fmt"
+
 	"github.com/mjpitz/gitfs/pkg/config"
 )
 

@@ -3,14 +3,15 @@ package urls
 import (
 	"crypto/sha256"
 	"encoding/base32"
+	"os"
+	"regexp"
+
 	"github.com/mjpitz/gitfs/pkg/config"
 	"github.com/mjpitz/gitfs/pkg/sync"
 	"github.com/pkg/errors"
 	"gopkg.in/src-d/go-billy.v4"
 	"gopkg.in/src-d/go-billy.v4/memfs"
 	"gopkg.in/src-d/go-billy.v4/osfs"
-	"os"
-	"regexp"
 )
 
 func NewFileSystemAdapter(cfg *config.CloneConfiguration) *FileSystemAdapter {

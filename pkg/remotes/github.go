@@ -2,11 +2,11 @@ package remotes
 
 import (
 	"context"
-	"github.com/sirupsen/logrus"
 	"net/http"
 
 	"github.com/google/go-github/v20/github"
 	"github.com/mjpitz/gitfs/pkg/config"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 )
 

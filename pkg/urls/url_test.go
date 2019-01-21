@@ -1,9 +1,10 @@
 package urls_test
 
 import (
+	"testing"
+
 	"github.com/mjpitz/gitfs/pkg/urls"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 

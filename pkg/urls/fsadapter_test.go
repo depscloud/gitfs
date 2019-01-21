@@ -1,11 +1,12 @@
 package urls_test
 
 import (
+	"testing"
+
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/mjpitz/gitfs/pkg/config"
 	"github.com/mjpitz/gitfs/pkg/urls"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func Test_resolve(t *testing.T) {

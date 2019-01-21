@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"os"
 
 	"github.com/mjpitz/gitfs/cmd"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 

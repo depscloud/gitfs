@@ -1,8 +1,9 @@
 package gitfstree
 
 import (
-	"github.com/mjpitz/gitfs/pkg/urls"
 	"reflect"
+
+	"github.com/mjpitz/gitfs/pkg/urls"
 )
 
 func NewTreeNode() *TreeNode {

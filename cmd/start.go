@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"github.com/mjpitz/gitfs/pkg/urls"
 	"os"
 	"os/user"
 	"path"
@@ -14,6 +13,7 @@ import (
 	"github.com/mjpitz/gitfs/pkg/filesystem"
 	"github.com/mjpitz/gitfs/pkg/remotes"
 	"github.com/mjpitz/gitfs/pkg/tree"
+	"github.com/mjpitz/gitfs/pkg/urls"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
