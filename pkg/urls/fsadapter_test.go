@@ -1,9 +1,9 @@
-package clone_test
+package urls_test
 
 import (
 	"github.com/golang/protobuf/ptypes/wrappers"
-	"github.com/mjpitz/gitfs/pkg/clone"
 	"github.com/mjpitz/gitfs/pkg/config"
+	"github.com/mjpitz/gitfs/pkg/urls"
 	"github.com/stretchr/testify/require"
 	"testing"
 )
@@ -38,7 +38,7 @@ func Test_resolve(t *testing.T) {
 		},
 	}
 
-	cloner := clone.NewCloner(cfg)
+	cloner := urls.NewFileSystemAdapter(cfg)
 
 	data := [][]interface{}{
 		{

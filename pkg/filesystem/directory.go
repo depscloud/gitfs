@@ -1,33 +1,33 @@
 package filesystem
 
 import (
+	"github.com/mjpitz/gitfs/pkg/urls"
 	"os"
 	"sync"
 
 	"bazil.org/fuse"
 	"bazil.org/fuse/fs"
-	"github.com/mjpitz/gitfs/pkg/clone"
 	"github.com/mjpitz/gitfs/pkg/tree"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 )
 
-func NewDirectory(uid, gid uint32, tree *gitfstree.TreeNode, cloner *clone.Cloner) fs.Node {
+func NewDirectory(uid, gid uint32, tree *gitfstree.TreeNode, cloner *urls.FileSystemAdapter) fs.Node {
 	return &Directory{
-		uid:    uid,
-		gid:    gid,
-		tree:   tree,
-		cloner: cloner,
-		lock:   &sync.Mutex{},
+		uid:  uid,
+		gid:  gid,
+		tree: tree,
+		fsa:  cloner,
+		lock: &sync.Mutex{},
 	}
 }
 
 type Directory struct {
-	uid    uint32
-	gid    uint32
-	tree   *gitfstree.TreeNode
-	cloner *clone.Cloner
-	lock   *sync.Mutex
+	uid  uint32
+	gid  uint32
+	tree *gitfstree.TreeNode
+	fsa  *urls.FileSystemAdapter
+	lock *sync.Mutex
 }
 
 func (d *Directory) Lookup(ctx context.Context, name string) (fs.Node, error) {
@@ -41,15 +41,15 @@ func (d *Directory) Lookup(ctx context.Context, name string) (fs.Node, error) {
 
 	var directory fs.Node
 
-	if len(node.URL) > 0 {
-		cloned, err := d.cloner.Clone(node.URL)
+	if node.URL != nil {
+		cloned, err := d.fsa.Clone(node.URL)
 		if err != nil {
 			logrus.Errorf("[filesystem.directory] failed to clone url: %s, %v", node.URL, err)
 			return nil, fuse.ENOENT
 		}
 
 		directory = &BillyNode{
-			repourl: node.URL,
+			repourl: node.URL.String(),
 			fs:      cloned,
 			path:    "",
 			target:  "",
@@ -63,7 +63,7 @@ func (d *Directory) Lookup(ctx context.Context, name string) (fs.Node, error) {
 			mu:   &sync.Mutex{},
 		}
 	} else {
-		directory = NewDirectory(d.uid, d.gid, node, d.cloner)
+		directory = NewDirectory(d.uid, d.gid, node, d.fsa)
 	}
 
 	return directory, nil

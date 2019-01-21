@@ -1,14 +1,15 @@
 package cmd
 
 import (
+	"github.com/mjpitz/gitfs/pkg/urls"
 	"os"
 	"os/user"
+	"path"
 	"strconv"
 	"strings"
 
 	"bazil.org/fuse"
 	"bazil.org/fuse/fs"
-	"github.com/mjpitz/gitfs/pkg/clone"
 	"github.com/mjpitz/gitfs/pkg/config"
 	"github.com/mjpitz/gitfs/pkg/filesystem"
 	"github.com/mjpitz/gitfs/pkg/remotes"
@@ -54,23 +55,27 @@ var StartCommand = &cobra.Command{
 
 		logrus.Info("[main] parsing repositories into a directory structure")
 		for _, repository := range repositories {
-			start := 4
-			separator := strings.Index(repository, ":")
-			end := len(repository) - 4
+			url, err := urls.ParseUrl(repository)
+			if err != nil {
+				logrus.Warnf("[main] failed to parse url: %v", err)
+				continue
+			}
 
-			// git@code.corp.indeed.com:squall/yellowhat-snapshots-prod.git
-			// git@<<HOST>>:<<PATH>>.git
-			host := repository[start:separator]
-			path := repository[separator+1 : end]
+			host := url.URL.Host
+			fullPath := url.URL.Path
 
-			// expand into directory structure
-			parts := strings.Split(path, "/")
+			// remove suffix
+			ext := path.Ext(fullPath)
+			fullPath = strings.TrimSuffix(fullPath, ext)
+			fullPath = strings.TrimPrefix(fullPath, "/")
+
+			parts := strings.Split(fullPath, "/")
 
 			var fullPathParts []string
 			fullPathParts = append(fullPathParts, host)
 			fullPathParts = append(fullPathParts, parts...)
 
-			tree.Insert(fullPathParts, repository)
+			tree.Insert(fullPathParts, url)
 		}
 
 		logrus.Infof("[main] attempting to mount %s", mountpoint)
@@ -83,13 +88,13 @@ var StartCommand = &cobra.Command{
 		uid, _ := strconv.Atoi(current.Uid)
 		gid, _ := strconv.Atoi(current.Gid)
 
-		cloner := clone.NewCloner(cfg.Clone)
+		cloner := urls.NewFileSystemAdapter(cfg.Clone)
 
 		filesys := &filesystem.FileSystem{
-			Uid:    uint32(uid),
-			Gid:    uint32(gid),
-			Tree:   tree,
-			Cloner: cloner,
+			Uid:  uint32(uid),
+			Gid:  uint32(gid),
+			Tree: tree,
+			FSA:  cloner,
 		}
 
 		logrus.Info("[main] now serving file system")

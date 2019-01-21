@@ -1,42 +1,40 @@
-package clone
+package urls
 
 import (
 	"crypto/sha256"
 	"encoding/base32"
-	"os"
-	"regexp"
-
 	"github.com/mjpitz/gitfs/pkg/config"
 	"github.com/mjpitz/gitfs/pkg/sync"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 	"gopkg.in/src-d/go-billy.v4"
 	"gopkg.in/src-d/go-billy.v4/memfs"
 	"gopkg.in/src-d/go-billy.v4/osfs"
-	"gopkg.in/src-d/go-git.v4"
-	"gopkg.in/src-d/go-git.v4/plumbing/cache"
-	"gopkg.in/src-d/go-git.v4/storage/filesystem"
+	"os"
+	"regexp"
 )
 
-func NewCloner(cfg *config.CloneConfiguration) *Cloner {
+func NewFileSystemAdapter(cfg *config.CloneConfiguration) *FileSystemAdapter {
 	rootfs := make(map[string]billy.Filesystem)
 	fscache := make(map[string]billy.Filesystem)
+	cloner := NewCloner()
 
-	return &Cloner{
+	return &FileSystemAdapter{
 		cfg:     cfg,
 		rootfs:  rootfs,
 		fscache: fscache,
+		cloner:  cloner,
 	}
 }
 
-type Cloner struct {
+type FileSystemAdapter struct {
 	cfg     *config.CloneConfiguration
 	rootfs  map[string]billy.Filesystem
 	fscache map[string]billy.Filesystem
+	cloner 	Cloner
 }
 
-func (c *Cloner) Resolve(url string) (string, string, int32, error) {
-	cfg := c.cfg
+func (fsa *FileSystemAdapter) Resolve(url string) (string, string, int32, error) {
+	cfg := fsa.cfg
 	root := ""
 	depth := int32(1)
 
@@ -85,8 +83,8 @@ func (c *Cloner) Resolve(url string) (string, string, int32, error) {
 	return root, bucket, depth, nil
 }
 
-func (c *Cloner) fs(root string) billy.Filesystem {
-	fs, ok := c.rootfs[root]
+func (fsa *FileSystemAdapter) fs(root string) billy.Filesystem {
+	fs, ok := fsa.rootfs[root]
 
 	if !ok {
 		if len(root) == 0 {
@@ -96,50 +94,34 @@ func (c *Cloner) fs(root string) billy.Filesystem {
 		} else {
 			fs = osfs.New(os.ExpandEnv(root))
 		}
-		c.rootfs[root] = fs
+		fsa.rootfs[root] = fs
 	}
 
 	return fs
 }
 
-func (c *Cloner) Clone(url string) (billy.Filesystem, error) {
-	root, bucket, depth, err := c.Resolve(url)
+func (fsa *FileSystemAdapter) Clone(url *URL) (billy.Filesystem, error) {
+	rawurl := url.String()
+	root, bucket, depth, err := fsa.Resolve(rawurl)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to resolve url: %s", url)
 	}
 
 	// pull from a cache before chroot
-	urlfs, ok := c.fscache[bucket]
+	urlfs, ok := fsa.fscache[bucket]
 	if !ok {
-		urlfs, err = c.fs(root).Chroot(bucket)
+		urlfs, err = fsa.fs(root).Chroot(bucket)
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to create %s dir for %s", bucket, url)
 		}
 
-		gitfs, err := urlfs.Chroot(git.GitDirName)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to create .git dir")
+		if err = fsa.cloner.Clone(url, int(depth), urlfs); err != nil {
+			return nil, errors.Wrapf(err, "failed to clone: %s url", rawurl)
 		}
 
-		storage := filesystem.NewStorage(gitfs, cache.NewObjectLRUDefault())
-
-		_, err = git.Clone(storage, urlfs, &git.CloneOptions{
-			URL:   url,
-			Depth: int(depth),
-		})
-
-		if err == git.ErrRepositoryAlreadyExists {
-			// gracefully handle the case where the repo already exists
-			// intentionally empty block
-			// probably could use a debug log
-		} else if err != nil {
-			// propagate other errors
-			return nil, errors.Wrapf(err, "failed to clone repo: %s", url)
-		} else {
-			logrus.Infof("[clone.cloner] repo %s successfully cloned", url)
-		}
-
-		c.fscache[bucket] = urlfs
+		fsa.fscache[bucket] = urlfs
 	}
+
+	// do something with urlfs
 	return urlfs, nil
 }
