@@ -3,12 +3,13 @@ package remotes
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+
 	"github.com/mjpitz/gitfs/pkg/config"
 	"github.com/nytlabs/gojee"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"io/ioutil"
-	"net/http"
 )
 
 func NewGenericRemote(cfg *config.Generic) Remote {

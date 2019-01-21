@@ -1,6 +1,10 @@
 package gitfstree
 
-import "reflect"
+import (
+	"reflect"
+
+	"github.com/mjpitz/gitfs/pkg/urls"
+)
 
 func NewTreeNode() *TreeNode {
 	return &TreeNode{
@@ -9,11 +13,11 @@ func NewTreeNode() *TreeNode {
 }
 
 type TreeNode struct {
-	URL      string
+	URL      *urls.URL
 	children map[string]*TreeNode
 }
 
-func (t *TreeNode) Insert(path []string, url string) {
+func (t *TreeNode) Insert(path []string, url *urls.URL) {
 	ptr := t
 
 	for _, part := range path {
