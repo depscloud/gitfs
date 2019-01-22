@@ -10,6 +10,7 @@ import (
 	"golang.org/x/sys/unix"
 )
 
+// StopCommand defines the cobra.Command used to stop the system.
 var StopCommand = &cobra.Command{
 	Use:   "stop",
 	Short: "Stops the file system server.",

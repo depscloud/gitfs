@@ -9,7 +9,7 @@ import (
 
 
 func parse(t *testing.T, url string, vcs urls.VCS) error {
-	parsedUrl, err := urls.ParseUrl(url)
+	parsedUrl, err := urls.ParseURL(url)
 	if err != nil {
 		return err
 	}

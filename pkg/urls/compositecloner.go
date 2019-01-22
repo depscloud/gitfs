@@ -6,6 +6,8 @@ import (
 	"gopkg.in/src-d/go-billy.v4"
 )
 
+// NewCloner encapsulates the functionality for creating the default cloner.
+// The default cloner maintains a route table that uses the url info to map to the appropriate cloner.
 func NewCloner() Cloner {
 	cloners := make(map[VCS]Cloner)
 	cloners[GIT] = &gitcloner{}
@@ -29,5 +31,3 @@ func (cc *compositecloner) Clone(url *URL, depth int, fs billy.Filesystem) error
 
 	return cloner.Clone(url, depth, fs)
 }
-
-

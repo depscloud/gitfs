@@ -7,6 +7,7 @@ import (
 )
 
 var (
+	// ConfigPath defines where the default configuration file is stored.
 	ConfigPath = "${HOME}/.gitfs/config.yml"
 )
 

@@ -6,6 +6,8 @@ import (
 	"github.com/mjpitz/gitfs/pkg/config"
 )
 
+// ParseConfig is used to parse the account configuration and construct the
+// necessary remote endpoint based on the configuration object.
 func ParseConfig(configuration *config.Configuration) (Remote, error) {
 	remotes := make([]Remote, len(configuration.Accounts))
 

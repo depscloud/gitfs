@@ -12,6 +12,7 @@ import (
 	"golang.org/x/net/context"
 )
 
+// NewDirectory constructs a new directory object using the supplied parameters.
 func NewDirectory(uid, gid uint32, tree *gitfstree.TreeNode, cloner *urls.FileSystemAdapter) fs.Node {
 	return &Directory{
 		uid:  uid,
@@ -22,6 +23,7 @@ func NewDirectory(uid, gid uint32, tree *gitfstree.TreeNode, cloner *urls.FileSy
 	}
 }
 
+// Directory represents a read only directory within the immutable repository tree.
 type Directory struct {
 	uid  uint32
 	gid  uint32
@@ -30,6 +32,7 @@ type Directory struct {
 	lock *sync.Mutex
 }
 
+// Lookup description.
 func (d *Directory) Lookup(ctx context.Context, name string) (fs.Node, error) {
 	d.lock.Lock()
 	defer d.lock.Unlock()
@@ -69,6 +72,7 @@ func (d *Directory) Lookup(ctx context.Context, name string) (fs.Node, error) {
 	return directory, nil
 }
 
+// ReadDirAll description.
 func (d *Directory) ReadDirAll(ctx context.Context) ([]fuse.Dirent, error) {
 	// tree is immutable, no need to lock
 	children := d.tree.Children()
@@ -84,6 +88,7 @@ func (d *Directory) ReadDirAll(ctx context.Context) ([]fuse.Dirent, error) {
 	return dirents, nil
 }
 
+// Attr description.
 func (d *Directory) Attr(ctx context.Context, attr *fuse.Attr) error {
 	attr.Mode = os.ModeDir | 0755
 	return nil
