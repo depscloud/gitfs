@@ -12,6 +12,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// NewGenericRemote constructs a new remote endpoint that
 func NewGenericRemote(cfg *config.Generic) Remote {
 	return &genericRemote{
 		config: cfg,
@@ -39,7 +40,7 @@ func (r *genericRemote) ListRepositories() ([]string, error) {
 
 	repositories := make([]string, 0)
 	for page := 1; true; page++ {
-		fullUrl := fmt.Sprintf(
+		fullURL := fmt.Sprintf(
 			"%s%s?%s=%d&%s=%d",
 			r.config.BaseUrl,
 			r.config.Path,
@@ -49,10 +50,10 @@ func (r *genericRemote) ListRepositories() ([]string, error) {
 			r.config.PageSize,
 		)
 
-		resp, err := http.Get(fullUrl)
+		resp, err := http.Get(fullURL)
 		if err != nil {
 			return nil, errors.Wrap(err,
-				fmt.Sprintf("failed to get url: %s", fullUrl))
+				fmt.Sprintf("failed to get url: %s", fullURL))
 		}
 
 		if resp.StatusCode == http.StatusNotFound {

@@ -2,6 +2,8 @@ package remotes
 
 import "github.com/sirupsen/logrus"
 
+// NewCompositeRemote wraps the supplied remotes in a composite wrapper
+// which logs errors and continues processing remote endpoints.
 func NewCompositeRemote(remotes ...Remote) Remote {
 	return &compositeRemote{
 		remotes: remotes,

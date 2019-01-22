@@ -10,16 +10,18 @@ import (
 	"golang.org/x/oauth2"
 )
 
+// NewGithubRemote constructs a new remote implementation that speaks with GitHub
+// for repository related information.
 func NewGithubRemote(cfg *config.Github) (Remote, error) {
-	baseUrl := cfg.GetBaseUrl()
-	uploadUrl := cfg.GetUploadUrl()
+	baseURL := cfg.GetBaseUrl()
+	uploadURL := cfg.GetUploadUrl()
 
 	fn := func(client *http.Client) (*github.Client, error) {
 		return github.NewClient(client), nil
 	}
-	if baseUrl != nil && uploadUrl != nil {
+	if baseURL != nil && uploadURL != nil {
 		fn = func(client *http.Client) (*github.Client, error) {
-			return github.NewEnterpriseClient(baseUrl.Value, uploadUrl.Value, client)
+			return github.NewEnterpriseClient(baseURL.Value, uploadURL.Value, client)
 		}
 	}
 

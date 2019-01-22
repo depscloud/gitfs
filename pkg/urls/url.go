@@ -8,6 +8,7 @@ import (
 
 var _ fmt.Stringer = &URL{}
 
+// URL defines the address where a repository is located.
 type URL struct {
 	VCS
 	URL *url.URL
@@ -23,6 +24,8 @@ func (u *URL) String() string {
 	return u.URL.String()
 }
 
+// ParseURL accepts a url string and parses it into a well structured url.
+//
 // git:
 // git@<<HOST>>:<<PATH>>.git
 // https://<<HOST>><<PATH>>.git
@@ -38,11 +41,11 @@ func (u *URL) String() string {
 // http://[user[:pass]@]host[:port]/[path][#revision]
 // https://[user[:pass]@]host[:port]/[path][#revision]
 // ssh://[user@]host[:port]/[path][#revision]
-func ParseUrl(urlString string) (*URL, error) {
-	gitSsh := strings.HasPrefix(urlString, "git@")
+func ParseURL(urlString string) (*URL, error) {
+	gitSSH := strings.HasPrefix(urlString, "git@")
 	gitRepo := strings.HasSuffix(urlString, ".git")
 
-	if gitSsh && gitRepo {
+	if gitSSH && gitRepo {
 		idx := strings.LastIndex(urlString, ":")
 
 		urlString = strings.Replace(urlString, ":", "/", idx)

@@ -6,15 +6,17 @@ import (
 	"github.com/mjpitz/gitfs/pkg/urls"
 )
 
+// FileSystem defines the root of the directory tree.
 type FileSystem struct {
-	Uid  uint32
-	Gid  uint32
+	UID  uint32
+	GID  uint32
 	Tree *gitfstree.TreeNode
 	FSA  *urls.FileSystemAdapter
 }
 
 var _ fs.FS = (*FileSystem)(nil)
 
+// Root returns the root of the directory tree.
 func (f *FileSystem) Root() (fs.Node, error) {
-	return NewDirectory(f.Uid, f.Gid, f.Tree, f.FSA), nil
+	return NewDirectory(f.UID, f.GID, f.Tree, f.FSA), nil
 }

@@ -23,11 +23,15 @@ const maxFileSize = math.MaxUint64
 const createFileFlags = os.O_WRONLY | os.O_CREATE | os.O_TRUNC
 const maxInt = uint64(int(^uint(0) >> 1))
 
+// BillyUser is used to encapsulate the user id and group id across nodes.
 type BillyUser struct {
 	uid uint32
 	gid uint32
 }
 
+// BillyNode is used to represent a node in a directory structure. It
+// implements INode which defines all methods needed to be implemented by the
+// FUSE file system.
 type BillyNode struct {
 	// common between directories and files
 	repourl string
@@ -49,14 +53,14 @@ type BillyNode struct {
 	mu *sync.Mutex
 }
 
+// Fsync description.
 func (n *BillyNode) Fsync(ctx context.Context, req *fuse.FsyncRequest) error {
 	n.debug("Fsync", req)
 	// not quite sure what to do here, but it needs to be implemented and return nil.
 	return nil
 }
 
-// symlink functions
-
+// Readlink description.
 func (n *BillyNode) Readlink(ctx context.Context, req *fuse.ReadlinkRequest) (string, error) {
 	n.debug("Readlink", req)
 
@@ -67,8 +71,7 @@ func (n *BillyNode) Readlink(ctx context.Context, req *fuse.ReadlinkRequest) (st
 	return n.target, nil
 }
 
-// handle functions
-
+// Release description.
 func (n *BillyNode) Release(ctx context.Context, req *fuse.ReleaseRequest) error {
 	n.debug("Release", req)
 
@@ -83,6 +86,7 @@ func (n *BillyNode) Release(ctx context.Context, req *fuse.ReleaseRequest) error
 	return nil
 }
 
+// Flush description.
 func (n *BillyNode) Flush(ctx context.Context, req *fuse.FlushRequest) error {
 	n.debug("Flush", req)
 
@@ -122,6 +126,7 @@ func (n *BillyNode) Flush(ctx context.Context, req *fuse.FlushRequest) error {
 	return nil
 }
 
+// Read description.
 func (n *BillyNode) Read(ctx context.Context, req *fuse.ReadRequest, resp *fuse.ReadResponse) error {
 	n.debug("Read", req)
 
@@ -141,6 +146,7 @@ func (n *BillyNode) Read(ctx context.Context, req *fuse.ReadRequest, resp *fuse.
 	return nil
 }
 
+// Write description.
 func (n *BillyNode) Write(ctx context.Context, req *fuse.WriteRequest, resp *fuse.WriteResponse) error {
 	n.debug("Write", req)
 
@@ -165,6 +171,7 @@ func (n *BillyNode) Write(ctx context.Context, req *fuse.WriteRequest, resp *fus
 	return nil
 }
 
+// Open description.
 func (n *BillyNode) Open(ctx context.Context, req *fuse.OpenRequest, resp *fuse.OpenResponse) (fs.Handle, error) {
 	n.debug("Open", req)
 
@@ -185,8 +192,7 @@ func (n *BillyNode) Open(ctx context.Context, req *fuse.OpenRequest, resp *fuse.
 	return n, nil
 }
 
-// directory functions
-
+// Symlink description.
 func (n *BillyNode) Symlink(ctx context.Context, req *fuse.SymlinkRequest) (fs.Node, error) {
 	n.debug("Symlink", req)
 
@@ -219,6 +225,7 @@ func (n *BillyNode) Symlink(ctx context.Context, req *fuse.SymlinkRequest) (fs.N
 	return node, nil
 }
 
+// Rename description.
 func (n *BillyNode) Rename(ctx context.Context, req *fuse.RenameRequest, newDir fs.Node) error {
 	n.debug("Rename", req)
 
@@ -250,6 +257,7 @@ func (n *BillyNode) Rename(ctx context.Context, req *fuse.RenameRequest, newDir 
 	return nil
 }
 
+// Remove description.
 func (n *BillyNode) Remove(ctx context.Context, req *fuse.RemoveRequest) error {
 	n.debug("Remove", req)
 
@@ -271,6 +279,7 @@ func (n *BillyNode) Remove(ctx context.Context, req *fuse.RemoveRequest) error {
 	return nil
 }
 
+// Create description.
 func (n *BillyNode) Create(ctx context.Context, req *fuse.CreateRequest, resp *fuse.CreateResponse) (fs.Node, fs.Handle, error) {
 	n.debug("Create", req)
 
@@ -298,6 +307,7 @@ func (n *BillyNode) Create(ctx context.Context, req *fuse.CreateRequest, resp *f
 	return node, node, nil
 }
 
+// Mkdir description.
 func (n *BillyNode) Mkdir(ctx context.Context, req *fuse.MkdirRequest) (fs.Node, error) {
 	n.debug("Mkdir", req)
 
@@ -331,6 +341,7 @@ func (n *BillyNode) Mkdir(ctx context.Context, req *fuse.MkdirRequest) (fs.Node,
 	return node, nil
 }
 
+// ReadDirAll description.
 func (n *BillyNode) ReadDirAll(ctx context.Context) ([]fuse.Dirent, error) {
 	n.debug("ReadDirAll", nil)
 
@@ -360,6 +371,7 @@ func (n *BillyNode) ReadDirAll(ctx context.Context) ([]fuse.Dirent, error) {
 	return dirents, nil
 }
 
+// Lookup description.
 func (n *BillyNode) Lookup(ctx context.Context, name string) (fs.Node, error) {
 	n.debug("Lookup", name)
 
@@ -388,26 +400,26 @@ func (n *BillyNode) Lookup(ctx context.Context, name string) (fs.Node, error) {
 		return node, nil
 	}
 
-	if finfo, err := n.fs.Stat(fullPath); err != nil {
+	finfo, err := n.fs.Stat(fullPath)
+	if err != nil {
 		// assumed file does not exist
 		return nil, fuse.ENOENT
-	} else {
-		return &BillyNode{
-			repourl: n.repourl,
-			fs:      n.fs,
-			path:    fullPath,
-			target:  "",
-			user:    n.user,
-			mode:    finfo.Mode(),
-			size:    uint64(finfo.Size()),
-			data:    nil,
-			mu:      &sync.Mutex{},
-		}, nil
 	}
+
+	return &BillyNode{
+		repourl: n.repourl,
+		fs:      n.fs,
+		path:    fullPath,
+		target:  "",
+		user:    n.user,
+		mode:    finfo.Mode(),
+		size:    uint64(finfo.Size()),
+		data:    nil,
+		mu:      &sync.Mutex{},
+	}, nil
 }
 
-// node functions
-
+// Setattr description.
 func (n *BillyNode) Setattr(ctx context.Context, req *fuse.SetattrRequest, resp *fuse.SetattrResponse) error {
 	n.debug("Setattr", req)
 
@@ -447,6 +459,7 @@ func (n *BillyNode) Setattr(ctx context.Context, req *fuse.SetattrRequest, resp 
 	return nil
 }
 
+// Attr description.
 func (n *BillyNode) Attr(ctx context.Context, attr *fuse.Attr) error {
 	attr.Uid = n.user.uid
 	attr.Gid = n.user.gid

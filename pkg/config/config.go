@@ -46,6 +46,8 @@ func yml(body []byte) (*Configuration, error) {
 	return json(jsn)
 }
 
+// Parser defines the generic function definition used to parse binary data
+// into the proper configuration structure.
 type Parser = func([]byte) (*Configuration, error)
 
 func defaultParserIndex() map[string]Parser {
@@ -60,6 +62,9 @@ func defaultParserIndex() map[string]Parser {
 	return parserIndex
 }
 
+// Load accepts a url that points to a configuration file. The file is then
+// loaded into memory and parsed into a Configuration object. Parser lookup is
+// performed based on the url's extension.
 func Load(url string) (*Configuration, error) {
 	idx := defaultParserIndex()
 

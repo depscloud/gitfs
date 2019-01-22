@@ -18,6 +18,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// StartCommand defines the cobra.Command used to start the system.
 var StartCommand = &cobra.Command{
 	Use:   "start",
 	Short: "Starts the file system server.",
@@ -55,7 +56,7 @@ var StartCommand = &cobra.Command{
 
 		logrus.Info("[main] parsing repositories into a directory structure")
 		for _, repository := range repositories {
-			url, err := urls.ParseUrl(repository)
+			url, err := urls.ParseURL(repository)
 			if err != nil {
 				logrus.Warnf("[main] failed to parse url: %v", err)
 				continue
@@ -91,8 +92,8 @@ var StartCommand = &cobra.Command{
 		cloner := urls.NewFileSystemAdapter(cfg.Clone)
 
 		filesys := &filesystem.FileSystem{
-			Uid:  uint32(uid),
-			Gid:  uint32(gid),
+			UID:  uint32(uid),
+			GID:  uint32(gid),
 			Tree: tree,
 			FSA:  cloner,
 		}

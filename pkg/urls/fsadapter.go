@@ -14,6 +14,8 @@ import (
 	"gopkg.in/src-d/go-billy.v4/osfs"
 )
 
+// NewFileSystemAdapter create a new FileSystemAdapter from the provided configuration.
+// This method encapsulates creation of some caches.
 func NewFileSystemAdapter(cfg *config.CloneConfiguration) *FileSystemAdapter {
 	rootfs := make(map[string]billy.Filesystem)
 	fscache := make(map[string]billy.Filesystem)
@@ -27,6 +29,9 @@ func NewFileSystemAdapter(cfg *config.CloneConfiguration) *FileSystemAdapter {
 	}
 }
 
+// FileSystemAdapter maintains two caches.
+// One is a cache for the root filesystems.
+// The other was intended to be a cache that was periodically pruned.
 type FileSystemAdapter struct {
 	cfg     *config.CloneConfiguration
 	rootfs  map[string]billy.Filesystem
@@ -34,6 +39,8 @@ type FileSystemAdapter struct {
 	cloner 	Cloner
 }
 
+// Resolve determines which bucket the url falls into.
+// This function contains business logic around the configuration and is exposed for unit testing purposes.
 func (fsa *FileSystemAdapter) Resolve(url string) (string, string, int32, error) {
 	cfg := fsa.cfg
 	root := ""
@@ -101,6 +108,7 @@ func (fsa *FileSystemAdapter) fs(root string) billy.Filesystem {
 	return fs
 }
 
+// Clone accepts a url and clones it to an underlying filesystem.
 func (fsa *FileSystemAdapter) Clone(url *URL) (billy.Filesystem, error) {
 	rawurl := url.String()
 	root, bucket, depth, err := fsa.Resolve(rawurl)
