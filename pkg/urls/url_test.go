@@ -7,7 +7,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-
 func parse(t *testing.T, url string, vcs urls.VCS) error {
 	parsedUrl, err := urls.ParseURL(url)
 	if err != nil {

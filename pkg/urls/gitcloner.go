@@ -12,7 +12,6 @@ import (
 var _ Cloner = &gitcloner{}
 
 type gitcloner struct {
-
 }
 
 func (gc *gitcloner) Clone(url *URL, depth int, urlfs billy.Filesystem) error {

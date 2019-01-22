@@ -36,7 +36,7 @@ type FileSystemAdapter struct {
 	cfg     *config.CloneConfiguration
 	rootfs  map[string]billy.Filesystem
 	fscache map[string]billy.Filesystem
-	cloner 	Cloner
+	cloner  Cloner
 }
 
 // Resolve determines which bucket the url falls into.
