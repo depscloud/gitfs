@@ -4,6 +4,7 @@ Contributing
 ### prerequisites
 
 * [Opening a Pull Request](https://help.github.com/articles/about-pull-requests/)
+* Review [Code of Conduct](CODE_OF_CONDUCT.md)
 
 ### as a technical writer
 
