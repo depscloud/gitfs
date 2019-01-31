@@ -38,9 +38,10 @@ You'll need to install FUSE on your system in order to use this project.
 For directions on how to install, see the [libfuse](https://github.com/libfuse/libfuse) github page.
 
 ```
-apt-get install libfuse-dev   # Linux (Ubuntu/Debian)
-brew cask install osxfuse     # Mac Os X
-sudo pacman -S fuse           # Linux (Manjaro/Arch)
+sudo apt-get install libfuse-dev   # Ubuntu/Debian
+sudo pacman -S fuse                # Manjaro/Arch
+
+brew cask install osxfuse          # OSX
 ```
 
 ### Releases
