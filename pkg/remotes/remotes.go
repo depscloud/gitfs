@@ -23,6 +23,8 @@ func ParseConfig(configuration *config.Configuration) (Remote, error) {
 			remote, err = NewGithubRemote(github)
 		} else if gitlab := account.GetGitlab(); gitlab != nil {
 			err = fmt.Errorf("upsupported: gitlab")
+		} else if static := account.GetStatic(); static != nil {
+			remote = NewStaticRemote(static)
 		} else {
 			err = fmt.Errorf("unrecognized account")
 		}

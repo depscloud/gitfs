@@ -55,11 +55,16 @@ message Generic {
     Basic basic = 10;
 }
 
+message Static {
+    repeated string repository_urls = 1;
+}
+
 message Account {
     Github github = 1;
     Gitlab gitlab = 2;
     Bitbucket bitbucket = 3;
     Generic generic = 4;
+    Static static = 5;
 }
 
 message CloneOverride {

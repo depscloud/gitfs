@@ -101,6 +101,11 @@ accounts {
         }
     }
 }
+accounts {
+    static {
+        repository_urls: "repository_urls"
+    }
+}
 clone {
     repository_root {
         value: "repository_root"

@@ -52,6 +52,9 @@ accounts:
     oauth:
       token: "token"
       applicationId: "application_id"
+- static:
+    repositoryUrls:
+    - "repository_urls"
 clone:
   repositoryRoot: "repository_root"
   depth: 1

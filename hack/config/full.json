@@ -86,6 +86,13 @@
           "token": "token"
         }
       }
+    },
+    {
+      "static": {
+        "repositoryUrls": [
+          "repository_urls"
+        ]
+      }
     }
   ],
   "clone": {
