@@ -1,71 +1,11 @@
 syntax = "proto3";
 
-package mjpitz.gitfs;
+package mjpitz.gitfs.config;
 
 import "github.com/golang/protobuf/ptypes/wrappers/wrappers.proto";
+import "github.com/mjpitz/rds/pkg/config/config.proto";
 
 option go_package="config";
-
-message Basic {
-    string username = 1;
-    google.protobuf.StringValue password = 2;
-}
-
-message OAuthToken {
-    string token = 1;
-    google.protobuf.StringValue application_id = 2;
-}
-
-message OAuth2Token {
-    string token = 1;
-    google.protobuf.StringValue token_type = 2;
-    google.protobuf.StringValue refresh_token = 3;
-    google.protobuf.StringValue expiry = 4;
-}
-
-message Github {
-    google.protobuf.StringValue base_url = 1;
-    google.protobuf.StringValue upload_url = 2;
-    repeated string users = 3;
-    repeated string organizations = 4;
-
-    OAuth2Token oauth2 = 10;
-}
-
-message Gitlab {
-    google.protobuf.StringValue base_url = 1;
-
-    OAuthToken private = 10;
-    OAuthToken oauth = 11;
-}
-
-message Bitbucket {
-    Basic basic = 10;
-    OAuthToken oauth = 11;
-}
-
-message Generic {
-    string base_url = 1;
-    string path = 2;
-    string per_page_parameter = 3;
-    string page_parameter = 4;
-    int32 page_size = 5;
-    string selector = 6;
-
-    Basic basic = 10;
-}
-
-message Static {
-    repeated string repository_urls = 1;
-}
-
-message Account {
-    Github github = 1;
-    Gitlab gitlab = 2;
-    Bitbucket bitbucket = 3;
-    Generic generic = 4;
-    Static static = 5;
-}
 
 message CloneOverride {
     google.protobuf.StringValue repository_root = 1;
@@ -81,6 +21,6 @@ message CloneConfiguration {
 
 message Configuration {
     string mount = 1;
-    repeated Account accounts = 2;
+    repeated mjpitz.rds.config.Account accounts = 2;
     CloneConfiguration clone = 3;
 }

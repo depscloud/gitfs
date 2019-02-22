@@ -7,6 +7,7 @@ import proto "github.com/gogo/protobuf/proto"
 import fmt "fmt"
 import math "math"
 import wrappers "github.com/golang/protobuf/ptypes/wrappers"
+import config "github.com/mjpitz/rds/pkg/config"
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
@@ -18,524 +19,6 @@ var _ = math.Inf
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
-
-type Basic struct {
-	Username             string                `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
-	Password             *wrappers.StringValue `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
-	XXX_unrecognized     []byte                `json:"-"`
-	XXX_sizecache        int32                 `json:"-"`
-}
-
-func (m *Basic) Reset()         { *m = Basic{} }
-func (m *Basic) String() string { return proto.CompactTextString(m) }
-func (*Basic) ProtoMessage()    {}
-func (*Basic) Descriptor() ([]byte, []int) {
-	return fileDescriptor_config_48788413522433b8, []int{0}
-}
-func (m *Basic) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_Basic.Unmarshal(m, b)
-}
-func (m *Basic) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_Basic.Marshal(b, m, deterministic)
-}
-func (dst *Basic) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Basic.Merge(dst, src)
-}
-func (m *Basic) XXX_Size() int {
-	return xxx_messageInfo_Basic.Size(m)
-}
-func (m *Basic) XXX_DiscardUnknown() {
-	xxx_messageInfo_Basic.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_Basic proto.InternalMessageInfo
-
-func (m *Basic) GetUsername() string {
-	if m != nil {
-		return m.Username
-	}
-	return ""
-}
-
-func (m *Basic) GetPassword() *wrappers.StringValue {
-	if m != nil {
-		return m.Password
-	}
-	return nil
-}
-
-type OAuthToken struct {
-	Token                string                `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
-	ApplicationId        *wrappers.StringValue `protobuf:"bytes,2,opt,name=application_id,json=applicationId,proto3" json:"application_id,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
-	XXX_unrecognized     []byte                `json:"-"`
-	XXX_sizecache        int32                 `json:"-"`
-}
-
-func (m *OAuthToken) Reset()         { *m = OAuthToken{} }
-func (m *OAuthToken) String() string { return proto.CompactTextString(m) }
-func (*OAuthToken) ProtoMessage()    {}
-func (*OAuthToken) Descriptor() ([]byte, []int) {
-	return fileDescriptor_config_48788413522433b8, []int{1}
-}
-func (m *OAuthToken) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_OAuthToken.Unmarshal(m, b)
-}
-func (m *OAuthToken) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_OAuthToken.Marshal(b, m, deterministic)
-}
-func (dst *OAuthToken) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_OAuthToken.Merge(dst, src)
-}
-func (m *OAuthToken) XXX_Size() int {
-	return xxx_messageInfo_OAuthToken.Size(m)
-}
-func (m *OAuthToken) XXX_DiscardUnknown() {
-	xxx_messageInfo_OAuthToken.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_OAuthToken proto.InternalMessageInfo
-
-func (m *OAuthToken) GetToken() string {
-	if m != nil {
-		return m.Token
-	}
-	return ""
-}
-
-func (m *OAuthToken) GetApplicationId() *wrappers.StringValue {
-	if m != nil {
-		return m.ApplicationId
-	}
-	return nil
-}
-
-type OAuth2Token struct {
-	Token                string                `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
-	TokenType            *wrappers.StringValue `protobuf:"bytes,2,opt,name=token_type,json=tokenType,proto3" json:"token_type,omitempty"`
-	RefreshToken         *wrappers.StringValue `protobuf:"bytes,3,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
-	Expiry               *wrappers.StringValue `protobuf:"bytes,4,opt,name=expiry,proto3" json:"expiry,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
-	XXX_unrecognized     []byte                `json:"-"`
-	XXX_sizecache        int32                 `json:"-"`
-}
-
-func (m *OAuth2Token) Reset()         { *m = OAuth2Token{} }
-func (m *OAuth2Token) String() string { return proto.CompactTextString(m) }
-func (*OAuth2Token) ProtoMessage()    {}
-func (*OAuth2Token) Descriptor() ([]byte, []int) {
-	return fileDescriptor_config_48788413522433b8, []int{2}
-}
-func (m *OAuth2Token) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_OAuth2Token.Unmarshal(m, b)
-}
-func (m *OAuth2Token) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_OAuth2Token.Marshal(b, m, deterministic)
-}
-func (dst *OAuth2Token) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_OAuth2Token.Merge(dst, src)
-}
-func (m *OAuth2Token) XXX_Size() int {
-	return xxx_messageInfo_OAuth2Token.Size(m)
-}
-func (m *OAuth2Token) XXX_DiscardUnknown() {
-	xxx_messageInfo_OAuth2Token.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_OAuth2Token proto.InternalMessageInfo
-
-func (m *OAuth2Token) GetToken() string {
-	if m != nil {
-		return m.Token
-	}
-	return ""
-}
-
-func (m *OAuth2Token) GetTokenType() *wrappers.StringValue {
-	if m != nil {
-		return m.TokenType
-	}
-	return nil
-}
-
-func (m *OAuth2Token) GetRefreshToken() *wrappers.StringValue {
-	if m != nil {
-		return m.RefreshToken
-	}
-	return nil
-}
-
-func (m *OAuth2Token) GetExpiry() *wrappers.StringValue {
-	if m != nil {
-		return m.Expiry
-	}
-	return nil
-}
-
-type Github struct {
-	BaseUrl              *wrappers.StringValue `protobuf:"bytes,1,opt,name=base_url,json=baseUrl,proto3" json:"base_url,omitempty"`
-	UploadUrl            *wrappers.StringValue `protobuf:"bytes,2,opt,name=upload_url,json=uploadUrl,proto3" json:"upload_url,omitempty"`
-	Users                []string              `protobuf:"bytes,3,rep,name=users,proto3" json:"users,omitempty"`
-	Organizations        []string              `protobuf:"bytes,4,rep,name=organizations,proto3" json:"organizations,omitempty"`
-	Oauth2               *OAuth2Token          `protobuf:"bytes,10,opt,name=oauth2,proto3" json:"oauth2,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
-	XXX_unrecognized     []byte                `json:"-"`
-	XXX_sizecache        int32                 `json:"-"`
-}
-
-func (m *Github) Reset()         { *m = Github{} }
-func (m *Github) String() string { return proto.CompactTextString(m) }
-func (*Github) ProtoMessage()    {}
-func (*Github) Descriptor() ([]byte, []int) {
-	return fileDescriptor_config_48788413522433b8, []int{3}
-}
-func (m *Github) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_Github.Unmarshal(m, b)
-}
-func (m *Github) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_Github.Marshal(b, m, deterministic)
-}
-func (dst *Github) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Github.Merge(dst, src)
-}
-func (m *Github) XXX_Size() int {
-	return xxx_messageInfo_Github.Size(m)
-}
-func (m *Github) XXX_DiscardUnknown() {
-	xxx_messageInfo_Github.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_Github proto.InternalMessageInfo
-
-func (m *Github) GetBaseUrl() *wrappers.StringValue {
-	if m != nil {
-		return m.BaseUrl
-	}
-	return nil
-}
-
-func (m *Github) GetUploadUrl() *wrappers.StringValue {
-	if m != nil {
-		return m.UploadUrl
-	}
-	return nil
-}
-
-func (m *Github) GetUsers() []string {
-	if m != nil {
-		return m.Users
-	}
-	return nil
-}
-
-func (m *Github) GetOrganizations() []string {
-	if m != nil {
-		return m.Organizations
-	}
-	return nil
-}
-
-func (m *Github) GetOauth2() *OAuth2Token {
-	if m != nil {
-		return m.Oauth2
-	}
-	return nil
-}
-
-type Gitlab struct {
-	BaseUrl              *wrappers.StringValue `protobuf:"bytes,1,opt,name=base_url,json=baseUrl,proto3" json:"base_url,omitempty"`
-	Private              *OAuthToken           `protobuf:"bytes,10,opt,name=private,proto3" json:"private,omitempty"`
-	Oauth                *OAuthToken           `protobuf:"bytes,11,opt,name=oauth,proto3" json:"oauth,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
-	XXX_unrecognized     []byte                `json:"-"`
-	XXX_sizecache        int32                 `json:"-"`
-}
-
-func (m *Gitlab) Reset()         { *m = Gitlab{} }
-func (m *Gitlab) String() string { return proto.CompactTextString(m) }
-func (*Gitlab) ProtoMessage()    {}
-func (*Gitlab) Descriptor() ([]byte, []int) {
-	return fileDescriptor_config_48788413522433b8, []int{4}
-}
-func (m *Gitlab) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_Gitlab.Unmarshal(m, b)
-}
-func (m *Gitlab) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_Gitlab.Marshal(b, m, deterministic)
-}
-func (dst *Gitlab) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Gitlab.Merge(dst, src)
-}
-func (m *Gitlab) XXX_Size() int {
-	return xxx_messageInfo_Gitlab.Size(m)
-}
-func (m *Gitlab) XXX_DiscardUnknown() {
-	xxx_messageInfo_Gitlab.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_Gitlab proto.InternalMessageInfo
-
-func (m *Gitlab) GetBaseUrl() *wrappers.StringValue {
-	if m != nil {
-		return m.BaseUrl
-	}
-	return nil
-}
-
-func (m *Gitlab) GetPrivate() *OAuthToken {
-	if m != nil {
-		return m.Private
-	}
-	return nil
-}
-
-func (m *Gitlab) GetOauth() *OAuthToken {
-	if m != nil {
-		return m.Oauth
-	}
-	return nil
-}
-
-type Bitbucket struct {
-	Basic                *Basic      `protobuf:"bytes,10,opt,name=basic,proto3" json:"basic,omitempty"`
-	Oauth                *OAuthToken `protobuf:"bytes,11,opt,name=oauth,proto3" json:"oauth,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
-	XXX_unrecognized     []byte      `json:"-"`
-	XXX_sizecache        int32       `json:"-"`
-}
-
-func (m *Bitbucket) Reset()         { *m = Bitbucket{} }
-func (m *Bitbucket) String() string { return proto.CompactTextString(m) }
-func (*Bitbucket) ProtoMessage()    {}
-func (*Bitbucket) Descriptor() ([]byte, []int) {
-	return fileDescriptor_config_48788413522433b8, []int{5}
-}
-func (m *Bitbucket) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_Bitbucket.Unmarshal(m, b)
-}
-func (m *Bitbucket) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_Bitbucket.Marshal(b, m, deterministic)
-}
-func (dst *Bitbucket) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Bitbucket.Merge(dst, src)
-}
-func (m *Bitbucket) XXX_Size() int {
-	return xxx_messageInfo_Bitbucket.Size(m)
-}
-func (m *Bitbucket) XXX_DiscardUnknown() {
-	xxx_messageInfo_Bitbucket.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_Bitbucket proto.InternalMessageInfo
-
-func (m *Bitbucket) GetBasic() *Basic {
-	if m != nil {
-		return m.Basic
-	}
-	return nil
-}
-
-func (m *Bitbucket) GetOauth() *OAuthToken {
-	if m != nil {
-		return m.Oauth
-	}
-	return nil
-}
-
-type Generic struct {
-	BaseUrl              string   `protobuf:"bytes,1,opt,name=base_url,json=baseUrl,proto3" json:"base_url,omitempty"`
-	Path                 string   `protobuf:"bytes,2,opt,name=path,proto3" json:"path,omitempty"`
-	PerPageParameter     string   `protobuf:"bytes,3,opt,name=per_page_parameter,json=perPageParameter,proto3" json:"per_page_parameter,omitempty"`
-	PageParameter        string   `protobuf:"bytes,4,opt,name=page_parameter,json=pageParameter,proto3" json:"page_parameter,omitempty"`
-	PageSize             int32    `protobuf:"varint,5,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	Selector             string   `protobuf:"bytes,6,opt,name=selector,proto3" json:"selector,omitempty"`
-	Basic                *Basic   `protobuf:"bytes,10,opt,name=basic,proto3" json:"basic,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *Generic) Reset()         { *m = Generic{} }
-func (m *Generic) String() string { return proto.CompactTextString(m) }
-func (*Generic) ProtoMessage()    {}
-func (*Generic) Descriptor() ([]byte, []int) {
-	return fileDescriptor_config_48788413522433b8, []int{6}
-}
-func (m *Generic) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_Generic.Unmarshal(m, b)
-}
-func (m *Generic) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_Generic.Marshal(b, m, deterministic)
-}
-func (dst *Generic) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Generic.Merge(dst, src)
-}
-func (m *Generic) XXX_Size() int {
-	return xxx_messageInfo_Generic.Size(m)
-}
-func (m *Generic) XXX_DiscardUnknown() {
-	xxx_messageInfo_Generic.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_Generic proto.InternalMessageInfo
-
-func (m *Generic) GetBaseUrl() string {
-	if m != nil {
-		return m.BaseUrl
-	}
-	return ""
-}
-
-func (m *Generic) GetPath() string {
-	if m != nil {
-		return m.Path
-	}
-	return ""
-}
-
-func (m *Generic) GetPerPageParameter() string {
-	if m != nil {
-		return m.PerPageParameter
-	}
-	return ""
-}
-
-func (m *Generic) GetPageParameter() string {
-	if m != nil {
-		return m.PageParameter
-	}
-	return ""
-}
-
-func (m *Generic) GetPageSize() int32 {
-	if m != nil {
-		return m.PageSize
-	}
-	return 0
-}
-
-func (m *Generic) GetSelector() string {
-	if m != nil {
-		return m.Selector
-	}
-	return ""
-}
-
-func (m *Generic) GetBasic() *Basic {
-	if m != nil {
-		return m.Basic
-	}
-	return nil
-}
-
-type Static struct {
-	RepositoryUrls       []string `protobuf:"bytes,1,rep,name=repository_urls,json=repositoryUrls,proto3" json:"repository_urls,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *Static) Reset()         { *m = Static{} }
-func (m *Static) String() string { return proto.CompactTextString(m) }
-func (*Static) ProtoMessage()    {}
-func (*Static) Descriptor() ([]byte, []int) {
-	return fileDescriptor_config_48788413522433b8, []int{7}
-}
-func (m *Static) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_Static.Unmarshal(m, b)
-}
-func (m *Static) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_Static.Marshal(b, m, deterministic)
-}
-func (dst *Static) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Static.Merge(dst, src)
-}
-func (m *Static) XXX_Size() int {
-	return xxx_messageInfo_Static.Size(m)
-}
-func (m *Static) XXX_DiscardUnknown() {
-	xxx_messageInfo_Static.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_Static proto.InternalMessageInfo
-
-func (m *Static) GetRepositoryUrls() []string {
-	if m != nil {
-		return m.RepositoryUrls
-	}
-	return nil
-}
-
-type Account struct {
-	Github               *Github    `protobuf:"bytes,1,opt,name=github,proto3" json:"github,omitempty"`
-	Gitlab               *Gitlab    `protobuf:"bytes,2,opt,name=gitlab,proto3" json:"gitlab,omitempty"`
-	Bitbucket            *Bitbucket `protobuf:"bytes,3,opt,name=bitbucket,proto3" json:"bitbucket,omitempty"`
-	Generic              *Generic   `protobuf:"bytes,4,opt,name=generic,proto3" json:"generic,omitempty"`
-	Static               *Static    `protobuf:"bytes,5,opt,name=static,proto3" json:"static,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
-	XXX_unrecognized     []byte     `json:"-"`
-	XXX_sizecache        int32      `json:"-"`
-}
-
-func (m *Account) Reset()         { *m = Account{} }
-func (m *Account) String() string { return proto.CompactTextString(m) }
-func (*Account) ProtoMessage()    {}
-func (*Account) Descriptor() ([]byte, []int) {
-	return fileDescriptor_config_48788413522433b8, []int{8}
-}
-func (m *Account) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_Account.Unmarshal(m, b)
-}
-func (m *Account) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_Account.Marshal(b, m, deterministic)
-}
-func (dst *Account) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Account.Merge(dst, src)
-}
-func (m *Account) XXX_Size() int {
-	return xxx_messageInfo_Account.Size(m)
-}
-func (m *Account) XXX_DiscardUnknown() {
-	xxx_messageInfo_Account.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_Account proto.InternalMessageInfo
-
-func (m *Account) GetGithub() *Github {
-	if m != nil {
-		return m.Github
-	}
-	return nil
-}
-
-func (m *Account) GetGitlab() *Gitlab {
-	if m != nil {
-		return m.Gitlab
-	}
-	return nil
-}
-
-func (m *Account) GetBitbucket() *Bitbucket {
-	if m != nil {
-		return m.Bitbucket
-	}
-	return nil
-}
-
-func (m *Account) GetGeneric() *Generic {
-	if m != nil {
-		return m.Generic
-	}
-	return nil
-}
-
-func (m *Account) GetStatic() *Static {
-	if m != nil {
-		return m.Static
-	}
-	return nil
-}
 
 type CloneOverride struct {
 	RepositoryRoot       *wrappers.StringValue `protobuf:"bytes,1,opt,name=repository_root,json=repositoryRoot,proto3" json:"repository_root,omitempty"`
@@ -549,7 +32,7 @@ func (m *CloneOverride) Reset()         { *m = CloneOverride{} }
 func (m *CloneOverride) String() string { return proto.CompactTextString(m) }
 func (*CloneOverride) ProtoMessage()    {}
 func (*CloneOverride) Descriptor() ([]byte, []int) {
-	return fileDescriptor_config_48788413522433b8, []int{9}
+	return fileDescriptor_config_3c000abeacc11847, []int{0}
 }
 func (m *CloneOverride) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CloneOverride.Unmarshal(m, b)
@@ -596,7 +79,7 @@ func (m *CloneConfiguration) Reset()         { *m = CloneConfiguration{} }
 func (m *CloneConfiguration) String() string { return proto.CompactTextString(m) }
 func (*CloneConfiguration) ProtoMessage()    {}
 func (*CloneConfiguration) Descriptor() ([]byte, []int) {
-	return fileDescriptor_config_48788413522433b8, []int{10}
+	return fileDescriptor_config_3c000abeacc11847, []int{1}
 }
 func (m *CloneConfiguration) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CloneConfiguration.Unmarshal(m, b)
@@ -639,7 +122,7 @@ func (m *CloneConfiguration) GetOverrides() map[string]*CloneOverride {
 
 type Configuration struct {
 	Mount                string              `protobuf:"bytes,1,opt,name=mount,proto3" json:"mount,omitempty"`
-	Accounts             []*Account          `protobuf:"bytes,2,rep,name=accounts,proto3" json:"accounts,omitempty"`
+	Accounts             []*config.Account   `protobuf:"bytes,2,rep,name=accounts,proto3" json:"accounts,omitempty"`
 	Clone                *CloneConfiguration `protobuf:"bytes,3,opt,name=clone,proto3" json:"clone,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}            `json:"-"`
 	XXX_unrecognized     []byte              `json:"-"`
@@ -650,7 +133,7 @@ func (m *Configuration) Reset()         { *m = Configuration{} }
 func (m *Configuration) String() string { return proto.CompactTextString(m) }
 func (*Configuration) ProtoMessage()    {}
 func (*Configuration) Descriptor() ([]byte, []int) {
-	return fileDescriptor_config_48788413522433b8, []int{11}
+	return fileDescriptor_config_3c000abeacc11847, []int{2}
 }
 func (m *Configuration) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Configuration.Unmarshal(m, b)
@@ -677,7 +160,7 @@ func (m *Configuration) GetMount() string {
 	return ""
 }
 
-func (m *Configuration) GetAccounts() []*Account {
+func (m *Configuration) GetAccounts() []*config.Account {
 	if m != nil {
 		return m.Accounts
 	}
@@ -692,76 +175,38 @@ func (m *Configuration) GetClone() *CloneConfiguration {
 }
 
 func init() {
-	proto.RegisterType((*Basic)(nil), "mjpitz.gitfs.Basic")
-	proto.RegisterType((*OAuthToken)(nil), "mjpitz.gitfs.OAuthToken")
-	proto.RegisterType((*OAuth2Token)(nil), "mjpitz.gitfs.OAuth2Token")
-	proto.RegisterType((*Github)(nil), "mjpitz.gitfs.Github")
-	proto.RegisterType((*Gitlab)(nil), "mjpitz.gitfs.Gitlab")
-	proto.RegisterType((*Bitbucket)(nil), "mjpitz.gitfs.Bitbucket")
-	proto.RegisterType((*Generic)(nil), "mjpitz.gitfs.Generic")
-	proto.RegisterType((*Static)(nil), "mjpitz.gitfs.Static")
-	proto.RegisterType((*Account)(nil), "mjpitz.gitfs.Account")
-	proto.RegisterType((*CloneOverride)(nil), "mjpitz.gitfs.CloneOverride")
-	proto.RegisterType((*CloneConfiguration)(nil), "mjpitz.gitfs.CloneConfiguration")
-	proto.RegisterMapType((map[string]*CloneOverride)(nil), "mjpitz.gitfs.CloneConfiguration.OverridesEntry")
-	proto.RegisterType((*Configuration)(nil), "mjpitz.gitfs.Configuration")
+	proto.RegisterType((*CloneOverride)(nil), "mjpitz.gitfs.config.CloneOverride")
+	proto.RegisterType((*CloneConfiguration)(nil), "mjpitz.gitfs.config.CloneConfiguration")
+	proto.RegisterMapType((map[string]*CloneOverride)(nil), "mjpitz.gitfs.config.CloneConfiguration.OverridesEntry")
+	proto.RegisterType((*Configuration)(nil), "mjpitz.gitfs.config.Configuration")
 }
 
-func init() { proto.RegisterFile("config.proto", fileDescriptor_config_48788413522433b8) }
+func init() { proto.RegisterFile("config.proto", fileDescriptor_config_3c000abeacc11847) }
 
-var fileDescriptor_config_48788413522433b8 = []byte{
-	// 847 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xc4, 0x56, 0xcd, 0x6e, 0x23, 0x45,
-	0x10, 0xd6, 0xc4, 0x19, 0xdb, 0x53, 0x8e, 0xc3, 0xaa, 0x09, 0x62, 0x36, 0xcb, 0xc1, 0x1a, 0x81,
-	0x08, 0xd2, 0x6a, 0xac, 0x78, 0xf9, 0x59, 0xe0, 0x94, 0x44, 0xab, 0xd5, 0x1e, 0xd0, 0xae, 0x26,
-	0xbb, 0x48, 0x20, 0x21, 0xab, 0x3d, 0x2e, 0x4f, 0x9a, 0x8c, 0xa7, 0x5b, 0xdd, 0x3d, 0x59, 0x9c,
-	0x37, 0xe0, 0xc6, 0x4b, 0xf0, 0x0e, 0xbc, 0x0a, 0x0f, 0xc1, 0x81, 0x33, 0x17, 0xd4, 0x3f, 0x13,
-	0xc7, 0x36, 0x22, 0x8e, 0x38, 0x70, 0xeb, 0x9e, 0xfe, 0xaa, 0xbf, 0xaa, 0xaf, 0xbe, 0x6a, 0x1b,
-	0xf6, 0x72, 0x5e, 0xcd, 0x58, 0x91, 0x0a, 0xc9, 0x35, 0x27, 0x7b, 0xf3, 0x1f, 0x05, 0xd3, 0xd7,
-	0x69, 0xc1, 0xf4, 0x4c, 0x1d, 0x7e, 0x59, 0x30, 0x7d, 0x51, 0x4f, 0xd2, 0x9c, 0xcf, 0x87, 0x05,
-	0x2f, 0x69, 0x55, 0x0c, 0x2d, 0x6c, 0x52, 0xcf, 0x86, 0x42, 0x2f, 0x04, 0xaa, 0xe1, 0x5b, 0x49,
-	0x85, 0x40, 0xb9, 0x5c, 0xb8, 0x8b, 0x92, 0x1f, 0x20, 0x3c, 0xa5, 0x8a, 0xe5, 0xe4, 0x10, 0xba,
-	0xb5, 0x42, 0x59, 0xd1, 0x39, 0xc6, 0xc1, 0x20, 0x38, 0x8a, 0xb2, 0x9b, 0x3d, 0x79, 0x0a, 0x5d,
-	0x41, 0x95, 0x7a, 0xcb, 0xe5, 0x34, 0xde, 0x19, 0x04, 0x47, 0xbd, 0xd1, 0x07, 0x69, 0xc1, 0x79,
-	0x51, 0x62, 0xda, 0xf0, 0xa4, 0xe7, 0x5a, 0xb2, 0xaa, 0xf8, 0x96, 0x96, 0x35, 0x66, 0x37, 0xe8,
-	0xa4, 0x00, 0x78, 0x79, 0x52, 0xeb, 0x8b, 0xd7, 0xfc, 0x12, 0x2b, 0x72, 0x00, 0xa1, 0x36, 0x0b,
-	0x4f, 0xe0, 0x36, 0xe4, 0x0c, 0xf6, 0xa9, 0x10, 0x25, 0xcb, 0xa9, 0x66, 0xbc, 0x1a, 0xb3, 0xed,
-	0x38, 0xfa, 0xb7, 0x62, 0x5e, 0x4c, 0x93, 0xdf, 0x03, 0xe8, 0x59, 0xa6, 0xd1, 0xbf, 0x51, 0x7d,
-	0x0d, 0x60, 0x17, 0x63, 0x23, 0xca, 0x56, 0x34, 0x91, 0xc5, 0xbf, 0x5e, 0x08, 0x24, 0x27, 0xd0,
-	0x97, 0x38, 0x93, 0xa8, 0x2e, 0xc6, 0xee, 0xea, 0xd6, 0x16, 0xf1, 0x7b, 0x3e, 0xc4, 0x65, 0xf5,
-	0x29, 0xb4, 0xf1, 0x27, 0xc1, 0xe4, 0x22, 0xde, 0xdd, 0x22, 0xd6, 0x63, 0x93, 0x3f, 0x02, 0x68,
-	0x3f, 0xb7, 0x1d, 0x26, 0x5f, 0x40, 0x77, 0x42, 0x15, 0x8e, 0x6b, 0x59, 0xda, 0xca, 0xee, 0xba,
-	0xa2, 0x63, 0xd0, 0x6f, 0x64, 0x69, 0x2a, 0xaf, 0x45, 0xc9, 0xe9, 0xd4, 0x86, 0x6e, 0x55, 0xb9,
-	0xc3, 0x9b, 0xe0, 0x03, 0x08, 0x8d, 0x17, 0x54, 0xdc, 0x1a, 0xb4, 0x8c, 0x98, 0x76, 0x43, 0x3e,
-	0x84, 0x3e, 0x97, 0x05, 0xad, 0xd8, 0xb5, 0x6d, 0x82, 0x8a, 0x77, 0xed, 0xe9, 0xea, 0x47, 0x72,
-	0x0c, 0x6d, 0x4e, 0x4d, 0x5f, 0x62, 0xb0, 0xa4, 0x0f, 0xd3, 0xdb, 0xd6, 0x4d, 0x6f, 0xf5, 0x2c,
-	0xf3, 0xc0, 0xe4, 0x57, 0x57, 0x6f, 0x49, 0xff, 0x43, 0xbd, 0x23, 0xe8, 0x08, 0xc9, 0xae, 0xa8,
-	0x46, 0xcf, 0x1b, 0xff, 0x03, 0xaf, 0xa3, 0x6d, 0x80, 0x24, 0x85, 0xd0, 0x66, 0x10, 0xf7, 0xee,
-	0x88, 0x70, 0xb0, 0x64, 0x06, 0xd1, 0x29, 0xd3, 0x93, 0x3a, 0xbf, 0x44, 0x4d, 0x3e, 0x81, 0x70,
-	0x62, 0x06, 0xc9, 0xd3, 0xbd, 0xbb, 0x1a, 0x6c, 0x67, 0x2c, 0x73, 0x88, 0x7b, 0xf3, 0xfc, 0x19,
-	0x40, 0xe7, 0x39, 0x56, 0x28, 0x59, 0x4e, 0x1e, 0xae, 0x09, 0x12, 0x2d, 0x4b, 0x26, 0xb0, 0x2b,
-	0xa8, 0xbe, 0xb0, 0xcd, 0x8d, 0x32, 0xbb, 0x26, 0x8f, 0x81, 0x08, 0x94, 0x63, 0x41, 0x0b, 0x1c,
-	0x0b, 0x2a, 0xe9, 0x1c, 0x35, 0x4a, 0x6b, 0xdc, 0x28, 0x7b, 0x20, 0x50, 0xbe, 0xa2, 0x05, 0xbe,
-	0x6a, 0xbe, 0x93, 0x8f, 0x60, 0x7f, 0x0d, 0xb9, 0x6b, 0x91, 0x7d, 0xb1, 0x02, 0x7b, 0x04, 0x91,
-	0x85, 0x29, 0x76, 0x8d, 0x71, 0x38, 0x08, 0x8e, 0x42, 0x33, 0xf1, 0x05, 0x9e, 0xb3, 0x6b, 0x34,
-	0xef, 0x88, 0xc2, 0x12, 0x73, 0xcd, 0x65, 0xdc, 0x76, 0xef, 0x48, 0xb3, 0xbf, 0x87, 0x46, 0xc9,
-	0x31, 0xb4, 0xcf, 0x35, 0xd5, 0x2c, 0x27, 0x1f, 0xc3, 0x3b, 0x12, 0x05, 0x57, 0x4c, 0x73, 0xb9,
-	0x30, 0x75, 0xab, 0x38, 0xb0, 0x46, 0xdb, 0x5f, 0x7e, 0x7e, 0x23, 0x4b, 0x95, 0xfc, 0x15, 0x40,
-	0xe7, 0x24, 0xcf, 0x79, 0x5d, 0x69, 0xf2, 0x18, 0xda, 0xee, 0x4d, 0xf4, 0xae, 0x39, 0x58, 0xa5,
-	0x72, 0xd3, 0x94, 0x79, 0x8c, 0x47, 0x97, 0x74, 0xe2, 0x07, 0x63, 0x13, 0x5d, 0x52, 0x87, 0x36,
-	0x9e, 0xfc, 0x0c, 0xa2, 0x49, 0xd3, 0x76, 0xff, 0x06, 0xbc, 0xbf, 0x56, 0x49, 0x73, 0x9c, 0x2d,
-	0x91, 0x64, 0x08, 0x9d, 0xc2, 0x35, 0xd1, 0x0f, 0xff, 0x7b, 0x6b, 0x2c, 0xee, 0x30, 0x6b, 0x50,
-	0x26, 0x2b, 0x65, 0x25, 0xb0, 0x1a, 0x6f, 0x64, 0xe5, 0xe4, 0xc9, 0x3c, 0x26, 0xf9, 0x39, 0x80,
-	0xfe, 0x59, 0xc9, 0x2b, 0x7c, 0x79, 0x85, 0x52, 0xb2, 0x29, 0x92, 0x67, 0x2b, 0xc2, 0x49, 0xce,
-	0xf5, 0x56, 0x23, 0x74, 0x4b, 0xd6, 0x8c, 0x73, 0x4d, 0x8e, 0x21, 0x9c, 0xa2, 0xf0, 0xbe, 0xea,
-	0x8d, 0x1e, 0x6d, 0x04, 0xbf, 0xa8, 0xf4, 0x93, 0x91, 0x8b, 0x75, 0xc8, 0xe4, 0xb7, 0x1d, 0x20,
-	0x36, 0x97, 0x33, 0xfb, 0x9b, 0x55, 0x4b, 0xfb, 0x16, 0xfc, 0x7f, 0x09, 0x91, 0x6f, 0x20, 0xe2,
-	0x5e, 0x16, 0x15, 0xc3, 0xa0, 0x75, 0xd4, 0x1b, 0x0d, 0x57, 0xd5, 0xdc, 0x4c, 0x37, 0x6d, 0x84,
-	0x54, 0xcf, 0x2a, 0x2d, 0x17, 0xd9, 0xf2, 0x86, 0xc3, 0xef, 0x60, 0x7f, 0xf5, 0x90, 0x3c, 0x80,
-	0xd6, 0x25, 0x2e, 0xfc, 0x44, 0x9a, 0xa5, 0xc9, 0xf2, 0xca, 0xa4, 0x70, 0x93, 0xe5, 0x26, 0x5d,
-	0x73, 0x47, 0xe6, 0x90, 0x5f, 0xed, 0x3c, 0x0d, 0x92, 0x5f, 0x4c, 0x1b, 0x57, 0x54, 0x3b, 0x80,
-	0x70, 0x6e, 0x3c, 0xdd, 0xfc, 0x92, 0xd9, 0x0d, 0x39, 0x86, 0x2e, 0x75, 0x5e, 0x57, 0xf1, 0x8e,
-	0x2d, 0x68, 0xcd, 0x4e, 0x7e, 0x12, 0xb2, 0x1b, 0x18, 0xf9, 0x1c, 0xc2, 0xdc, 0xd0, 0x7a, 0xcf,
-	0x0e, 0xee, 0x12, 0x20, 0x73, 0xf0, 0xd3, 0xee, 0xf7, 0x6d, 0xf7, 0xdf, 0x63, 0xd2, 0xb6, 0x12,
-	0x3f, 0xf9, 0x3b, 0x00, 0x00, 0xff, 0xff, 0x6b, 0xa5, 0x6e, 0xa8, 0x8c, 0x08, 0x00, 0x00,
+var fileDescriptor_config_3c000abeacc11847 = []byte{
+	// 376 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xc4, 0x51, 0xbd, 0xae, 0xd3, 0x30,
+	0x14, 0x56, 0x52, 0xa5, 0x6a, 0x5d, 0x28, 0xc8, 0x30, 0x44, 0x81, 0xa1, 0xca, 0x42, 0x17, 0x6c,
+	0xd1, 0x4a, 0x55, 0x41, 0x62, 0x80, 0xaa, 0x03, 0x13, 0x52, 0x40, 0x0c, 0x2c, 0x90, 0x26, 0xae,
+	0x6b, 0x9a, 0xfa, 0x58, 0x8e, 0x53, 0x14, 0xde, 0x80, 0x77, 0xe0, 0x79, 0x78, 0xae, 0xab, 0xd8,
+	0x4d, 0x7f, 0xd4, 0x7b, 0xa5, 0xbb, 0xdd, 0xed, 0x58, 0xfe, 0xfe, 0xce, 0x77, 0xd0, 0xa3, 0x0c,
+	0xe4, 0x5a, 0x70, 0xa2, 0x34, 0x18, 0xc0, 0xcf, 0x76, 0xbf, 0x94, 0x30, 0x7f, 0x08, 0x17, 0x66,
+	0x5d, 0x12, 0xf7, 0x15, 0xbd, 0xe5, 0xc2, 0x6c, 0xaa, 0x15, 0xc9, 0x60, 0x47, 0x39, 0x14, 0xa9,
+	0xe4, 0xd4, 0xa2, 0x57, 0xd5, 0x9a, 0x2a, 0x53, 0x2b, 0x56, 0xd2, 0xdf, 0x3a, 0x55, 0x8a, 0xe9,
+	0xd3, 0xe0, 0xf4, 0xa2, 0xd7, 0x67, 0x54, 0x27, 0x4d, 0x75, 0x5e, 0x52, 0xb5, 0xe5, 0xd4, 0x89,
+	0xd3, 0x73, 0xfb, 0xf8, 0xaf, 0x87, 0x1e, 0x2f, 0x0a, 0x90, 0xec, 0xf3, 0x9e, 0x69, 0x2d, 0x72,
+	0x86, 0x97, 0xe8, 0x89, 0x66, 0x0a, 0x4a, 0x61, 0x40, 0xd7, 0x3f, 0x34, 0x80, 0x09, 0xbd, 0x91,
+	0x37, 0x1e, 0x4c, 0x5e, 0x12, 0x0e, 0xc0, 0x0b, 0x46, 0xda, 0x28, 0xe4, 0x8b, 0xd1, 0x42, 0xf2,
+	0x6f, 0x69, 0x51, 0xb1, 0x64, 0x78, 0x22, 0x25, 0x00, 0x06, 0xbf, 0x41, 0x41, 0xce, 0x94, 0xd9,
+	0x84, 0xbe, 0x25, 0xbf, 0xb8, 0x22, 0x7f, 0x92, 0x66, 0x3a, 0x71, 0x5c, 0x87, 0x8c, 0xff, 0xfb,
+	0x08, 0xdb, 0x2c, 0x0b, 0x9b, 0xb0, 0xd2, 0xa9, 0x11, 0x20, 0x1f, 0x2e, 0x10, 0xfe, 0x8a, 0xfa,
+	0x70, 0xa8, 0xa5, 0x0c, 0xd1, 0xa8, 0x33, 0x1e, 0x4c, 0x66, 0xe4, 0x96, 0x7b, 0x91, 0xeb, 0xd4,
+	0xa4, 0xed, 0xb3, 0x5c, 0x4a, 0xa3, 0xeb, 0xe4, 0x24, 0x14, 0xfd, 0x44, 0xc3, 0xcb, 0x4f, 0xfc,
+	0x14, 0x75, 0xb6, 0xac, 0xb6, 0x5b, 0xf5, 0x93, 0x66, 0xc4, 0x73, 0x14, 0xec, 0x9b, 0x24, 0x87,
+	0xb0, 0xf1, 0xdd, 0xae, 0xad, 0x54, 0xe2, 0x08, 0xef, 0xfc, 0xb9, 0x17, 0xff, 0x6b, 0x8e, 0x7a,
+	0xd1, 0xe1, 0x73, 0x14, 0xec, 0xa0, 0x92, 0xe6, 0xe0, 0xe1, 0x1e, 0x78, 0x86, 0x7a, 0x69, 0x96,
+	0x35, 0x63, 0x19, 0xfa, 0x76, 0xbd, 0xa8, 0x35, 0xd2, 0xf9, 0xd1, 0xe6, 0x83, 0x83, 0x24, 0x47,
+	0x2c, 0x7e, 0x8f, 0x82, 0xac, 0xf1, 0x0e, 0x3b, 0x36, 0xdd, 0xab, 0x7b, 0x76, 0x92, 0x38, 0xd6,
+	0xc7, 0xde, 0xf7, 0xae, 0xc3, 0xac, 0xba, 0xb6, 0xfc, 0xe9, 0x4d, 0x00, 0x00, 0x00, 0xff, 0xff,
+	0xfe, 0x04, 0xd3, 0x66, 0x13, 0x03, 0x00, 0x00,
 }

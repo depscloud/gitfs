@@ -11,9 +11,10 @@ import (
 	"bazil.org/fuse/fs"
 	"github.com/mjpitz/gitfs/pkg/config"
 	"github.com/mjpitz/gitfs/pkg/filesystem"
-	"github.com/mjpitz/gitfs/pkg/remotes"
 	"github.com/mjpitz/gitfs/pkg/tree"
 	"github.com/mjpitz/gitfs/pkg/urls"
+	rds "github.com/mjpitz/rds/pkg/config"
+	"github.com/mjpitz/rds/pkg/remotes"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -38,7 +39,9 @@ var StartCommand = &cobra.Command{
 			fail("failed to parse configuration: %v", err)
 		}
 
-		remote, err := remotes.ParseConfig(cfg)
+		remote, err := remotes.ParseConfig(&rds.Configuration{
+			Accounts: cfg.Accounts,
+		})
 		if err != nil {
 			fail("failed to parse remote configuration: %v", err)
 		}

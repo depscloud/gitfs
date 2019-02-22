@@ -3,3 +3,4 @@ tmp/
 cmd/gitfs/gitfs
 cmd/gitfs-start/gitfs-start
 bin/
+gitfs

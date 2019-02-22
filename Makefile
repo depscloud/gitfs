@@ -9,7 +9,7 @@ test:
 	go test -v -race ./...
 
 install:
-	go build -o "${GOPATH}/bin/gitfs" cmd/gitfs/main.go
+	go install
 
 deploy:
 	mkdir -p bin
