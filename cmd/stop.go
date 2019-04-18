@@ -31,5 +31,7 @@ var StopCommand = &cobra.Command{
 
 		_ = syscall.Unmount(mountpoint, unix.MNT_FORCE)
 		// ignore the error since it's likely not mounted
+
+		logrus.Infof("Successfully unmounted %s", mountpoint)
 	},
 }

@@ -81,7 +81,6 @@ To run, simply execute `gitfs start`.
 When run successfully, you should see an output message similar to the one below.
 
 ```
-[mjpitz@mjpitz ~/Development/go/src/github.com/mjpitz/gitfs master]
 $ gitfs start
 INFO[0000] [main] configured mount point: /Users/mjpitz/Development/code 
 INFO[0000] [main] fetching repositories                 
@@ -127,4 +126,22 @@ $ cd grpcsh
 [mjpitz@mjpitz ~/Development/code/github.com/mjpitz/grpcsh master]
 $ ls
 README.md  bin	package-lock.json  package.json  yarn.lock
+```
+
+### Stopping gitfs
+
+In order to stop the gitfs server, you will need to run the `stop` command.
+This forces the FUSE volume to be unmounted.
+
+```bash
+$ gitfs stop
+INFO[0000] Unmounting /Users/mjpitz/Development/code     
+INFO[0000] Successfully unmounted /Users/mjpitz/Development/code 
+```
+
+Should you run this command and the file system not unmount, you can try using `umount`.
+
+```bash
+# replace with your mount point
+$ sudo umount -f <your_mount_point>
 ```
