@@ -139,7 +139,7 @@ INFO[0000] Unmounting /Users/mjpitz/Development/code
 INFO[0000] Successfully unmounted /Users/mjpitz/Development/code 
 ```
 
-Should you run this command and the file system not unmount, you can try using `umount`.
+Should you run this command and find that the file system did not unmount, you can try using `umount`.
 
 ```bash
 # replace with your mount point
