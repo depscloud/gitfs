@@ -9,7 +9,7 @@ Instead, it creates a virtual directory structure around git urls, making it eas
 
 ## Support
 
-Support on this library is limited right now, but open and under for active development.
+Support on this library is limited right now, but open to and under active development.
 Below, you will find some of the current limitations / capabilities for the project.
 
 [![Build Status](https://travis-ci.org/mjpitz/gitfs.svg?branch=master)](https://travis-ci.org/mjpitz/gitfs)
@@ -17,11 +17,11 @@ Below, you will find some of the current limitations / capabilities for the proj
 
 ### Limited Remote Implementations
 
-Currently, it supports a generic endpoint, but are open to supporting new remotes for various integrations.
+Currently, gitfs supports a generic endpoint, but are open to supporting new remotes for various integrations.
 We are planning to support Github, Gitlab, and Bitbucket in the short term.
 PR's for each of these remotes based on their [config](pkg/config/config.proto) definitions are welcome.
 
-- [ ] [gh-3: Add remote implementation for gitlab](https://github.com/mjpitz/gitfs/issues/3)
+- [x] [gh-3: Add remote implementation for gitlab](https://github.com/mjpitz/gitfs/issues/3)
 - [ ] [gh-2: Add remote implementation for bitbucket](https://github.com/mjpitz/gitfs/issues/2)
 - [x] [gh-1: Add remote implementation for github](https://github.com/mjpitz/gitfs/issues/1)
 
