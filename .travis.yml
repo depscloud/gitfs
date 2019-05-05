@@ -30,6 +30,7 @@ deploy:
     - bin/gitfs_linux_386
     - bin/gitfs_linux_amd64
     - bin/gitfs_linux_arm
+    - bin/gitfs_linux_arm64
   on:
     repo: mjpitz/gitfs
     tags: true

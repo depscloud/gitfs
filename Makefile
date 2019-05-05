@@ -19,3 +19,4 @@ deploy:
 	# special build for linux arm systems, both 32 and 64 bit.
 	# can't build arm64 yet. some code seems to allude to it, but the gox tool still reports an error.
 	gox -os="linux" -arch="arm" -output="bin/{{.Dir}}_{{.OS}}_{{.Arch}}" ./...
+	GOOS=linux GOARCH=arm64 go build -o bin/gitfs_linux_arm64
