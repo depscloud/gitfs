@@ -12,8 +12,9 @@ Instead, it creates a virtual directory structure around git urls, making it eas
 Support on this library is limited right now, but open to and under active development.
 Below, you will find some of the current limitations / capabilities for the project.
 
-[![Build Status](https://travis-ci.org/mjpitz/gitfs.svg?branch=master)](https://travis-ci.org/mjpitz/gitfs)
-[![Go Report Card](https://goreportcard.com/badge/github.com/mjpitz/gitfs)](https://goreportcard.com/report/github.com/mjpitz/gitfs)
+![GitHub](https://img.shields.io/github/license/deps-cloud/gitfs.svg)
+[![Build Status](https://travis-ci.com/deps-cloud/gitfs.svg?branch=master)](https://travis-ci.com/deps-cloud/gitfs)
+[![Go Report Card](https://goreportcard.com/badge/github.com/deps-cloud/gitfs)](https://goreportcard.com/report/github.com/deps-cloud/gitfs)
 
 ### Limited Remote Implementations
 
