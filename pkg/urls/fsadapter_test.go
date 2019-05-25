@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
-	"github.com/mjpitz/gitfs/pkg/config"
-	"github.com/mjpitz/gitfs/pkg/urls"
+	"github.com/deps-cloud/gitfs/pkg/config"
+	"github.com/deps-cloud/gitfs/pkg/urls"
 	"github.com/stretchr/testify/require"
 )
 
@@ -18,7 +18,7 @@ func Test_resolve(t *testing.T) {
 			Value: defaultRoot,
 		},
 		Overrides: map[string]*config.CloneOverride{
-			"github.com:mjpitz/.*": {
+			"github.com:deps-cloud/.*": {
 				RepositoryRoot: &wrappers.StringValue{
 					Value: customRoot,
 				},
@@ -49,8 +49,8 @@ func Test_resolve(t *testing.T) {
 			int32(1),
 		},
 		{
-			"git@github.com:mjpitz/gitfs.git",
-			"8U1R0QCLCDG4562I9O3UQG7JEV3LE1GLREGDAIL4MBPCD3CLGIKG",
+			"git@github.com:deps-cloud/gitfs.git",
+			"67U80TE6S1MFPESL7M5JMNP0R3JAK5BS9ITEA0M405M59AURSV70",
 			customRoot,
 			int32(1),
 		},

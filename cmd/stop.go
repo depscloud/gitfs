@@ -4,7 +4,7 @@ import (
 	"os"
 	"syscall"
 
-	"github.com/mjpitz/gitfs/pkg/config"
+	"github.com/deps-cloud/gitfs/pkg/config"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"golang.org/x/sys/unix"

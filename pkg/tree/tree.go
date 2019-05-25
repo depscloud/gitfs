@@ -3,7 +3,7 @@ package gitfstree
 import (
 	"reflect"
 
-	"github.com/mjpitz/gitfs/pkg/urls"
+	"github.com/deps-cloud/gitfs/pkg/urls"
 )
 
 // NewTreeNode constructs a node that is used during construction of the tree.

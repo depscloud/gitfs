@@ -3,7 +3,7 @@ package urls_test
 import (
 	"testing"
 
-	"github.com/mjpitz/gitfs/pkg/urls"
+	"github.com/deps-cloud/gitfs/pkg/urls"
 	"github.com/stretchr/testify/require"
 )
 
@@ -20,21 +20,21 @@ func parse(t *testing.T, url string, vcs urls.VCS) error {
 }
 
 func Test_ParseUrl(t *testing.T) {
-	require.NoError(t, parse(t, "git@github.com:mjpitz/gitfs.git", urls.GIT))
-	require.NoError(t, parse(t, "https://github.com/mjpitz/gitfs.git", urls.GIT))
-	require.NoError(t, parse(t, "http://github.com/mjpitz/gitfs.git", urls.GIT))
+	require.NoError(t, parse(t, "git@github.com:deps-cloud/gitfs.git", urls.GIT))
+	require.NoError(t, parse(t, "https://github.com/deps-cloud/gitfs.git", urls.GIT))
+	require.NoError(t, parse(t, "http://github.com/deps-cloud/gitfs.git", urls.GIT))
 
-	require.NoError(t, parse(t, "svn://github.com/mjpitz/gitfs", urls.SVN))
-	require.NoError(t, parse(t, "svn+ssh://github.com/mjpitz/gitfs", urls.SVN))
+	require.NoError(t, parse(t, "svn://github.com/deps-cloud/gitfs", urls.SVN))
+	require.NoError(t, parse(t, "svn+ssh://github.com/deps-cloud/gitfs", urls.SVN))
 
-	require.NoError(t, parse(t, "mjpitz/gitfs", urls.MERCURIAL))
-	require.NoError(t, parse(t, "mjpitz/gitfs#master", urls.MERCURIAL))
-	require.NoError(t, parse(t, "file://mjpitz/gitfs", urls.MERCURIAL))
-	require.NoError(t, parse(t, "file://mjpitz/gitfs#master", urls.MERCURIAL))
-	require.NoError(t, parse(t, "https://github.com/mjpitz/gitfs", urls.MERCURIAL))
-	require.NoError(t, parse(t, "https://github.com/mjpitz/gitfs#master", urls.MERCURIAL))
-	require.NoError(t, parse(t, "http://github.com/mjpitz/gitfs", urls.MERCURIAL))
-	require.NoError(t, parse(t, "http://github.com/mjpitz/gitfs#master", urls.MERCURIAL))
-	require.NoError(t, parse(t, "ssh://github.com/mjpitz/gitfs", urls.MERCURIAL))
-	require.NoError(t, parse(t, "ssh://github.com/mjpitz/gitfs#master", urls.MERCURIAL))
+	require.NoError(t, parse(t, "deps-cloud/gitfs", urls.MERCURIAL))
+	require.NoError(t, parse(t, "deps-cloud/gitfs#master", urls.MERCURIAL))
+	require.NoError(t, parse(t, "file://deps-cloud/gitfs", urls.MERCURIAL))
+	require.NoError(t, parse(t, "file://deps-cloud/gitfs#master", urls.MERCURIAL))
+	require.NoError(t, parse(t, "https://github.com/deps-cloud/gitfs", urls.MERCURIAL))
+	require.NoError(t, parse(t, "https://github.com/deps-cloud/gitfs#master", urls.MERCURIAL))
+	require.NoError(t, parse(t, "http://github.com/deps-cloud/gitfs", urls.MERCURIAL))
+	require.NoError(t, parse(t, "http://github.com/deps-cloud/gitfs#master", urls.MERCURIAL))
+	require.NoError(t, parse(t, "ssh://github.com/deps-cloud/gitfs", urls.MERCURIAL))
+	require.NoError(t, parse(t, "ssh://github.com/deps-cloud/gitfs#master", urls.MERCURIAL))
 }

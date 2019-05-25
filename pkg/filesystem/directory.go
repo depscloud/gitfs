@@ -6,8 +6,8 @@ import (
 
 	"bazil.org/fuse"
 	"bazil.org/fuse/fs"
-	"github.com/mjpitz/gitfs/pkg/tree"
-	"github.com/mjpitz/gitfs/pkg/urls"
+	"github.com/deps-cloud/gitfs/pkg/tree"
+	"github.com/deps-cloud/gitfs/pkg/urls"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 )

@@ -3,7 +3,7 @@ package config_test
 import (
 	"testing"
 
-	"github.com/mjpitz/gitfs/pkg/config"
+	"github.com/deps-cloud/gitfs/pkg/config"
 	"github.com/stretchr/testify/require"
 )
 
