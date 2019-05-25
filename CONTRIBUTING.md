@@ -11,7 +11,7 @@ Contributing
 Like many projects, technical documentation is often needed.
 Instead of restricting contributions strictly to engineers, we want to encourage contributions from all walks of life.
 Documentation is open to contributions from the public.
-They can be found under the `docs` folder and hosted on github here: https://mjpitz.github.io/gitfs
+They can be found under the `docs` folder and hosted on github here: https://deps-cloud.github.io/gitfs
 Changes to documentation do not require tickets in advanced, but do require pull requests.
 
 ### as a developer / engineer

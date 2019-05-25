@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mjpitz/gitfs/cmd"
+	"github.com/deps-cloud/gitfs/cmd"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )

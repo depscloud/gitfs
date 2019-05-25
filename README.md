@@ -22,9 +22,9 @@ Currently, gitfs supports a generic endpoint, but are open to supporting new rem
 We are planning to support Github, Gitlab, and Bitbucket in the short term.
 PR's for each of these remotes based on their [config](pkg/config/config.proto) definitions are welcome.
 
-- [x] [gh-3: Add remote implementation for gitlab](https://github.com/mjpitz/gitfs/issues/3)
-- [ ] [gh-2: Add remote implementation for bitbucket](https://github.com/mjpitz/gitfs/issues/2)
-- [x] [gh-1: Add remote implementation for github](https://github.com/mjpitz/gitfs/issues/1)
+- [x] [gh-3: Add remote implementation for gitlab](https://github.com/deps-cloud/gitfs/issues/3)
+- [ ] [gh-2: Add remote implementation for bitbucket](https://github.com/deps-cloud/gitfs/issues/2)
+- [x] [gh-1: Add remote implementation for github](https://github.com/deps-cloud/gitfs/issues/1)
 
 ## Getting Started
 
@@ -49,7 +49,7 @@ brew cask install osxfuse          # OSX
 
 Releases for this project can be found here under github's releases integration.
 
-https://github.com/mjpitz/gitfs/releases
+https://github.com/deps-cloud/gitfs/releases
 
 ### Configuring gitfs
 
@@ -83,12 +83,12 @@ When run successfully, you should see an output message similar to the one below
 
 ```
 $ gitfs start
-INFO[0000] [main] configured mount point: /Users/mjpitz/Development/code 
+INFO[0000] [main] configured mount point: /Users/deps-cloud/Development/code 
 INFO[0000] [main] fetching repositories                 
-INFO[0000] [remotes.github] processing organizations for user: mjpitz 
-INFO[0000] [remotes.github] processing repositories for user: mjpitz 
+INFO[0000] [remotes.github] processing organizations for user: deps-cloud 
+INFO[0000] [remotes.github] processing repositories for user: deps-cloud 
 INFO[0001] [main] parsing repositories into a directory structure 
-INFO[0001] [main] attempting to mount /Users/mjpitz/Development/code 
+INFO[0001] [main] attempting to mount /Users/deps-cloud/Development/code 
 INFO[0001] [main] now serving file system  
 ``` 
 
@@ -97,34 +97,34 @@ For me, I have this set `${HOME}/Development/code`.
 From this directory, you should be able to navigate your projects on Github.
 
 ```
-[mjpitz@mjpitz ~/Development/code]
+[deps-cloud@deps-cloud ~/Development/code]
 $ ls
 github.com
 
-[mjpitz@mjpitz ~/Development/code]
+[deps-cloud@deps-cloud ~/Development/code]
 $ cd github.com/
 
-[mjpitz@mjpitz ~/Development/code/github.com]
+[deps-cloud@deps-cloud ~/Development/code/github.com]
 $ ls
-mjpitz
+deps-cloud
 
-[mjpitz@mjpitz ~/Development/code/github.com]
-$ cd mjpitz/
+[deps-cloud@deps-cloud ~/Development/code/github.com]
+$ cd deps-cloud/
 
-[mjpitz@mjpitz ~/Development/code/github.com/mjpitz]
+[deps-cloud@deps-cloud ~/Development/code/github.com/deps-cloud]
 $ ls
 OpenGrok	   grpc-java	    laas	rpi
-consul-api	   grpc.github.io   mjpitz.com	seo-portal
+consul-api	   grpc.github.io   deps-cloud.com	seo-portal
 docker-clickhouse  grpcsh	    mp		serverless-plugin-simulate
 docker-utils	   hbase-docker     okhttp	simple-daemon-node
 dotfiles	   idea-framework   proctor	spring-config-repo
 generator-idea	   java-gitlab-api  proctorjs
 gitfs		   jgrapht	    proto2-3
 
-[mjpitz@mjpitz ~/Development/code/github.com/mjpitz]
+[deps-cloud@deps-cloud ~/Development/code/github.com/deps-cloud]
 $ cd grpcsh
 
-[mjpitz@mjpitz ~/Development/code/github.com/mjpitz/grpcsh master]
+[deps-cloud@deps-cloud ~/Development/code/github.com/deps-cloud/grpcsh master]
 $ ls
 README.md  bin	package-lock.json  package.json  yarn.lock
 ```
@@ -136,8 +136,8 @@ This forces the FUSE volume to be unmounted.
 
 ```bash
 $ gitfs stop
-INFO[0000] Unmounting /Users/mjpitz/Development/code     
-INFO[0000] Successfully unmounted /Users/mjpitz/Development/code 
+INFO[0000] Unmounting /Users/deps-cloud/Development/code     
+INFO[0000] Successfully unmounted /Users/deps-cloud/Development/code 
 ```
 
 Should you run this command and find that the file system did not unmount, you can try using `umount`.

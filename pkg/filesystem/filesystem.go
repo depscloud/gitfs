@@ -2,8 +2,8 @@ package filesystem
 
 import (
 	"bazil.org/fuse/fs"
-	"github.com/mjpitz/gitfs/pkg/tree"
-	"github.com/mjpitz/gitfs/pkg/urls"
+	"github.com/deps-cloud/gitfs/pkg/tree"
+	"github.com/deps-cloud/gitfs/pkg/urls"
 )
 
 // FileSystem defines the root of the directory tree.

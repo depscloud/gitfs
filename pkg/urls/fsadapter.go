@@ -6,8 +6,8 @@ import (
 	"os"
 	"regexp"
 
-	"github.com/mjpitz/gitfs/pkg/config"
-	"github.com/mjpitz/gitfs/pkg/sync"
+	"github.com/deps-cloud/gitfs/pkg/config"
+	"github.com/deps-cloud/gitfs/pkg/sync"
 	"github.com/pkg/errors"
 	"gopkg.in/src-d/go-billy.v4"
 	"gopkg.in/src-d/go-billy.v4/memfs"

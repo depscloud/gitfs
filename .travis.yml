@@ -32,5 +32,5 @@ deploy:
     - bin/gitfs_linux_arm
     - bin/gitfs_linux_arm64
   on:
-    repo: mjpitz/gitfs
+    repo: deps-cloud/gitfs
     tags: true
