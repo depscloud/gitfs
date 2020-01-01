@@ -7,8 +7,10 @@ import (
 	"path"
 
 	"github.com/ghodss/yaml"
+
 	"github.com/gogo/protobuf/jsonpb"
 	"github.com/gogo/protobuf/proto"
+
 	"github.com/pkg/errors"
 )
 

@@ -8,7 +8,9 @@ import (
 
 	"github.com/deps-cloud/gitfs/pkg/config"
 	"github.com/deps-cloud/gitfs/pkg/sync"
+
 	"github.com/pkg/errors"
+
 	"gopkg.in/src-d/go-billy.v4"
 	"gopkg.in/src-d/go-billy.v4/memfs"
 	"gopkg.in/src-d/go-billy.v4/osfs"

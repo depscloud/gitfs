@@ -6,9 +6,12 @@ import (
 
 	"bazil.org/fuse"
 	"bazil.org/fuse/fs"
+
 	"github.com/deps-cloud/gitfs/pkg/tree"
 	"github.com/deps-cloud/gitfs/pkg/urls"
+
 	"github.com/sirupsen/logrus"
+
 	"golang.org/x/net/context"
 )
 

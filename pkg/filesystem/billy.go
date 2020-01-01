@@ -11,8 +11,11 @@ import (
 	"bazil.org/fuse"
 	"bazil.org/fuse/fs"
 	"bazil.org/fuse/fuseutil"
+
 	"github.com/sirupsen/logrus"
+
 	"golang.org/x/net/context"
+
 	"gopkg.in/src-d/go-billy.v4"
 )
 

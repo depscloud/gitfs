@@ -3,7 +3,7 @@ syntax = "proto3";
 package cloud.deps.gitfs.config;
 
 import "github.com/golang/protobuf/ptypes/wrappers/wrappers.proto";
-import "github.com/deps-cloud/rds/pkg/config/config.proto";
+import "github.com/deps-cloud/discovery/pkg/config/config.proto";
 
 option go_package="config";
 
@@ -21,6 +21,6 @@ message CloneConfiguration {
 
 message Configuration {
     string mount = 1;
-    repeated cloud.deps.rds.config.Account accounts = 2;
+    repeated cloud.deps.discovery.config.Account accounts = 2;
     CloneConfiguration clone = 3;
 }

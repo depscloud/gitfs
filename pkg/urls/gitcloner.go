@@ -2,7 +2,9 @@ package urls
 
 import (
 	"github.com/pkg/errors"
+
 	"github.com/sirupsen/logrus"
+
 	"gopkg.in/src-d/go-billy.v4"
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing/cache"

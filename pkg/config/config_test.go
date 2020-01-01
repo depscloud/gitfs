@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/deps-cloud/gitfs/pkg/config"
+
 	"github.com/stretchr/testify/require"
 )
 
