@@ -2,6 +2,7 @@ package filesystem
 
 import (
 	"bazil.org/fuse/fs"
+
 	"github.com/deps-cloud/gitfs/pkg/tree"
 	"github.com/deps-cloud/gitfs/pkg/urls"
 )

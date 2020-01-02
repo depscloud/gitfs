@@ -3,9 +3,11 @@ package urls_test
 import (
 	"testing"
 
-	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/deps-cloud/gitfs/pkg/config"
 	"github.com/deps-cloud/gitfs/pkg/urls"
+
+	"github.com/golang/protobuf/ptypes/wrappers"
+
 	"github.com/stretchr/testify/require"
 )
 

@@ -5,7 +5,9 @@ import (
 	"os"
 
 	"github.com/deps-cloud/gitfs/cmd"
+
 	"github.com/sirupsen/logrus"
+
 	"github.com/spf13/cobra"
 )
 

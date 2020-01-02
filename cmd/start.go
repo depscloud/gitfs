@@ -9,13 +9,16 @@ import (
 
 	"bazil.org/fuse"
 	"bazil.org/fuse/fs"
+
+	discovery "github.com/deps-cloud/discovery/pkg/config"
+	"github.com/deps-cloud/discovery/pkg/remotes"
 	"github.com/deps-cloud/gitfs/pkg/config"
 	"github.com/deps-cloud/gitfs/pkg/filesystem"
 	"github.com/deps-cloud/gitfs/pkg/tree"
 	"github.com/deps-cloud/gitfs/pkg/urls"
-	rds "github.com/deps-cloud/rds/pkg/config"
-	"github.com/deps-cloud/rds/pkg/remotes"
+
 	"github.com/sirupsen/logrus"
+
 	"github.com/spf13/cobra"
 )
 
@@ -39,7 +42,7 @@ var StartCommand = &cobra.Command{
 			fail("failed to parse configuration: %v", err)
 		}
 
-		remote, err := remotes.ParseConfig(&rds.Configuration{
+		remote, err := remotes.ParseConfig(&discovery.Configuration{
 			Accounts: cfg.Accounts,
 		})
 		if err != nil {
@@ -52,14 +55,14 @@ var StartCommand = &cobra.Command{
 		tree := gitfstree.NewTreeNode()
 
 		logrus.Info("[main] fetching repositories")
-		repositories, err := remote.ListRepositories()
+		response, err := remote.FetchRepositories(&remotes.FetchRepositoriesRequest{})
 		if err != nil {
 			fail("failed to fetch repositories: %v", err)
 		}
 
 		logrus.Info("[main] parsing repositories into a directory structure")
-		for _, repository := range repositories {
-			url, err := urls.ParseURL(repository)
+		for _, repository := range response.Repositories {
+			url, err := urls.ParseURL(repository.RepositoryURL)
 			if err != nil {
 				logrus.Warnf("[main] failed to parse url: %v", err)
 				continue
