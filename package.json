@@ -1,9 +1,9 @@
 {
-  "name": "@deps-cloud/gitfs",
+  "name": "@depscloud/gitfs",
   "description": "Virtual file system for managing your git integrations",
   "version": "0.0.5",
   "repository": {
     "type": "git",
-    "url": "git@github.com:deps-cloud/gitfs.git"
+    "url": "git@github.com:depscloud/gitfs.git"
   }
 }
